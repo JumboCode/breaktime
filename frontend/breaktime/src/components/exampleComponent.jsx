@@ -8,7 +8,7 @@ function ExampleComponent() {
         <div>
             <h1>Breaktime</h1>
             <button onClick={() => setCount((count) => count + 1)}>
-            You have clicked me {count}
+            Henry was here {count}
             </button>
         </div>);
 }
