@@ -1,5 +1,8 @@
 /* This is an example schema */
 
+//im j testing stuff
+//alex ur on my team
+
 const Joi = require('joi');
 
 const exampleSchema = Joi.object({
