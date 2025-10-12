@@ -6,15 +6,14 @@
 
 import PWABadge from './PWABadge.jsx';
 import ExampleComponent from './components/exampleComponent.jsx';
-import userSignup from './components/exampleComponent.jsx';
+import UserSignup from './components/userSignup.jsx';
 
 
 function App() {
 
   return (
     <>
-      <ExampleComponent/>
-      <userSignup/>
+      <UserSignup/>
 
       <PWABadge />
     </>
