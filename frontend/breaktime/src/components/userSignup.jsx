@@ -19,7 +19,7 @@ function UserSignup() {
     }
 
     return (
-        <div>
+        <form>
             <label htmlFor="firstName">First Name: </label>
             <input 
                 type="text" 
@@ -48,7 +48,8 @@ function UserSignup() {
                 value={formData.gender} 
                 onChange={handleChange}>
             </input>
-        </div>);
+            <button type="submit">Submit</button>
+        </form>);
 }
 
 export default UserSignup;
