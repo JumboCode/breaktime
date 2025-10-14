@@ -36,7 +36,7 @@ function UserSignup() {
             </input>
             <label htmlFor="age">Age: </label>
             <input 
-                type="text" 
+                type="number" 
                 id="age" 
                 value={formData.age} 
                 onChange={handleChange}>
