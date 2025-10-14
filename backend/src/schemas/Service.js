@@ -6,7 +6,6 @@ const servicesSchema = Joi.object({
    Title: Joi.string(),
    Availability : Joi.string(),
    id: Joi.string()
-  
 });
 
 module.exports = { servicesSchema };
