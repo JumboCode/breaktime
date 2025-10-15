@@ -1,7 +1,12 @@
 const Joi = require('joi');
 
 const userSchema = Joi.object({
-    // TODO: add fields here
+    firstName: Joi.string(),
+    lastName: Joi.string(),
+    age: Joi.int(),
+    gender: Joi.string(),
+    ethnicity: Joi.string(),
+    zone: Joi.string()
 });
 
-module.exports = { userSchema};
+module.exports = { userSchema };
