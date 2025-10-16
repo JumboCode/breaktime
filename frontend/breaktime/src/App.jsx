@@ -4,17 +4,19 @@
  * 
  */
 
-import PWABadge from './PWABadge.jsx';
-import ExampleComponent from './components/exampleComponent.jsx';
+// import PWABadge from './PWABadge.jsx';
+// import ExampleComponent from './components/exampleComponent.jsx';
+import StaffSignUpComponent from './components/staffSignUpComponent.jsx';
 
 
 function App() {
 
   return (
     <>
-      <ExampleComponent/>
+      <StaffSignUpComponent />
+      {/* <ExampleComponent/> */}
 
-      <PWABadge />
+      {/* <PWABadge /> */}
     </>
   );
 }
