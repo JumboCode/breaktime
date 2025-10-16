@@ -2,13 +2,17 @@
 
 const Joi = require('joi');
 
-const exampleSchema = Joi.object({
+const baseExampleSchema = Joi.object({
    firstName: Joi.string(),
    lastName: Joi.string(),
    email: Joi.string(),
    password : Joi.string(),
    id: Joi.string()
-  
 });
 
-module.exports = { exampleSchema };
+const exampleForkedSchema = baseExampleSchema.fork(
+   ['firstName', 'lastName', 'email', 'password'],
+   (schema) => schema.required()
+);
+
+module.exports = { baseExampleSchema, exampleForkedSchema };

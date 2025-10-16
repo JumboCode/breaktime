@@ -5,14 +5,18 @@
  * under the Routes section
  */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 
 /* Initializing Express */
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 /* Routes */
+const exampleRoutes = require('./routes/exampleRoute');
+
+app.use('/example', exampleRoutes);
 
 module.exports = app;
