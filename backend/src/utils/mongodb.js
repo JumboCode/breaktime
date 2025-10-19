@@ -11,7 +11,6 @@ const MONGODB_URI = process.env.MONGODB_URI;
 let client, mongodbPromise;
 
 if (!mongodbPromise) {
-    console.log(MONGODB_URI);
     client = new MongoClient(MONGODB_URI);
     mongodbPromise = client.connect();
 }
