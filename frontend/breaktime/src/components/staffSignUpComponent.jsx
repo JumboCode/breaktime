@@ -29,8 +29,8 @@ export default function StaffSignUpComponent() {
   };
 
   return (
-    <div className="outter div" style="">
-      <div className="">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
 
         <h2 className="text-2xl font-semibold text-center mb-4">
           Welcome Back!
@@ -38,15 +38,15 @@ export default function StaffSignUpComponent() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="firstName"
+              htmlFor="userID"
               className="block text-sm font-medium text-grey-700"
             >
-              First Name
+              ID
             </label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
+              id="userID"
+              name="userID"
               value={formData.firstName}
               onChange={handleChange}
               required
@@ -55,15 +55,15 @@ export default function StaffSignUpComponent() {
           </div>
           <div>
             <label
-              htmlFor="lastName"
+              htmlFor="userPin"
               className="block text-sm font-medium text-gray-700"
             >
-              Last Name
+              Pin
             </label>
             <input
               type="text"
-              id="lastName"
-              name="lastName"
+              id="userPin"
+              name="userPin"
               value={formData.lastName}
               onChange={handleChange}
               required
@@ -72,7 +72,7 @@ export default function StaffSignUpComponent() {
           </div>
           <div>
             <label
-              htmlFor="email"
+              htmlFor=""
               className="block text-sm font-medium text-gray-700"
             >
               Email
