@@ -1,5 +1,5 @@
 import { useState } from "react";
-import './staffSignUpComponent.css';
+import '../staffSignUpComponent.css';
 // Create the StaffSignUpComponent functional component
 export default function StaffSignUpComponent() {
   // Initialize state to store form data
@@ -29,7 +29,7 @@ export default function StaffSignUpComponent() {
   };
 
   return (
-    <div>
+    <div className="">
       <div className="">
 
         <h2 className="text-2xl font-semibold text-center mb-4">
