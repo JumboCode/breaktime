@@ -29,11 +29,11 @@ export default function StaffSignUpComponent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+    <div className="outter div" style="">
+      <div className="">
 
         <h2 className="text-2xl font-semibold text-center mb-4">
-          Staff Sign Up
+          Welcome Back!
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
