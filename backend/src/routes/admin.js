@@ -15,7 +15,7 @@ const usernameSchema = Joi.object({
  * @returns {Promise<boolean>} - Returns true if successful
  * @throws {Error} - Throws error if removal fails
  */
-async function removeAccountFromDB(username) {
+async function removeAccountFromDB(username, res) {
     try {
         const client = await mongodbPromise;
         const database = client.db('requests');
@@ -24,7 +24,7 @@ async function removeAccountFromDB(username) {
         const result = await collection.deleteOne({ username });
 
         if (result.deletedCount === 0) {
-            throw new Error('Account not found in database');
+            res.status(404).send("Account not found in database");
         }
 
         return true;
@@ -102,7 +102,7 @@ router.post('/approve', async (req, res) => {
         });
 
         // Remove from pending accounts in MongoDB
-        await removeAccountFromDB(username);
+        await removeAccountFromDB(username, res);
 
         res.status(200).send({
             message: 'Account successfully approved',
