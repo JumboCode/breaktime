@@ -6,9 +6,10 @@ const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { userSchema } = require('../schemas/user');
+const { clerkClient } = require('@clerk/clerk-sdk-node'); 
 
 
-router.get('/mongodb', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const client = await mongodbPromise;
         const database = client.db('requests');
@@ -17,12 +18,15 @@ router.get('/mongodb', async (req, res) => {
         const { error } = userSchema.validate(req.body);
         
         if (error) {
-                res.status(400).send(error.details[0].message);
+                return res.status(400).send(error.details[0].message);
         } else {
                 const { firstName, lastName, password, age, gender, race, zone } = req.body;
 
-                const username = username_generation();
-
+                let username = username_generation();
+                while (await collection.findOne({ username })) {
+                        username = username_generation();
+                }
+            
                 const newUser = {
                         firstName, 
                         lastName,
@@ -30,11 +34,6 @@ router.get('/mongodb', async (req, res) => {
                 };
 
                 const document = await collection.insertOne(newUser);
-    
-                res.status(200).send({
-                    message : 'User successfully created',
-                    _id: document.insertedId
-                });
 
                 const clerkUser = {
                         username: username,
@@ -49,15 +48,18 @@ router.get('/mongodb', async (req, res) => {
                 };
 
                 const user = await clerkClient.users.createUser(clerkUser);
-                return NextResponse.json({ message: 'User created successfully', user });
+                return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
 
         }
 
-    } catch {
-        
+    } catch (error){
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
     }
-} 
-);
+});
 
 function username_generation() {
         rand = Math.floor(Math.random() * 100000000);
@@ -65,5 +67,6 @@ function username_generation() {
 }
 
 
+module.exports = router;
 
 
