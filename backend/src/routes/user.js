@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { userSchema } = require('../schemas/user');
-const { clerkClient } = require('@clerk/clerk-sdk-node'); 
+const clerkClient = require('../utils/clerk');
 
 /* * POST /create :
  *      summary: creates a new user entry in collection
@@ -92,12 +92,14 @@ router.post('/create', async (req, res) => {
                                 age: age,
                                 gender: gender,
                                 zone: zone
-                        },
+                        }
                 };
 
                 // Await clerk return, return success
                 const user = await clerkClient.users.createUser(clerkUser);
-                return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
+                return res.status(200).json({ 
+                        message: 'User created successfully', _id: document.insertedId, user 
+                });
         }
 
     } catch (error){
@@ -113,10 +115,8 @@ router.post('/create', async (req, res) => {
 // Example: YA_12345678
 function username_generation() {
         rand = Math.floor(Math.random() * 100000000);
-        return 'YA_' + String(rand).padStart(8, '0');
+        return 'ya_' + String(rand).padStart(8, '0');
 }
 
 // Export this module so it's available to other users
 module.exports = router;
-
-

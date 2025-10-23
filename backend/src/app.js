@@ -18,9 +18,11 @@ app.use(express.json());
 const exampleRoutes = require('./routes/exampleRoute');
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
+const adminRoutes = require('./routes/admin');
 
 app.use('/example', exampleRoutes);
 app.use('/user', userRoutes);
 app.use('/staff', staffRoutes);
+app.use('/admin', adminRoutes);
 
 module.exports = app;
