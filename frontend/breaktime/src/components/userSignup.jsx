@@ -3,20 +3,20 @@ import { useState } from 'react';
 
 function UserSignup() {
     const [formData, setFormData] = useState ({
-        firstName: '',
-        lastName: '',
-        age: '',
-        gender: '',
-        ethnicity: '',
-        zone: ''
+        firstName: "",
+        lastName: "",
+        age: "",
+        gender: "",
+        ethnicity: "",
+        zone: "",
     });
 
     
     const handleChange = (event) => {
-        const { id, value } = event.target;
+        const { name, value } = event.target;
         setFormData((prevData) => ({
             ...prevData,
-            [id]: value
+            [name]: value
         }));
     };
 

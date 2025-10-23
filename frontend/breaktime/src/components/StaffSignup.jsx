@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-// Create the StaffSignUpComponent functional component
-export default function StaffSignUpComponent() {
+// Create the StaffSignup functional component
+export default function StaffSignup() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     firstName: "",
@@ -29,34 +29,31 @@ export default function StaffSignUpComponent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+    <div className ="font-all">
+      <div >
 
-        <h2 className="text-2xl font-semibold text-center mb-4">
+        <h2>
           Staff Sign Up
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="firstName"
-              className="block text-sm font-medium text-grey-700"
             >
-              First Name
             </label>
             <input
               type="text"
               id="firstName"
               name="firstName"
+              placeholder="First Name"
               value={formData.firstName}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="lastName"
-              className="block text-sm font-medium text-gray-700"
             >
               Last Name
             </label>
@@ -67,13 +64,11 @@ export default function StaffSignUpComponent() {
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
             >
               Email
             </label>
@@ -84,13 +79,11 @@ export default function StaffSignUpComponent() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="emailConfirmation"
-              className="block text-sm font-medium text-gray-700"
             >
               Confirm Email
             </label>
@@ -101,13 +94,11 @@ export default function StaffSignUpComponent() {
               value={formData.emailConfirmation}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
             >
               Username
             </label>
@@ -118,13 +109,11 @@ export default function StaffSignUpComponent() {
               value={formData.username}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
             >
               Password
             </label>
@@ -135,15 +124,14 @@ export default function StaffSignUpComponent() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="uppercase bg-lime-500 text-3.5xl px-5 py-3 rounded-full semi-bold"
             >
-            Sign Up
+            Create Account
             </button>
           </div>
         </form>
