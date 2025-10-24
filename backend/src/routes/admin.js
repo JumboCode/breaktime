@@ -111,9 +111,19 @@ router.post('/approve', async (req, res) => {
 
         // Update permission level in Clerk
         // First, find the Clerk user by username
-        const clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+        let clerkUsers;
+        try {
+            clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+            console.log('Clerk getUserList response:', clerkUsers);
+        } catch (clerkError) {
+            console.error('Error fetching user from Clerk:', clerkError);
+            return res.status(500).send({
+                message: 'Error fetching user from Clerk',
+                error: clerkError.message
+            });
+        }
 
-        if (!clerkUsers || clerkUsers.data.length === 0) {
+        if (!clerkUsers || !clerkUsers.data || clerkUsers.data.length === 0) {
             return res.status(404).send({
                 message: 'User not found in Clerk database'
             });
@@ -122,12 +132,20 @@ router.post('/approve', async (req, res) => {
         const clerkUserId = clerkUsers.data[0].id;
 
         // Update the permission in Clerk's publicMetadata
-        await clerkClient.users.updateUser(clerkUserId, {
-            publicMetadata: {
-                ...clerkUsers.data[0].publicMetadata,
-                permission: String(permissionLevel)
-            }
-        });
+        try {
+            await clerkClient.users.updateUser(clerkUserId, {
+                publicMetadata: {
+                    ...clerkUsers.data[0].publicMetadata,
+                    permission: String(permissionLevel)
+                }
+            });
+        } catch (clerkError) {
+            console.error('Error updating user in Clerk:', clerkError);
+            return res.status(500).send({
+                message: 'Error updating user in Clerk',
+                error: clerkError.message
+            });
+        }
 
         //IMPORTANT
         //NEED TO DELETE THIS USER FROM THE MONGODB AT THE END OF THIS
@@ -188,20 +206,39 @@ router.post('/deny', async (req, res) => {
 
         const { username } = req.body;
 
-        // Remove from pending accounts in MongoDB (will throw error if not found)
-        await removeAccountFromDB(username);
+        // First, delete the user from Clerk
+        let clerkUsers;
+        try {
+            clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+            console.log('Clerk getUserList response:', clerkUsers);
+        } catch (clerkError) {
+            console.error('Error fetching user from Clerk:', clerkError);
+            return res.status(500).send({
+                message: 'Error fetching user from Clerk',
+                error: clerkError.message
+            });
+        }
 
-        // Second, delete the user from Clerk
-        const clerkUsers = await clerkClient.users.getUserList({ username: [username] });
-
-        if (!clerkUsers || clerkUsers.data.length === 0) {
+        if (!clerkUsers || !clerkUsers.data || clerkUsers.data.length === 0) {
             return res.status(404).send({
                 message: 'User not found in Clerk database'
             });
         }
 
         const clerkUserId = clerkUsers.data[0].id;
-        await clerkClient.users.deleteUser(clerkUserId);
+
+        try {
+            await clerkClient.users.deleteUser(clerkUserId);
+        } catch (clerkError) {
+            console.error('Error deleting user from Clerk:', clerkError);
+            return res.status(500).send({
+                message: 'Error deleting user from Clerk',
+                error: clerkError.message
+            });
+        }
+
+        // Remove from pending accounts in MongoDB (will throw error if not found)
+        await removeAccountFromDB(username);
 
         
 
