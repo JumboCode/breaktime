@@ -1,11 +1,3 @@
-//this code should work for approving and denying pending users in the Clerk and MongoDB collections
-//IMPORTANT
-/*
- * I am able to test approval and denial of users from the MongoDB side
- * Because Account creation is not yet ready, I cannot test whether or not approval properly updates the metadata in Clerk
- * I need access to Clerk or need a working version of Account creation, which is B2B.
- */
-
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
@@ -69,9 +61,23 @@ async function removeAccountFromDB(username) {
  * */
 router.post('/approve', async (req, res) => {
     try {
+        // Debug: Print all users in Clerk database
+        try {
+            const allClerkUsers = await clerkClient.users.getUserList();
+            console.log('\n=== ALL CLERK USERS ===');
+            console.log('Response type:', Array.isArray(allClerkUsers) ? 'Array' : 'Object');
+            console.log('Total users:', Array.isArray(allClerkUsers) ? allClerkUsers.length : allClerkUsers?.totalCount);
+            const userList = Array.isArray(allClerkUsers) ? allClerkUsers : allClerkUsers?.data || [];
+            userList.forEach(user => {
+                console.log(`- Username: ${user.username}, ID: ${user.id}`);
+            });
+            console.log('======================\n');
+        } catch (debugError) {
+            console.error('Error fetching all Clerk users:', debugError);
+        }
+
         // Validate request body
         const { error } = usernameSchema.validate(req.body);
-
         if (error) {
             return res.status(400).send({
                 message: 'Invalid request body',
@@ -80,14 +86,12 @@ router.post('/approve', async (req, res) => {
         }
 
         const { username } = req.body;
-
         // Get pending user from MongoDB
         const client = await mongodbPromise;
         const database = client.db('requests');
         const collection = database.collection('accounts');
 
         const pendingUser = await collection.findOne({ username });
-
         if (!pendingUser) {
             return res.status(404).send({
                 message: 'User not found in pending requests'
@@ -102,7 +106,6 @@ router.post('/approve', async (req, res) => {
             { username },
             { $set: { permissionLevel } }
         );
-
         if (result.modifiedCount === 0) {
             return res.status(500).send({
                 message: 'Failed to update permission level'
@@ -110,7 +113,6 @@ router.post('/approve', async (req, res) => {
         }
 
         // Update permission level in Clerk
-        // First, find the Clerk user by username
         let clerkUsers;
         try {
             clerkUsers = await clerkClient.users.getUserList({ username: [username] });
@@ -123,19 +125,23 @@ router.post('/approve', async (req, res) => {
             });
         }
 
-        if (!clerkUsers || !clerkUsers.data || clerkUsers.data.length === 0) {
+        // Handle both array and object response types
+        const userList = Array.isArray(clerkUsers) ? clerkUsers : clerkUsers?.data || [];
+
+        if (!userList || userList.length === 0) {
             return res.status(404).send({
                 message: 'User not found in Clerk database'
             });
         }
 
-        const clerkUserId = clerkUsers.data[0].id;
+        const clerkUser = userList[0];
+        const clerkUserId = clerkUser.id;
 
         // Update the permission in Clerk's publicMetadata
         try {
             await clerkClient.users.updateUser(clerkUserId, {
                 publicMetadata: {
-                    ...clerkUsers.data[0].publicMetadata,
+                    ...clerkUser.publicMetadata,
                     permission: String(permissionLevel)
                 }
             });
@@ -194,9 +200,23 @@ router.post('/approve', async (req, res) => {
 
 router.post('/deny', async (req, res) => {
     try {
+        // Debug: Print all users in Clerk database
+        try {
+            const allClerkUsers = await clerkClient.users.getUserList();
+            console.log('\n=== ALL CLERK USERS ===');
+            console.log('Response type:', Array.isArray(allClerkUsers) ? 'Array' : 'Object');
+            console.log('Total users:', Array.isArray(allClerkUsers) ? allClerkUsers.length : allClerkUsers?.totalCount);
+            const userList = Array.isArray(allClerkUsers) ? allClerkUsers : allClerkUsers?.data || [];
+            userList.forEach(user => {
+                console.log(`- Username: ${user.username}, ID: ${user.id}`);
+            });
+            console.log('======================\n');
+        } catch (debugError) {
+            console.error('Error fetching all Clerk users:', debugError);
+        }
+
         // Validate request body
         const { error } = usernameSchema.validate(req.body);
-
         if (error) {
             return res.status(400).send({
                 message: 'Invalid request body',
@@ -205,7 +225,6 @@ router.post('/deny', async (req, res) => {
         }
 
         const { username } = req.body;
-
         // First, delete the user from Clerk
         let clerkUsers;
         try {
@@ -219,14 +238,15 @@ router.post('/deny', async (req, res) => {
             });
         }
 
-        if (!clerkUsers || !clerkUsers.data || clerkUsers.data.length === 0) {
+        // Handle both array and object response types
+        const userList = Array.isArray(clerkUsers) ? clerkUsers : clerkUsers?.data || [];
+        if (!userList || userList.length === 0) {
             return res.status(404).send({
                 message: 'User not found in Clerk database'
             });
         }
 
-        const clerkUserId = clerkUsers.data[0].id;
-
+        const clerkUserId = userList[0].id;
         try {
             await clerkClient.users.deleteUser(clerkUserId);
         } catch (clerkError) {
@@ -239,8 +259,6 @@ router.post('/deny', async (req, res) => {
 
         // Remove from pending accounts in MongoDB (will throw error if not found)
         await removeAccountFromDB(username);
-
-        
 
         res.status(200).send({
             message: 'Account successfully denied and removed',
@@ -257,7 +275,7 @@ router.post('/deny', async (req, res) => {
                 error: error.message
             });
         }
-
+        
         res.status(500).send({
             message: 'Error denying account',
             error: error.message
