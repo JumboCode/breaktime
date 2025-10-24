@@ -30,7 +30,8 @@ router.post('/', async (req, res) => {
                 const newUser = {
                         firstName, 
                         lastName,
-                        username
+                        username,
+                        permissionLevel: 0
                 };
 
                 const document = await collection.insertOne(newUser);
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
                         username: username,
                         password: password,
                         publicMetadata: {
-                                permission: '1',
+                                permission: '0',
                                 race: race,
                                 age: age,
                                 gender: gender,
