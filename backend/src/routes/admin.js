@@ -1,6 +1,8 @@
+//in the B2B ticket we need the meta data formatted properly
+//meta data can contain whatever stuff, but we need at least a username and a permission level to set
+
 const express = require('express');
 const router = express.Router();
-const clerkClient = require('../utils/clerk');
 const mongodbPromise = require('../utils/mongodb');
 const Joi = require('joi');
 
@@ -13,9 +15,9 @@ const usernameSchema = Joi.object({
  * Helper function to remove an account from MongoDB
  * @param {string} username - The username of the account to remove
  * @returns {Promise<boolean>} - Returns true if successful
- * @throws {Error} - Throws error if removal fails
+ * @throws {Error} - Throws error if removal fails or account not found
  */
-async function removeAccountFromDB(username, res) {
+async function removeAccountFromDB(username) {
     try {
         const client = await mongodbPromise;
         const database = client.db('requests');
@@ -24,7 +26,7 @@ async function removeAccountFromDB(username, res) {
         const result = await collection.deleteOne({ username });
 
         if (result.deletedCount === 0) {
-            res.status(404).send("Account not found in database");
+            throw new Error('Account not found in database');
         }
 
         return true;
@@ -34,7 +36,8 @@ async function removeAccountFromDB(username, res) {
 }
 
 /* * POST /approve :
- *      summary: Approves a pending account request by updating user permissions and removing from pending collection
+ *      summary: Approves a pending account request by updating permission level in MongoDB
+ *      description: Permission level is automatically determined from username prefix (YA_ = 1, otherwise = 2)
  *
  *      requestBody:
  *          required: true
@@ -44,21 +47,17 @@ async function removeAccountFromDB(username, res) {
  *                  properties:
  *                    username:
  *                      type: String
- *                    permissionLevel:
- *                      type: Number
- *                      description: Permission level (1 for YA, 2 for Staff)
  *
  *                  required:
  *                      - username
- *                      - permissionLevel
  *
  *      responses:
  *        200:
- *          description: - Account successfully approved
+ *          description: - Account successfully approved, permission level updated
  *        400:
  *          description: - Missing username or invalid request body
  *        404:
- *          description: - Username not found in Clerk
+ *          description: - Username not found in pending requests
  *        500:
  *          description: - Internal server error
  * */
@@ -74,35 +73,35 @@ router.post('/approve', async (req, res) => {
             });
         }
 
-        const { username, permissionLevel } = req.body;
+        const { username } = req.body;
 
-        // Validate permission level
-        if (!permissionLevel || (permissionLevel !== 1 && permissionLevel !== 2)) {
-            return res.status(400).send({
-                message: 'Invalid permission level. Must be 1 (YA) or 2 (Staff)'
-            });
-        }
+        // Get pending user from MongoDB
+        const client = await mongodbPromise;
+        const database = client.db('requests');
+        const collection = database.collection('accounts');
 
-        // Get user from Clerk by username
-        const userList = await clerkClient.users.getUserList({ username: [username] });
+        const pendingUser = await collection.findOne({ username });
 
-        if (!userList || userList.totalCount === 0) {
+        if (!pendingUser) {
             return res.status(404).send({
-                message: 'User not found in Clerk'
+                message: 'User not found in pending requests'
             });
         }
 
-        const user = userList.data[0];
+        // Determine permission level based on username prefix
+        const permissionLevel = username.startsWith('YA_') ? 1 : 2;
 
-        // Update user metadata in Clerk
-        await clerkClient.users.updateUserMetadata(user.id, {
-            publicMetadata: {
-                permission: permissionLevel
-            }
-        });
+        // Update permission level in MongoDB
+        const result = await collection.updateOne(
+            { username },
+            { $set: { permissionLevel } }
+        );
 
-        // Remove from pending accounts in MongoDB
-        await removeAccountFromDB(username, res);
+        if (result.modifiedCount === 0) {
+            return res.status(500).send({
+                message: 'Failed to update permission level'
+            });
+        }
 
         res.status(200).send({
             message: 'Account successfully approved',
@@ -120,7 +119,7 @@ router.post('/approve', async (req, res) => {
 });
 
 /* * POST /deny :
- *      summary: Denies a pending account request by deleting user from Clerk and removing from pending collection
+ *      summary: Denies a pending account request by removing from pending collection
  *
  *      requestBody:
  *          required: true
@@ -140,7 +139,7 @@ router.post('/approve', async (req, res) => {
  *        400:
  *          description: - Missing username or invalid request body
  *        404:
- *          description: - Username not found in Clerk or MongoDB
+ *          description: - Username not found in MongoDB
  *        500:
  *          description: - Internal server error
  * */
@@ -158,21 +157,7 @@ router.post('/deny', async (req, res) => {
 
         const { username } = req.body;
 
-        // Get user from Clerk by username
-        const userList = await clerkClient.users.getUserList({ username: [username] });
-
-        if (!userList || userList.totalCount === 0) {
-            return res.status(404).send({
-                message: 'User not found in Clerk'
-            });
-        }
-
-        const user = userList.data[0];
-
-        // Delete user from Clerk
-        await clerkClient.users.deleteUser(user.id);
-
-        // Remove from pending accounts in MongoDB
+        // Remove from pending accounts in MongoDB (will throw error if not found)
         await removeAccountFromDB(username);
 
         res.status(200).send({
@@ -182,6 +167,15 @@ router.post('/deny', async (req, res) => {
 
     } catch (error) {
         console.log(error);
+
+        // Check if error is due to account not found
+        if (error.message.includes('Account not found in database')) {
+            return res.status(404).send({
+                message: 'User not found in pending requests',
+                error: error.message
+            });
+        }
+
         res.status(500).send({
             message: 'Error denying account',
             error: error.message
