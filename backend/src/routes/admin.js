@@ -129,6 +129,10 @@ router.post('/approve', async (req, res) => {
             }
         });
 
+        //IMPORTANT
+        //NEED TO DELETE THIS USER FROM THE MONGODB AT THE END OF THIS
+        // havent done yet for sake of testing
+
         res.status(200).send({
             message: 'Account successfully approved',
             username: username,
