@@ -1,6 +1,15 @@
 //in the B2B ticket we need the meta data formatted properly
 //meta data can contain whatever stuff, but we need at least a username and a permission level to set
 
+/** 
+ * i know understand my confsuion.
+ * orginially i thought pending users only went in mongodb.
+ * that is false. pending users go in both clerk and mongo
+ * when they get created, they have their usernames created and permission levels set to 0.
+ * if admin approves, permission level gets updated
+ * if admin denies, the user gets deleted from both the clerk and the mongo
+*/
+
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
@@ -143,10 +152,7 @@ router.post('/approve', async (req, res) => {
  *        500:
  *          description: - Internal server error
  * */
-//SOME CONFUSION HERE: 
-/*
-* why should we delete users from clerk if they pending users do not get added to clerk in the first place?
-*/
+
 router.post('/deny', async (req, res) => {
     try {
         // Validate request body
