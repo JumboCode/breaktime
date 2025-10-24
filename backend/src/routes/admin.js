@@ -143,6 +143,10 @@ router.post('/approve', async (req, res) => {
  *        500:
  *          description: - Internal server error
  * */
+//SOME CONFUSION HERE: 
+/*
+* why should we delete users from clerk if they pending users do not get added to clerk in the first place?
+*/
 router.post('/deny', async (req, res) => {
     try {
         // Validate request body
