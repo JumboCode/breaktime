@@ -1,19 +1,16 @@
-//in the B2B ticket we need the meta data formatted properly
-//meta data can contain whatever stuff, but we need at least a username and a permission level to set
-
-/** 
- * i know understand my confsuion.
- * orginially i thought pending users only went in mongodb.
- * that is false. pending users go in both clerk and mongo
- * when they get created, they have their usernames created and permission levels set to 0.
- * if admin approves, permission level gets updated
- * if admin denies, the user gets deleted from both the clerk and the mongo
-*/
+//this code should work for approving and denying pending users in the Clerk and MongoDB collections
+//IMPORTANT
+/*
+ * I am able to test approval and denial of users from the MongoDB side
+ * Because Account creation is not yet ready, I cannot test whether or not approval properly updates the metadata in Clerk
+ * I need access to Clerk or need a working version of Account creation, which is B2B.
+ */
 
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const Joi = require('joi');
+const { clerkClient } = require('@clerk/clerk-sdk-node');
 
 // Schema for validating username in request body
 const usernameSchema = Joi.object({
@@ -45,7 +42,7 @@ async function removeAccountFromDB(username) {
 }
 
 /* * POST /approve :
- *      summary: Approves a pending account request by updating permission level in MongoDB
+ *      summary: Approves a pending account request by updating permission level in MongoDB and Clerk
  *      description: Permission level is automatically determined from username prefix (YA_ = 1, otherwise = 2)
  *
  *      requestBody:
@@ -112,6 +109,26 @@ router.post('/approve', async (req, res) => {
             });
         }
 
+        // Update permission level in Clerk
+        // First, find the Clerk user by username
+        const clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+
+        if (!clerkUsers || clerkUsers.data.length === 0) {
+            return res.status(404).send({
+                message: 'User not found in Clerk database'
+            });
+        }
+
+        const clerkUserId = clerkUsers.data[0].id;
+
+        // Update the permission in Clerk's publicMetadata
+        await clerkClient.users.updateUser(clerkUserId, {
+            publicMetadata: {
+                ...clerkUsers.data[0].publicMetadata,
+                permission: String(permissionLevel)
+            }
+        });
+
         res.status(200).send({
             message: 'Account successfully approved',
             username: username,
@@ -128,7 +145,7 @@ router.post('/approve', async (req, res) => {
 });
 
 /* * POST /deny :
- *      summary: Denies a pending account request by removing from pending collection
+ *      summary: Denies a pending account request by removing from both Clerk and MongoDB
  *
  *      requestBody:
  *          required: true
@@ -169,6 +186,20 @@ router.post('/deny', async (req, res) => {
 
         // Remove from pending accounts in MongoDB (will throw error if not found)
         await removeAccountFromDB(username);
+
+        // Second, delete the user from Clerk
+        const clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+
+        if (!clerkUsers || clerkUsers.data.length === 0) {
+            return res.status(404).send({
+                message: 'User not found in Clerk database'
+            });
+        }
+
+        const clerkUserId = clerkUsers.data[0].id;
+        await clerkClient.users.deleteUser(clerkUserId);
+
+        
 
         res.status(200).send({
             message: 'Account successfully denied and removed',
