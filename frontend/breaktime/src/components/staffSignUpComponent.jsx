@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import '../staffSignUpComponent.css';
 // Create the StaffSignUpComponent functional component
 export default function StaffSignUpComponent() {
   // Initialize state to store form data
@@ -29,10 +29,10 @@ export default function StaffSignUpComponent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+    <div className="signIn-outer-div">
+      <div className="signIn-inner-div">
 
-        <h2 className="text-2xl font-semibold text-center mb-4">
+        <h2 className="text-2xl font-semibold text-align mb-4">
           Welcome Back!
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -51,7 +51,7 @@ export default function StaffSignUpComponent() {
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-            />
+            />  
           </div>
           <div>
             <label
@@ -70,80 +70,15 @@ export default function StaffSignUpComponent() {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
-          <div>
-            <label
-              htmlFor=""
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="emailConfirmation"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm Email
-            </label>
-            <input
-              type="email"
-              id="emailConfirmation"
-              name="emailConfirmation"
-              value={formData.emailConfirmation}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-            />
-          </div>
+          <h2 className="userMessage">
+            Log in to book showers, laundry, resources, etc.
+          </h2>
           <div>
             <button
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-            Sign Up
+            LOG IN
             </button>
           </div>
         </form>

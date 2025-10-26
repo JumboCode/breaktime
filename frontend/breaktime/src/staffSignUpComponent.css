@@ -1,0 +1,10 @@
+html{
+    height: 100%;
+}
+
+.signIn-outer-div {
+    position: fixed;
+    width: 400px;
+    left: 600px;
+    top: 300px;
+}
