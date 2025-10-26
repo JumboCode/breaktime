@@ -11,6 +11,7 @@ export default function StaffSignup() {
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -25,6 +26,11 @@ export default function StaffSignup() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (formData.email !== formData.emailConfirmation) {
+      setError("Emails do not match.");
+      return;
+    }
+    setError('')
     console.log("Form submitted:", formData);
   };
 
@@ -40,6 +46,8 @@ export default function StaffSignup() {
               type="text"
               id="firstName"
               name="firstName"
+              autoComplete="firstname"
+              autoCapitalize="firstname"
               placeholder="First Name"
               value={formData.firstName}
               onChange={handleChange}
@@ -55,6 +63,8 @@ export default function StaffSignup() {
               type="text"
               id="lastName"
               name="lastName"
+              autoComplete="lastName"
+              autoCapitalize="lastName"
               placeholder="Last Name"
               value={formData.lastName}
               onChange={handleChange}
@@ -71,6 +81,7 @@ export default function StaffSignup() {
             type="email"
             id="email"
             name="email"
+            autoComplete="email"
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
@@ -86,6 +97,7 @@ export default function StaffSignup() {
             type="email"
             id="emailConfirmation"
             name="emailConfirmation"
+            autoComplete="emailConfirmation"
             placeholder="Email Confirmation"
             value={formData.emailConfirmation}
             onChange={handleChange}
@@ -101,6 +113,7 @@ export default function StaffSignup() {
             type="text"
             id="username"
             name="username"
+            autoComplete="username"
             placeholder="Username"
             value={formData.username}
             onChange={handleChange}
@@ -116,6 +129,7 @@ export default function StaffSignup() {
             type="password"
             id="password"
             name="password"
+            autoComplete="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}

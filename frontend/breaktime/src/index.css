@@ -7,6 +7,7 @@
   --color-light-purple: #ABB9FF;
   --font-all: 'Poppins', sans-serif;
 }
+
 @layer base {
   input {
     @apply relative pb-1 bg-transparent text-light-purple focus:outline-none;
@@ -19,5 +20,16 @@
     text: theme(colors.light-purple);
     placeholder: theme(colors.light-purple);
   }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: theme(colors.light-purple);
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 0 1000px transparent;
+    border-bottom: 2px solid theme(colors.light-purple) !important;
+  }
 
 }
+
