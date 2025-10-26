@@ -1,15 +1,10 @@
 import { useState } from "react";
-import '../staffSignUpComponent.css';
-// Create the StaffSignUpComponent functional component
-export default function StaffSignUpComponent() {
+
+export default function userSignin() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    emailConfirmation: "",
-    username: "",
-    password: "",
+    ID: "",
+    Pin: "",
   });
 
   // Handle input changes and update state
@@ -26,16 +21,11 @@ export default function StaffSignUpComponent() {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Form submitted:", formData);
-  };
+};
 
-  return (
-    <div className="signIn-outer-div">
-      <div className="signIn-inner-div">
-        <h2 className="text-2xl font-semibold text-align mb-4">
-          Welcome Back!
-        </h2>
-        {/* Add toggle and import userSignIn and staffSignIn */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+return(
+    <div className="userSignIn">
+      <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="userID"
@@ -47,7 +37,7 @@ export default function StaffSignUpComponent() {
               type="text"
               id="userID"
               name="userID"
-              value={formData.firstName}
+              value={formData.ID}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
@@ -64,7 +54,7 @@ export default function StaffSignUpComponent() {
               type="text"
               id="userPin"
               name="userPin"
-              value={formData.lastName}
+              value={formData.Pin}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
@@ -82,7 +72,6 @@ export default function StaffSignUpComponent() {
             </button>
           </div>
         </form>
-      </div>
     </div>
   );
 }

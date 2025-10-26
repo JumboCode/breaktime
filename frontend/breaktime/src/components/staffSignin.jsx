@@ -1,13 +1,8 @@
 import { useState } from "react";
-import '../staffSignUpComponent.css';
-// Create the StaffSignUpComponent functional component
-export default function StaffSignUpComponent() {
+
+export default function staffSignin() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    emailConfirmation: "",
     username: "",
     password: "",
   });
@@ -26,28 +21,23 @@ export default function StaffSignUpComponent() {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Form submitted:", formData);
-  };
+};
 
-  return (
-    <div className="signIn-outer-div">
-      <div className="signIn-inner-div">
-        <h2 className="text-2xl font-semibold text-align mb-4">
-          Welcome Back!
-        </h2>
-        {/* Add toggle and import userSignIn and staffSignIn */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+return(
+    <div className="staffSignIn">
+      <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="userID"
+              htmlFor="staffUsername"
               className="block text-sm font-medium text-grey-700"
             >
               ID
             </label>
             <input
               type="text"
-              id="userID"
-              name="userID"
-              value={formData.firstName}
+              id="staffUsername"
+              name="staffUsername"
+              value={formData.username}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
@@ -55,23 +45,23 @@ export default function StaffSignUpComponent() {
           </div>
           <div>
             <label
-              htmlFor="userPin"
+              htmlFor="staffPasword"
               className="block text-sm font-medium text-gray-700"
             >
               Pin
             </label>
             <input
               type="text"
-              id="userPin"
-              name="userPin"
-              value={formData.lastName}
+              id="staffPasword"
+              name="staffPasword"
+              value={formData.password}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
             />
           </div>
-          <h2 className="userMessage">
-            Log in to book showers, laundry, resources, etc.
+          <h2 className="staffMessage">
+            Log in to manage bookings and assist members
           </h2>
           <div>
             <button
@@ -82,7 +72,6 @@ export default function StaffSignUpComponent() {
             </button>
           </div>
         </form>
-      </div>
     </div>
   );
 }
