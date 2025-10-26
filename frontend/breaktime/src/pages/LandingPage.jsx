@@ -6,10 +6,10 @@ export default function LandingPage() {
         <div className="flex min-h-screen bg-indigo-purple font-all">
             {/* LHS - HEADING TEXT */}
             <div className="text-lime-500 flex flex-col justify-center w-1/2 px-16">
-                <h1 className="text-[70px] leading-none">
-                <div>Book</div>
-                <div>Manage</div>
-                <div>Connect</div>
+                <h1 className="text-[70px] leading-none drop-shadow-xl drop-shadow-black">
+                    <div>Book</div>
+                    <div>Manage</div>
+                    <div>Connect</div>
                 </h1>
                 <p className="text-light-purple mt-4">
                 Create your account to connect, book services, and be part of our community
