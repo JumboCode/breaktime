@@ -1,8 +1,23 @@
-@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
+@import 'tailwindcss';
 
 @theme {
   --color-lime-500: #B9FF00;
+  --color-indigo-purple: #262445;
+  --color-light-purple: #ABB9FF;
   --font-all: 'Poppins', sans-serif;
+}
+@layer base {
+  input {
+    @apply relative pb-1 bg-transparent text-light-purple focus:outline-none;
+    border: none; 
+
+    background-image: linear-gradient(to right, theme(colors.light-purple) 100%, transparent 0);
+    background-repeat: no-repeat;
+    background-size: 100% 2px; 
+    background-position: 0 calc(100% - 3px); 
+    text: theme(colors.light-purple);
+    placeholder: theme(colors.light-purple);
+  }
+
 }
