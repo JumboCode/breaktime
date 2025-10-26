@@ -7,12 +7,13 @@
 import PWABadge from './PWABadge.jsx';
 import UserSignup from './components/UserSignup.jsx';
 import StaffSignup from './components/StaffSignup.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 
 function App() {
 
   return (
     <>
-      <StaffSignup/>
+      <LandingPage/>
     </>
   );
 }
