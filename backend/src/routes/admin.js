@@ -1,3 +1,13 @@
+//IMPORTANT
+//NEED TO DELETE THIS USER FROM THE MONGODB AT THE END OF THIS
+// havent done yet for sake of testing
+
+/*
+ * do a bunch of testing,
+ * get access to Clerk
+ * 
+*/
+
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
@@ -152,10 +162,6 @@ router.post('/approve', async (req, res) => {
                 error: clerkError.message
             });
         }
-
-        //IMPORTANT
-        //NEED TO DELETE THIS USER FROM THE MONGODB AT THE END OF THIS
-        // havent done yet for sake of testing
 
         res.status(200).send({
             message: 'Account successfully approved',
