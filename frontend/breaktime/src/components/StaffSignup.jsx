@@ -136,7 +136,7 @@ export default function StaffSignup() {
             required
           />
         </div>
-        <div>
+        <div className="mt-10">
           <button
             type="submit"
             className="uppercase bg-lime-500 text-[32px] rounded-full SemiBold text-black w-[354px] h-354px]"
