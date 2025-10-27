@@ -8,28 +8,35 @@ const mongodbPromise = require('../utils/mongodb');
 const { staffUser } = require('../schemas/staff');
 const { clerkClient } = require('@clerk/clerk-sdk-node'); 
 
+// Post Method Endpoint - Add staff to Mongo and Clerk
 router.post('/', async (req, res) => {
     try {
+        // Get correct database collection in mongoDB, store to variables
         const client = await mongodbPromise;
         const database = client.db('requests');
         const collection = database.collection('accounts');
 
+        // Validate body of request
         const { error } = staffUser.validate(req.body);
         
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
+                // Set req body to individual fields
                 const { firstName, lastName, email, username, password } = req.body;
 
-                const newUser = {
+                // Instead of generating a random username, take input from body
+                const newStaff = {
                         firstName, 
                         lastName,
                         username,
                         permissionLevel: 0 
                 };
 
-                const document = await collection.insertOne(newUser);
+                // Await insertion of the new user into mongoDB
+                const document = await collection.insertOne(newStaff);
 
+                // For CLERK = populate mostly the same fields
                 const clerkUser = {
                         username: username,
                         password: password,
@@ -38,6 +45,7 @@ router.post('/', async (req, res) => {
                         },
                 };
 
+                // Await clerk return, return success
                 const user = await clerkClient.users.createUser(clerkUser);
                 return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
         }
@@ -51,4 +59,5 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Export this module so it's available to other users
 module.exports = router;

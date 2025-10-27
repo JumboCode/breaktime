@@ -58,7 +58,6 @@ router.post('/', async (req, res) => {
                 // Await clerk return, return success
                 const user = await clerkClient.users.createUser(clerkUser);
                 return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
-
         }
 
     } catch (error){
