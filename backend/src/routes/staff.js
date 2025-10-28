@@ -33,9 +33,6 @@ router.post('/', async (req, res) => {
                         permissionLevel: 0 
                 };
 
-                // Await insertion of the new user into mongoDB
-                const document = await collection.insertOne(newStaff);
-
                 // For CLERK = populate mostly the same fields
                 const clerkUser = {
                         username: username,
@@ -47,6 +44,16 @@ router.post('/', async (req, res) => {
 
                 // Await clerk return, return success
                 const user = await clerkClient.users.createUser(clerkUser);
+
+                if (!user || user.errors) {
+                        return res.status(500).json({
+                                message: 'Error creating user in Clerk.',
+                                error: user?.errors,
+                        });
+                }
+                // Await insertion of the new user into mongoDB
+                const document = await collection.insertOne(newStaff);
+
                 return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
         }
 
