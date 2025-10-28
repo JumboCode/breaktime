@@ -7,7 +7,7 @@ export default function StaffSignup() {
     firstName: "",
     lastName: "",
     email: "",
-    emailConfirmation: "",
+    // emailConfirmation: "",
     username: "",
     password: "",
   });
@@ -26,120 +26,122 @@ export default function StaffSignup() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (formData.email !== formData.emailConfirmation) {
-      setError("Emails do not match.");
-      return;
-    }
+    // if (formData.email !== formData.emailConfirmation) {
+    //   setError("Emails do not match.");
+    //   return;
+    // }
     setError('')
     console.log("Form submitted:", formData);
   };
 
   return (
     <div>
-      <form 
-        onSubmit={handleSubmit} 
-        
-      >
-        <div className="flex space-x-4">
-          <div className="flex space-x-4"> 
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-2">
+          <div className="flex space-x-4">
+            <div className="flex space-x-4"> 
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                autoComplete="firstname"
+                autoCapitalize="firstname"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="lastName"
+              >
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                autoComplete="lastName"
+                autoCapitalize="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+            >
+            </label>
             <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              autoComplete="firstname"
-              autoCapitalize="firstname"
-              placeholder="First Name"
-              value={formData.firstName}
+              type="email"
+              id="email"
+              name="email"
+              autoComplete="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
               required
             />
           </div>
-          <div>
+          {/* <div>
             <label
-              htmlFor="lastName"
+              htmlFor="emailConfirmation"
+            >
+            </label>
+            <input
+              type="email"
+              id="emailConfirmation"
+              name="emailConfirmation"
+              autoComplete="emailConfirmation"
+              placeholder="Email Confirmation"
+              value={formData.emailConfirmation}
+              onChange={handleChange}
+              required
+            />
+          </div> */}
+          <div className="w-7/10">
+            <label
+              htmlFor="username"
             >
             </label>
             <input
               type="text"
-              id="lastName"
-              name="lastName"
-              autoComplete="lastName"
-              autoCapitalize="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
+              id="username"
+              name="username"
+              autoComplete="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="w-7/10">
+            <label
+              htmlFor="password"
+            >
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              autoComplete="password"
+              placeholder="Password"
+              value={formData.password}
               onChange={handleChange}
               required
             />
           </div>
         </div>
-        <div>
-          <label
-            htmlFor="email"
-          >
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            autoComplete="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <div className="text-light-purple mt-5 mb-5">
+          Join our staff portal to manage bookings and assist members efficiently
         </div>
-        <div>
-          <label
-            htmlFor="emailConfirmation"
-          >
-          </label>
-          <input
-            type="email"
-            id="emailConfirmation"
-            name="emailConfirmation"
-            autoComplete="emailConfirmation"
-            placeholder="Email Confirmation"
-            value={formData.emailConfirmation}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="username"
-          >
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            autoComplete="username"
-            placeholder="Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-          >
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            autoComplete="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mt-10">
+        <div className="text-dark-navy">
           <button
             type="submit"
-            className="uppercase bg-lime-500 text-[32px] rounded-full SemiBold text-black w-[354px] h-354px]"
+            className="uppercase bg-lime-500 text-[32px] rounded-[26px] font-semibold w-[354px] h-[60px]"
           >
           Create Account
           </button>

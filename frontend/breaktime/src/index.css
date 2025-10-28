@@ -5,31 +5,67 @@
   --color-lime-500: #B9FF00;
   --color-indigo-purple: #262445;
   --color-light-purple: #ABB9FF;
+  --color-dark-navy: #262445;
   --font-all: 'Poppins', sans-serif;
+}
+
+.user-staff-toggle {
+  padding: 6px;
+  border-radius: 30px; 
+  border: 1px solid var(--color-light-purple); 
+  width: 361px;
+  height: 75px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-staff-toggle [name="user-staff"] {
+  display: none; 
+}
+
+.user-staff-toggle input[type="radio"] + label.radio-button {
+  color: var(--color-light-purple);
+  align-content: center;
+  height: 100%;
+  width: 47%;
+  border-radius: 23px;
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  margin: 0 4px;
+  text-align: center;
+  font-size: 32px;
+}
+
+.user-staff-toggle input[type="radio"]:checked + label.radio-button {
+  background-color: var(--color-lime-500);
+  color: var(--color-dark-navy);
 }
 
 @layer base {
   input {
-    @apply relative pb-1 bg-transparent text-light-purple focus:outline-none;
+    @apply relative pb-1 bg-transparent text-light-purple focus:outline-none w-full;
     border: none; 
 
-    background-image: linear-gradient(to right, theme(colors.light-purple) 100%, transparent 0);
+    background-image: linear-gradient(to right, var(--color-light-purple) 100%, transparent 0);
     background-repeat: no-repeat;
     background-size: 100% 2px; 
     background-position: 0 calc(100% - 3px); 
-    text: theme(colors.light-purple);
-    placeholder: theme(colors.light-purple);
   }
+
+  input:focus {
+    background-image: linear-gradient(to right, var(--color-lime-500) 100%, transparent 0);
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-background-clip: text;
-    -webkit-text-fill-color: theme(colors.light-purple);
+  -webkit-text-fill-color: var(--color-light-purple);
     transition: background-color 5000s ease-in-out 0s;
     box-shadow: inset 0 0 0 1000px transparent;
-    border-bottom: 2px solid theme(colors.light-purple) !important;
+    border-bottom: 2px solid var(--color-light-purple) !important;
   }
-
 }
 
