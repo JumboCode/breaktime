@@ -163,6 +163,8 @@ router.post('/approve', async (req, res) => {
             });
         }
 
+        await removeAccountFromDB(username);
+
         res.status(200).send({
             message: 'Account successfully approved',
             username: username,
