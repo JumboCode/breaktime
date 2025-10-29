@@ -30,16 +30,19 @@ export default function StaffSignup() {
     //   setError("Emails do not match.");
     //   return;
     // }
-    setError('')
+    setError('');
     console.log("Form submitted:", formData);
   };
 
   return (
-    <div>
+    <div className="max-w-[354px]">
       <form onSubmit={handleSubmit}>
         <div className="space-y-2">
           <div className="flex space-x-4">
-            <div className="flex space-x-4"> 
+            <div> 
+              <label
+                htmlFor="firstName"
+              ></label>
               <input
                 type="text"
                 id="firstName"
@@ -141,7 +144,7 @@ export default function StaffSignup() {
         <div className="text-dark-navy">
           <button
             type="submit"
-            className="uppercase bg-lime-500 text-[32px] rounded-[26px] font-semibold w-[354px] h-[60px]"
+            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
           >
           Create Account
           </button>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -11,10 +11,10 @@
 
 .user-staff-toggle {
   padding: 6px;
-  border-radius: 30px; 
+  border-radius: 24px; 
   border: 1px solid var(--color-light-purple); 
-  width: 361px;
-  height: 75px;
+  width: 260px;
+  height: 58px;
   display: flex;
   justify-content: space-between;
 }
@@ -27,19 +27,19 @@
   color: var(--color-light-purple);
   align-content: center;
   height: 100%;
-  width: 47%;
-  border-radius: 23px;
+  width: 50%;
+  border-radius: 16px;
   cursor: pointer;
   user-select: none;
   display: inline-block;
-  margin: 0 4px;
   text-align: center;
-  font-size: 32px;
+  font-size: x-large;
 }
 
 .user-staff-toggle input[type="radio"]:checked + label.radio-button {
   background-color: var(--color-lime-500);
   color: var(--color-dark-navy);
+  font-weight: 600;
 }
 
 @layer base {
