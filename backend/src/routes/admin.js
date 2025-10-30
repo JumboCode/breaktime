@@ -33,6 +33,8 @@ const usernameSchema = Joi.object({
  *        400:
  *          description: - error message when invalid request body 
  *             is sent to endpoint.
+ *        404:
+ *          description: - error message when no user exists for given username.
  *        500:
  *          description: - json with an error message and the error caught.
  * */
@@ -41,7 +43,10 @@ router.delete('/deleteAccount', async (req, res) => {
         const { error } = usernameSchema.validate(req.body);
 
         if (error) {
-            res.status(400).send(error.details[0].message);
+            return res.status(400).send({
+                message: 'Invalid request body',
+                error: error.details[0].message
+            });
         } else {
             const { username } = req.body;
            
