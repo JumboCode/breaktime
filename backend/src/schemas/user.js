@@ -10,4 +10,8 @@ const userSchema = Joi.object({
     zone: Joi.string().required()
 });
 
-module.exports = { userSchema };
+const usernameSchema = Joi.object({
+    username: Joi.string().required()
+});
+
+module.exports = { userSchema, usernameSchema };
