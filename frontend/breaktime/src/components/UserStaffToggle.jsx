@@ -1,19 +1,18 @@
 import { useState } from 'react';
 
 const UserStaffToggle = ({ onToggle }) => {
-    const [selected, setSelected] = useState('staff'); // Default to 'staff' selection
+    const [selected, setSelected] = useState('staff'); // Default to 'staff'
 
     const handleChange = (value) => {
         setSelected(value);
-        if (onToggle) {
-            onToggle(value);
-        }
+        if (onToggle) onToggle(value);
     };
 
     return (
-        <div className="toggle-container">
-            <div className="user-staff-toggle">
+        <div className="inline-block">
+            <div className="p-1.5 rounded-[24px] border w-[260px] h-[58px] flex justify-between border-light-purple">
                 <input
+                    className="hidden"
                     type="radio"
                     id="toggle-users"
                     name="user-staff"
@@ -21,11 +20,19 @@ const UserStaffToggle = ({ onToggle }) => {
                     checked={selected === 'users'}
                     onChange={(e) => handleChange(e.target.value)}
                 />
-                <label className="radio-button uppercase font-semibold" htmlFor="toggle-users">
+                <label
+                    htmlFor="toggle-users"
+                    className={`uppercase font-semibold flex items-center justify-center h-full w-1/2 rounded-[16px] cursor-pointer select-none text-xl ${
+                        selected === 'users'
+                            ? 'bg-lime-500 text-dark-navy'
+                            : 'text-light-purple'
+                    }`}
+                >
                     Users
                 </label>
 
                 <input
+                    className="hidden"
                     type="radio"
                     id="toggle-staff"
                     name="user-staff"
@@ -33,7 +40,14 @@ const UserStaffToggle = ({ onToggle }) => {
                     checked={selected === 'staff'}
                     onChange={(e) => handleChange(e.target.value)}
                 />
-                <label className="radio-button uppercase font-semibold" htmlFor="toggle-staff">
+                <label
+                    htmlFor="toggle-staff"
+                    className={`uppercase font-semibold flex items-center justify-center h-full w-1/2 rounded-[16px] cursor-pointer select-none text-xl ${
+                        selected === 'staff'
+                            ? 'bg-lime-500 text-dark-navy'
+                            : 'text-light-purple'
+                    }`}
+                >
                     Staff
                 </label>
             </div>
