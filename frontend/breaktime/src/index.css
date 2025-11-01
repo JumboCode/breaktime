@@ -9,39 +9,6 @@
   --font-all: 'Poppins', sans-serif;
 }
 
-.user-staff-toggle {
-  padding: 6px;
-  border-radius: 24px; 
-  border: 1px solid var(--color-light-purple); 
-  width: 260px;
-  height: 58px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.user-staff-toggle [name="user-staff"] {
-  display: none; 
-}
-
-.user-staff-toggle input[type="radio"] + label.radio-button {
-  color: var(--color-light-purple);
-  align-content: center;
-  height: 100%;
-  width: 50%;
-  border-radius: 16px;
-  cursor: pointer;
-  user-select: none;
-  display: inline-block;
-  text-align: center;
-  font-size: x-large;
-}
-
-.user-staff-toggle input[type="radio"]:checked + label.radio-button {
-  background-color: var(--color-lime-500);
-  color: var(--color-dark-navy);
-  font-weight: 600;
-}
-
 @layer base {
   input {
     @apply relative pb-1 bg-transparent text-light-purple focus:outline-none w-full;
