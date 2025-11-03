@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function staffSignin() {
+export default function StaffSignin() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
@@ -26,50 +26,63 @@ export default function staffSignin() {
 return(
     <div className="staffSignIn">
       <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div class="grid grid-cols-6 gap-0 w-2/3">
+           <div>
             <label
               htmlFor="staffUsername"
-              className="block text-sm font-medium text-grey-700"
+              className="flex items-align text-base font-light"
             >
-              ID
+              Username
             </label>
+           </div>
+           <div class="col-start-3 col-end-6">
             <input
               type="text"
               id="staffUsername"
-              name="staffUsername"
+              name="username"
               value={formData.username}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+              className="bg-transparent border-b border-[#ABB9FF] focus:border-[#B9FF00] focus:outline-none w-5/6 px-0 py-0 transition-colors"
             />  
+           </div>
           </div>
-          <div>
+          <div class="grid grid-cols-6 gap-0 w-2/3">
+           <div>
             <label
               htmlFor="staffPasword"
-              className="block text-sm font-medium text-gray-700"
+              className="mt-1 inline text-base font-light"
             >
-              Pin
+              Password
             </label>
+           </div>
+           <div class="col-start-3 col-end-6">
             <input
               type="text"
               id="staffPasword"
-              name="staffPasword"
+              name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+              className="bg-transparent border-b border-[#ABB9FF] focus:border-[#B9FF00] focus:outline-none w-5/6 px-0 py-0 transition-colors"
             />
+           </div>
           </div>
-          <h2 className="staffMessage">
-            Log in to manage bookings and assist members
-          </h2>
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-            LOG IN
-            </button>
+          <div className="flex gap-4 w-full">
+            <div>
+              <h2 name="staffMessage" className="flex items-align text-base font-light">
+                  Log in to manage bookings and <br />
+                  assist members
+              </h2>
+             </div>
+            <div>
+              <button
+                type="submit"
+                className="flex justify-center py-1.5 px-3.5 border-w border-transparent rounded-2xl shadow-sm text-base font-bold text-[#262445] bg-[#B9FF00] focus:outline-none focus:ring-2 focus:ring-offset-2"
+              >
+              LOG IN
+              </button>
+            </div>
           </div>
         </form>
     </div>
