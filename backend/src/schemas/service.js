@@ -5,7 +5,7 @@ const servicesSchema = Joi.object({
    id: Joi.string().required(),
    rules: Joi.string().required(),
    description: Joi.string().required(),
-   serviceDuration: Joi.number().integer().positive().required(),
+   serviceDurationInterval: Joi.number().integer().positive().required(),
    availability : Joi.array().items(
       Joi.object({
          day: Joi.pattern(/^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/i),
