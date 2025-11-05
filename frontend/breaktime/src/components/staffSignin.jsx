@@ -26,7 +26,7 @@ export default function StaffSignin() {
 return(
     <div className="staffSignIn">
       <form onSubmit={handleSubmit} className="space-y-4">
-          <div class="grid grid-cols-6 gap-0 w-2/3">
+          <div className="grid grid-cols-6 gap-0 w-2/3">
            <div>
             <label
               htmlFor="staffUsername"
@@ -47,7 +47,7 @@ return(
             />  
            </div>
           </div>
-          <div class="grid grid-cols-6 gap-0 w-2/3">
+          <div className="grid grid-cols-6 gap-0 w-2/3">
            <div>
             <label
               htmlFor="staffPasword"
@@ -56,7 +56,7 @@ return(
               Password
             </label>
            </div>
-           <div class="col-start-3 col-end-6">
+           <div className="col-start-3 col-end-6">
             <input
               type="text"
               id="staffPasword"
