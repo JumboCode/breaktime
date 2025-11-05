@@ -35,7 +35,7 @@ return(
               Username
             </label>
            </div>
-           <div class="col-start-3 col-end-6">
+           <div className="col-start-3 col-end-6">
             <input
               type="text"
               id="staffUsername"
