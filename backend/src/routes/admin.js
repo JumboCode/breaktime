@@ -1,13 +1,3 @@
-//IMPORTANT
-//NEED TO DELETE THIS USER FROM THE MONGODB AT THE END OF THIS
-// havent done yet for sake of testing
-
-/*
- * do a bunch of testing,
- * get access to Clerk
- * 
-*/
-
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
@@ -71,21 +61,6 @@ async function removeAccountFromDB(username) {
  * */
 router.post('/approve', async (req, res) => {
     try {
-        // Debug: Print all users in Clerk database
-        try {
-            const allClerkUsers = await clerkClient.users.getUserList();
-            console.log('\n=== ALL CLERK USERS ===');
-            console.log('Response type:', Array.isArray(allClerkUsers) ? 'Array' : 'Object');
-            console.log('Total users:', Array.isArray(allClerkUsers) ? allClerkUsers.length : allClerkUsers?.totalCount);
-            const userList = Array.isArray(allClerkUsers) ? allClerkUsers : allClerkUsers?.data || [];
-            userList.forEach(user => {
-                console.log(`- Username: ${user.username}, ID: ${user.id}`);
-            });
-            console.log('======================\n');
-        } catch (debugError) {
-            console.error('Error fetching all Clerk users:', debugError);
-        }
-
         // Validate request body
         const { error } = usernameSchema.validate(req.body);
         if (error) {
@@ -208,21 +183,6 @@ router.post('/approve', async (req, res) => {
 
 router.post('/deny', async (req, res) => {
     try {
-        // Debug: Print all users in Clerk database
-        try {
-            const allClerkUsers = await clerkClient.users.getUserList();
-            console.log('\n=== ALL CLERK USERS ===');
-            console.log('Response type:', Array.isArray(allClerkUsers) ? 'Array' : 'Object');
-            console.log('Total users:', Array.isArray(allClerkUsers) ? allClerkUsers.length : allClerkUsers?.totalCount);
-            const userList = Array.isArray(allClerkUsers) ? allClerkUsers : allClerkUsers?.data || [];
-            userList.forEach(user => {
-                console.log(`- Username: ${user.username}, ID: ${user.id}`);
-            });
-            console.log('======================\n');
-        } catch (debugError) {
-            console.error('Error fetching all Clerk users:', debugError);
-        }
-
         // Validate request body
         const { error } = usernameSchema.validate(req.body);
         if (error) {
