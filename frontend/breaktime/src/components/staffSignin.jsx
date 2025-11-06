@@ -1,11 +1,13 @@
 import { useState } from "react";
 
+
 export default function StaffSignin() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -18,10 +20,12 @@ export default function StaffSignin() {
     }));
   };
 
+
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Form submitted:", formData);
 };
+
 
 return(
     <div className="staffSignIn">
@@ -47,7 +51,7 @@ return(
             />  
            </div>
           </div>
-          <div className="grid grid-cols-6 gap-0 w-2/3">
+          <div class="grid grid-cols-6 gap-0 w-2/3">
            <div>
             <label
               htmlFor="staffPasword"
@@ -88,3 +92,4 @@ return(
     </div>
   );
 }
+

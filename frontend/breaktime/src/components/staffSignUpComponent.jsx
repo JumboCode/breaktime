@@ -12,7 +12,7 @@ export default function StaffSignUpComponent() {
     <>
     {/* Tagline Component */}
     <div className="flex flex-col items-align space-y-6 p-6 bg-[#262445] font-display min-h-screen">
-      <div className="signin-tagline-section">
+      <div className="pt-[10px] pl-[20px">
       <Tagline />
       </div>
       <div className="absolute w-110 bottom-30 right-20 bg-[#262445] text-[#ABB9FF] rounded">
