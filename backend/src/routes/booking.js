@@ -1,5 +1,3 @@
-//made the booking.js file and new branch
-// Working with service bookings in mongodb
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
@@ -86,6 +84,8 @@ router.post('/create', async (req, res) => {
     }
 });
 
+//need to access database and change status to either confirmed or canceled
+//also then need to update timestamp to time of edit
 // router.post('/edit', async (req, res) => {
 //     try {
         
