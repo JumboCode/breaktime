@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Create the StaffSignup functional component
-export default function StaffSignup() {
+function StaffSignup() {
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     firstName: "",
@@ -153,3 +153,5 @@ export default function StaffSignup() {
     </div>  
   ); 
 }
+
+export default StaffSignup
