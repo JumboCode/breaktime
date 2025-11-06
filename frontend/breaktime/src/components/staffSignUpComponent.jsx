@@ -11,11 +11,12 @@ export default function StaffSignUpComponent() {
   return (
     <>
     {/* Tagline Component */}
-    <div className="flex flex-col items-align space-y-6 p-6 bg-[#262445] font-display min-h-screen">
-      <div className="pt-[10px] pl-[20px">
+    <div className="flex flex-col items-align space-y-0 p-6 bg-[#262445] font-display min-h-screen">
+    <div clasName="flex m-[30px]">
+      <div className="pt-[60px] pl-[100px]">
       <Tagline />
       </div>
-      <div className="absolute w-110 bottom-30 right-20 bg-[#262445] text-[#ABB9FF] rounded">
+      <div className="absolute w-140 bottom-30 right-10 bg-[#262445] text-[#ABB9FF] rounded">
         <h2 className="text-lg font-light text-align mb-4">
           Welcome Back!
         </h2>
@@ -67,6 +68,7 @@ export default function StaffSignUpComponent() {
               FORGOT PASSWORD
             </button>
         </div>
+      </div>
       </div>
     </div>
     </>
