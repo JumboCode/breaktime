@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
+const Counter = require('../models/Counter');
 const { bookingSchema } = require('../schemas/booking');
 
 
@@ -20,9 +21,13 @@ const { bookingSchema } = require('../schemas/booking');
 // POST /create - Create a new booking
 router.post('/create', async (req, res) => {
     try {
-        // Find the highest bookingID and increment by 1 using Mongoose
-        const lastBooking = await Booking.findOne().sort({ bookingID: -1 }).select('bookingID');
-        const bookingID = lastBooking ? lastBooking.bookingID + 1 : 1;
+        // Get next bookingID from counter and atomically increment it
+        const counter = await Counter.findOneAndUpdate(
+            { name: 'bookingID' },
+            { $inc: { value: 1 } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+        const bookingID = counter.value;
         const timestamp = new Date();
 
         // Build the booking data with auto-generated fields
@@ -88,13 +93,13 @@ router.post('/create', async (req, res) => {
 //also then need to update timestamp to time of edit
 // router.post('/edit', async (req, res) => {
 //     try {
-        
+
 //     } catch (error) {
 //         console.log(error);
 //         res.status(500).send({
 //             'message': 'Error connecting to Server: ', error
 //         });
-//     } 
+//     }
 // });
 
 
@@ -108,5 +113,29 @@ router.post('/create', async (req, res) => {
 //         });
 //     }
 // });
+
+// POST /reset-counter - Reset booking ID counter to 0 (for testing purposes)
+router.post('/reset-counter', async (req, res) => {
+    try {
+        await Counter.findOneAndUpdate(
+            { name: 'bookingID' },
+            { value: 0 },
+            { upsert: true }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: 'Booking ID counter has been reset to 0'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error resetting counter',
+            error: error.message
+        });
+    }
+});
 
 module.exports = router;
