@@ -7,6 +7,7 @@
 import PWABadge from './PWABadge.jsx';
 import UserSignup from './components/UserSignup.jsx';
 import StaffSignup from './components/StaffSignup.jsx';
+import NavBar from './components/NavBar.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import { BrowserRouter as Router, Route, Routes} from 'react-router';
 function App() {
