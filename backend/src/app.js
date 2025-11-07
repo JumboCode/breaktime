@@ -15,8 +15,10 @@ app.use(cors());
 app.use(express.json());
 
 /* Routes */
-const exampleRoutes = require('./routes/exampleRoute');
+// const exampleRoutes = require('./routes/exampleRoute');
+const admin = require('./routes/admin');
 
-app.use('/example', exampleRoutes);
+// app.use('/example', exampleRoutes);
+app.use('/admin', admin);
 
 module.exports = app;
