@@ -1,6 +1,8 @@
 import Breaktime_Secondary_Logo from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
 import HamburgerMenu from "../assets/navigation/HamburgerMenu.png";
 import { useState } from "react";
+import SideBar from "./SideBar";
+
 
 function UserSignup() {
     const [selected, setSelected] = useState('staffPortal');
@@ -30,6 +32,7 @@ function UserSignup() {
                     <a>List</a>
                 </div>
             </div>
+            <SideBar/>
         </div>
     );
 }
