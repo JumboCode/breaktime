@@ -89,30 +89,133 @@ router.post('/create', async (req, res) => {
     }
 });
 
-//need to access database and change status to either confirmed or canceled
-//also then need to update timestamp to time of edit
-// router.post('/edit', async (req, res) => {
-//     try {
+// PUT /edit - Edit an existing booking's status
+// Client passes: bookingID and status ('confirmed' or 'canceled')
+router.put('/edit', async (req, res) => {
+    try {
+        const { bookingID, status } = req.body;
 
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).send({
-//             'message': 'Error connecting to Server: ', error
-//         });
-//     }
-// });
+        // Validate required fields
+        if (!bookingID) {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                error: 'bookingID is required'
+            });
+        }
 
+        // Validate status exists
+        if (!status) {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                error: 'status is required'
+            });
+        }
 
-// router.delete('/delete', async (req, res) => {
-//     try {
+        // Validate status value
+        // TODO: What status types do we search for?
+        const validStatuses = ['pending', 'confirmed', 'canceled'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                error: `status must be one of: ${validStatuses.join(', ')}`
+            });
+        }
 
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).send({
-//             'message': 'Error connecting to Server: ', error
-//         });
-//     }
-// });
+        // Find and update the booking
+        const updatedBooking = await Booking.findOneAndUpdate(
+            { bookingID },
+            { 
+                status,
+                timestamp: new Date() // Update timestamp to current time
+            },
+            { new: true } // Return the updated document
+        );
+
+        // Check if booking was found
+        if (!updatedBooking) {
+            return res.status(404).json({
+                success: false,
+                message: 'Booking not found',
+                error: `No booking found with bookingID: ${bookingID}`
+            });
+        }
+
+        // Return edit success response
+        return res.status(200).json({
+            success: true,
+            message: 'Booking updated successfully',
+            data: {
+                _id: updatedBooking._id,
+                bookingID: updatedBooking.bookingID,
+                userID: updatedBooking.userID,
+                serviceID: updatedBooking.serviceID,
+                status: updatedBooking.status,
+                timestamp: updatedBooking.timestamp,
+                duration: updatedBooking.duration
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating booking',
+            error: error.message
+        });
+    }
+});
+
+// DELETE /delete - Delete a booking
+// Client passes: bookingID
+router.delete('/delete', async (req, res) => {
+        try {
+            // TODO: Check in with Yoda, Luis, and Sean that bookingID should
+            // be the var we delete off of. 
+            const { bookingID } = req.body;
+    
+            // Validate required field
+            if (!bookingID) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation error',
+                    error: 'bookingID is required'
+                });
+            }
+    
+            const deletedBooking = await Booking.findOneAndDelete({ bookingID });
+    
+            // Check if booking was found
+            if (!deletedBooking) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Booking not found',
+                    error: `No booking found with bookingID: ${bookingID}`
+                });
+            }
+    
+            // Return delete success response
+            return res.status(200).json({
+                success: true,
+                message: 'Booking deleted successfully',
+                data: {
+                    bookingID: deletedBooking.bookingID,
+                    userID: deletedBooking.userID,
+                    serviceID: deletedBooking.serviceID
+                }
+            });
+    
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({
+                success: false,
+                message: 'Error deleting booking',
+                error: error.message
+            });
+        }
+    });
 
 // POST /reset-counter - Reset booking ID counter to 0 (for testing purposes)
 router.post('/reset-counter', async (req, res) => {
