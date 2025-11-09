@@ -19,10 +19,13 @@ const exampleRoutes = require('./routes/exampleRoute');
 const admin = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
+const service = require('./routes/service');
 
 app.use('/example', exampleRoutes);
 app.use('/user', userRoutes);
 app.use('/staff', staffRoutes);
 app.use('/admin', admin);
+app.use('/service', service);
+
 
 module.exports = app;
