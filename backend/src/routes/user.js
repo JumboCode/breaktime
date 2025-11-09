@@ -8,7 +8,7 @@ const mongodbPromise = require('../utils/mongodb');
 const { userSchema } = require('../schemas/user');
 const { clerkClient } = require('@clerk/clerk-sdk-node'); 
 
-/* * POST /mongodb :
+/* * POST /create :
  *      summary: creates a new user entry in collection
  * 
  *      requestBody:
