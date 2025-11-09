@@ -8,8 +8,48 @@ const mongodbPromise = require('../utils/mongodb');
 const { userSchema } = require('../schemas/user');
 const { clerkClient } = require('@clerk/clerk-sdk-node'); 
 
-// Post Method Endpoint - Add user to Mongo and Clerk
-router.post('/', async (req, res) => {
+/* * POST /mongodb :
+ *      summary: creates a new user entry in collection
+ * 
+ *      requestBody:
+ *          required: true
+ *         content:
+ *             json:
+ *          schema:
+ *             properties:
+ *               firstName:
+ *                 type: String
+ *              lastName:
+ *                type: String
+ *             password:       
+ *               type: String
+ *              age:
+ *               type: Number
+ *             gender:
+ *               type: String
+ *              race:
+ *               type: String
+ *              zone:
+ *               type: String
+ *              required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - username
+ *               - password
+ *               - age
+ *               - gender
+ *               - race
+ *               - zone
+ *      responses:
+ *        200:
+ *          description: - success message with the new user created
+ *        400:
+ *          description: - error message when invalid request body is sent to endpoint
+ *       500:
+ *         description: - json with an error message and the error caught
+ * */
+router.post('/create', async (req, res) => {
     try {
         // Get correct database collection in mongoDB, store to variables
         const client = await mongodbPromise;
