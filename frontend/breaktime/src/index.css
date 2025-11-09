@@ -37,3 +37,22 @@
   }
 }
 
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 20px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    background:  var(--color-dark-purple);
+    border-radius: 100vh;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-lime-500);
+    border-radius: 100vh;
+  }
+
+
+}

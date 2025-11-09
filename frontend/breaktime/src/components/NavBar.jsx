@@ -4,7 +4,7 @@ import { useState } from "react";
 import SideBar from "./SideBar";
 
 
-function UserSignup() {
+function NavBar() {
     const [selected, setSelected] = useState('staffPortal');
     
     const handleChange = (value) => {
@@ -32,9 +32,12 @@ function UserSignup() {
                     <a>List</a>
                 </div>
             </div>
-            <SideBar/>
+            <div className="fixed left-0 top-[80px] w-50%">
+                <SideBar/>
+
+            </div>
         </div>
     );
 }
 
-export default UserSignup;
+export default NavBar;
