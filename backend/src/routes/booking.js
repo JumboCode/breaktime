@@ -114,7 +114,6 @@ router.put('/edit', async (req, res) => {
         }
 
         // Validate status value
-        // TODO: What status types do we search for?
         const validStatuses = ['pending', 'confirmed', 'canceled'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({
