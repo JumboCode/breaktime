@@ -16,7 +16,7 @@ function SideBar() {
             <div className="flex flex-col gap-6 h-full">
                 <div className="border-2 border-light-purple rounded-2xl p-4 flex-shrink-0"><Calender />
                 </div>
-                <div className="h-5/20 border-2 border-light-purple rounded-2xl p-2 overflow-hidden"><Notifications />
+                <div className="h-5/20 border-2 border-light-purple rounded-2xl p-2 overflow-hidden"><Notifications/>
                 </div>
             </div>
         
