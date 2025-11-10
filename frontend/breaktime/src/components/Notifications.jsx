@@ -53,13 +53,10 @@ function Notifications() {
                                 </p>
                                 </h4>
                             </div>
-                            
-
                             <button className="px-4 border-2 border-lime-500 text-white rounded-full text-sm font-normal hover:bg-lime-500 hover:text-dark-navy transition-colors mt-[8%] mb-[5%] text-xs">
                                 More
                             </button>
                             
-
                             <button
                                 onClick={() => handleDeleteNotification(notification.id)}
                                   className="absolute top-0 right-2 text-lime-500 hover:text-lime-500/80 text-2xl font-normal leading-none w-6 h-6 flex items-center justify-center text-md"
