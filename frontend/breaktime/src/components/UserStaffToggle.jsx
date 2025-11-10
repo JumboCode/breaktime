@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const UserStaffToggle = ({ onToggle }) => {
-    const [selected, setSelected] = useState('staff'); // Default to 'staff'
+    const [selected, setSelected] = useState('staff');
 
     const handleChange = (value) => {
         setSelected(value);

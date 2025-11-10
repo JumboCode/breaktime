@@ -9,12 +9,23 @@ function NavBar() {
     
     const handleChange = (value) => {
         setSelected(value);
+    }
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+        
     };
+
 
     return (
         <div className="flex h-[80px] bg-indigo-purple font-all gap-[20px] pt-[22px] pr-[40px] pl-[40px] pb-[16px]">
             <div className="flex items-end">
-                <img src={HamburgerMenu} className="h-[24px]"/>
+                <button 
+                    onClick={toggleSidebar}>
+                    <img src={HamburgerMenu} className="h-[24px]"/>
+                </button>
             </div>
 
             <div className="h-full">
@@ -32,11 +43,13 @@ function NavBar() {
                     <a>List</a>
                 </div>
             </div>
-            <div className="fixed left-0 top-[80px] w-50%">
+            
+            <div className={`fixed left-0 top-[80px] w-50% ${isSidebarOpen ? 'block' : 'hidden'}`}>
                 <SideBar/>
 
             </div>
         </div>
+        
     );
 }
 
