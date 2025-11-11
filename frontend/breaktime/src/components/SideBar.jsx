@@ -16,6 +16,13 @@ function SideBar() {
             <div className="flex flex-col gap-6 h-full">
                 <div className="h-fit border-2 border-dark-purple rounded-3xl p-4"><Calendar/></div>
                 <div className="h-6/20 border-2 border-dark-purple rounded-3xl p-4 overflow-hidden"><Notifications/></div>
+                <div className="text-light-purple-subtle absolute bottom-0 mb-6">
+                    Contact Us:
+                    <br />
+                    (508) 319 - 1679
+                    <br />
+                    info@breaktime.org
+                </div>
 
             </div>
         </div>
