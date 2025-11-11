@@ -27,7 +27,7 @@ function Notifications() {
         <div className="h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-xl text-white">Notifications</h3>
-                <span className="text-light-grey opacity-[60%] underline text-sm">Open Inbox ({visibleNotifications.length})</span>
+                <span className="text-light-grey opacity-[60%] underline text-sm cursor-pointer">Open Inbox ({visibleNotifications.length})</span>
             </div>
             
 
