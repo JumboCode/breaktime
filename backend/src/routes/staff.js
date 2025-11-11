@@ -8,7 +8,6 @@ const mongodbPromise = require('../utils/mongodb');
 const { staffUser } = require('../schemas/staff');
 const { clerkClient } = require('@clerk/clerk-sdk-node'); 
 
-
 /* * POST /create :
  *      summary: creates a new staff entry in collection
  * 
@@ -63,6 +62,7 @@ router.post('/create', async (req, res) => {
                         firstName, 
                         lastName,
                         username,
+                        email,
                         permissionLevel: 0 
                 };
 
@@ -72,7 +72,7 @@ router.post('/create', async (req, res) => {
                         password: password,
                         publicMetadata: {
                                 permission: '0'
-                        },
+                        }
                 };
 
                 // Await clerk return, return success
@@ -81,13 +81,15 @@ router.post('/create', async (req, res) => {
                 if (!user || user.errors) {
                         return res.status(500).json({
                                 message: 'Error creating user in Clerk.',
-                                error: user?.errors,
+                                error: user?.errors
                         });
                 }
                 // Await insertion of the new user into mongoDB
                 const document = await collection.insertOne(newStaff);
 
-                return res.status(200).json({ message: 'User created successfully',  _id: document.insertedId, user });
+                return res.status(200).json({
+                        message: 'User created successfully',  _id: document.insertedId, user 
+                });
         }
 
     } catch (error){

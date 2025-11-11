@@ -3,6 +3,10 @@ import globals from 'globals';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  { 
+    files: ['utils/**/*.js'], // or ['utils/clerk.js'] for just that file
+    languageOptions: { sourceType: 'module' } 
+  },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   {
     rules: {
@@ -18,7 +22,7 @@ export default [
       'space-in-parens': ['error', 'never'],
       'array-bracket-spacing': ['error', 'never'],
       'no-var': 'error',
-      'object-shorthand': ['error', 'always'],
+      'object-shorthand': 'off',
       'no-multi-assign': 'error',
       'no-multiple-empty-lines': ['error', { max: 1 }],
       'no-duplicate-imports': 'error'

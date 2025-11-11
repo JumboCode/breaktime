@@ -1,37 +1,93 @@
+/*  admin.js
+ */
+
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const Joi = require('joi');
-const { clerkClient } = require('@clerk/clerk-sdk-node');
+const clerkClient = require('../utils/clerk');
 
 // Schema for validating username in request body
 const usernameSchema = Joi.object({
     username: Joi.string().required()
 });
 
-/**
- * Helper function to remove an account from MongoDB
- * @param {string} username - The username of the account to remove
- * @returns {Promise<boolean>} - Returns true if successful
- * @throws {Error} - Throws error if removal fails or account not found
- */
-async function removeAccountFromDB(username) {
+/* * DELETE /deleteAccount :
+ *      summary: deletes a user in Clerk.
+ * 
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                schema:
+ *                  properties:
+ *                    username:
+ *                      type: String
+ * 
+ *                  required:
+ *                      - username
+ * 
+ *      responses:
+ *        200:
+ *          description: - json with a success message and username returned.
+ *        400:
+ *          description: - error message when invalid request body 
+ *             is sent to endpoint.
+ *        404:
+ *          description: - error message when no user exists for given username.
+ *        500:
+ *          description: - json with an error message and the error caught.
+ * */
+router.delete('/deleteAccount', async (req, res) => {
     try {
-        const client = await mongodbPromise;
-        const database = client.db('requests');
-        const collection = database.collection('accounts');
+        const { error } = usernameSchema.validate(req.body);
 
-        const result = await collection.deleteOne({ username });
+        if (error) {
+            return res.status(400).send({
+                message: 'Invalid request body',
+                error: error.details[0].message
+            });
+        } else {
+            const { username } = req.body;
+           
+            let clerkUsers;
+            try {
+                clerkUsers = await clerkClient.users.getUserList({ username: [username] });
+            } catch (clerkError) {
+                console.error('Error fetching user from Clerk:', clerkError);
+                return res.status(500).send({
+                    message: 'Error fetching user from Clerk',
+                    error: clerkError.message
+                });
+            }
 
-        if (result.deletedCount === 0) {
-            throw new Error('Account not found in database');
+            // Handle both array and object response types
+            const userList = Array.isArray(clerkUsers) ? clerkUsers : clerkUsers?.data || [];
+
+            if (!userList || userList.length === 0) {
+                return res.status(404).send({
+                    message: 'User not found in Clerk database'
+                });
+            }
+
+            const clerkUser = userList[0];
+            const clerkUserId = clerkUser.id;
+            const response = await clerkClient.users.deleteUser(clerkUserId);
+
+            res.status(200).send({
+                message: 'User successfully deleted from Clerk',
+                deletedUsername: username,
+                clerkResponse: response
+            });
         }
-
-        return true;
     } catch (error) {
-        throw new Error(`Failed to remove account from database: ${error.message}`);
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to Clerk: ',
+            error
+        });
     }
-}
+});
 
 /* * POST /approve :
  *      summary: Approves a pending account request by updating permission level in MongoDB and Clerk
@@ -71,6 +127,7 @@ router.post('/approve', async (req, res) => {
         }
 
         const { username } = req.body;
+
         // Get pending user from MongoDB
         const client = await mongodbPromise;
         const database = client.db('requests');
@@ -84,7 +141,7 @@ router.post('/approve', async (req, res) => {
         }
 
         // Determine permission level based on username prefix
-        const permissionLevel = username.startsWith('YA_') ? 1 : 2;
+        const permissionLevel = username.startsWith('ya_') ? 1 : 2;
 
         // Update permission level in MongoDB
         const result = await collection.updateOne(
@@ -101,7 +158,7 @@ router.post('/approve', async (req, res) => {
         let clerkUsers;
         try {
             clerkUsers = await clerkClient.users.getUserList({ username: [username] });
-            console.log('Clerk getUserList response:', clerkUsers);
+
         } catch (clerkError) {
             console.error('Error fetching user from Clerk:', clerkError);
             return res.status(500).send({
@@ -142,8 +199,8 @@ router.post('/approve', async (req, res) => {
 
         res.status(200).send({
             message: 'Account successfully approved',
-            username: username,
-            permissionLevel: permissionLevel
+            username,
+            permissionLevel
         });
 
     } catch (error) {
@@ -197,7 +254,7 @@ router.post('/deny', async (req, res) => {
         let clerkUsers;
         try {
             clerkUsers = await clerkClient.users.getUserList({ username: [username] });
-            console.log('Clerk getUserList response:', clerkUsers);
+
         } catch (clerkError) {
             console.error('Error fetching user from Clerk:', clerkError);
             return res.status(500).send({
@@ -230,7 +287,7 @@ router.post('/deny', async (req, res) => {
 
         res.status(200).send({
             message: 'Account successfully denied and removed',
-            username: username
+            username
         });
 
     } catch (error) {
@@ -250,5 +307,29 @@ router.post('/deny', async (req, res) => {
         });
     }
 });
+
+/**
+ * Helper function to remove an account from MongoDB
+ * @param {string} username - The username of the account to remove
+ * @returns {Promise<boolean>} - Returns true if successful
+ * @throws {Error} - Throws error if removal fails or account not found
+ */
+async function removeAccountFromDB(username) {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('requests');
+        const collection = database.collection('accounts');
+
+        const result = await collection.deleteOne({ username });
+
+        if (result.deletedCount === 0) {
+            throw new Error('Account not found in database');
+        }
+
+        return true;
+    } catch (error) {
+        throw new Error(`Failed to remove account from database: ${error.message}`);
+    }
+}
 
 module.exports = router;

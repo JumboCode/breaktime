@@ -11,8 +11,7 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
-    "@clerk/backend": "^2.18.3",
-    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/backend": "^2.19.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "eslint": "^9.36.0",
