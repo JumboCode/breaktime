@@ -11,7 +11,7 @@ function SideBar() {
     const isSidebarOpen = true;
     
     return (
-        <div className="flex flex-col h-[calc(100vh-80px)] p-[30px] pt-[10px] w-md">
+        <div className="flex flex-col h-[calc(100vh-120px)] w-[350px]"> 
             <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, Labubu!</h1>
             <div className="flex flex-col gap-6 h-full">
                 <div className="h-fit border-2 border-dark-purple rounded-3xl p-4"><Calendar/></div>
@@ -27,7 +27,6 @@ function SideBar() {
             </div>
         </div>
     );
-
 }
 
 export default SideBar;
