@@ -1,10 +1,7 @@
 import { useState } from 'react';
 
-const UserStaffToggle = ({ onToggle }) => {
-    const [selected, setSelected] = useState('staff'); // Default to 'staff'
-
+const UserStaffToggle = ({ selectedType, onToggle }) => {
     const handleChange = (value) => {
-        setSelected(value);
         if (onToggle) onToggle(value);
     };
 
@@ -17,13 +14,13 @@ const UserStaffToggle = ({ onToggle }) => {
                     id="toggle-users"
                     name="user-staff"
                     value="users"
-                    checked={selected === 'users'}
+                    checked={selectedType === 'users'}
                     onChange={(e) => handleChange(e.target.value)}
                 />
                 <label
                     htmlFor="toggle-users"
                     className={`uppercase font-semibold flex items-center justify-center h-full w-1/2 rounded-[16px] cursor-pointer select-none text-xl ${
-                        selected === 'users'
+                        selectedType === 'users'
                             ? 'bg-lime-500 text-dark-navy'
                             : 'text-light-purple'
                     }`}
@@ -37,13 +34,13 @@ const UserStaffToggle = ({ onToggle }) => {
                     id="toggle-staff"
                     name="user-staff"
                     value="staff"
-                    checked={selected === 'staff'}
+                    checked={selectedType === 'staff'}
                     onChange={(e) => handleChange(e.target.value)}
                 />
                 <label
                     htmlFor="toggle-staff"
                     className={`uppercase font-semibold flex items-center justify-center h-full w-1/2 rounded-[16px] cursor-pointer select-none text-xl ${
-                        selected === 'staff'
+                        selectedType === 'staff'
                             ? 'bg-lime-500 text-dark-navy'
                             : 'text-light-purple'
                     }`}
