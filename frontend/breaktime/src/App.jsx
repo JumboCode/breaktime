@@ -4,18 +4,19 @@
  * 
  */
 
-import PWABadge from './PWABadge.jsx';
-import UserSignup from './components/UserSignup.jsx';
-import StaffSignup from './components/StaffSignup.jsx';
-import LandingPage from './pages/LandingPage.jsx';
 import { BrowserRouter as Router, Route, Routes} from 'react-router';
-function App() {
 
+import LandingPage from './pages/LandingPage.jsx';
+import HomePage from './pages/HomePage.jsx';
+
+function App() {
+  
   return (
     <>
       <Router>
         <Routes>
           <Route path='/signup' element={<LandingPage />} />
+          <Route path='/home' element={<HomePage />} />
         </Routes>
       </Router>
     </>

@@ -32,7 +32,7 @@ export default function LandingPage() {
                             <h2 className="text-light-purple text-xl">
                                 Let's get you started!
                             </h2>
-                                <UserStaffToggle onToggle={setSelectedType} classname=""/>
+                                <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
                             
                             <div className="flex-1">
                                 {selectedType === 'staff' ? <StaffSignup/> : <UserSignup/>}
