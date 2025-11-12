@@ -2,7 +2,7 @@ import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import { useState } from "react";
 
-export default function StaffLandingCalendar() {
+export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     return (            
