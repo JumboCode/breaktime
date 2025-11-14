@@ -4,45 +4,53 @@ import { useState } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
 
-
 const localizer = momentLocalizer(moment);
 
-function CustomToolbar({ label, onNavigate, onView }) {
+function CustomToolbar({ label, onNavigate, onView, view }) {
   return (
     <div className="rbc-toolbar">
-        <div className="toolbar-top-row">  
-            <span className="rbc-toolbar-label label-group">{label}</span>
-            <span className="rbc-btn-group nav-group">
-                <button onClick={() => onNavigate("PREV")}></button>
-                <button onClick={() => onNavigate("TODAY")}>Today</button>
-                <button onClick={() => onNavigate("NEXT")}></button>
-            </span>
-            <span className="scheduling-color-bar">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </span>
-            <span className="rbc-btn-group view-group">
-                <button onClick={() => onView("month")}>Monthly</button>
-                <button onClick={() => onView("week")}>Weekly</button>
-            </span>
-        </div>
-        
-        <div className="toolbar-bottom-row">
-            <span className="rbc-btn-group actions-group">
-                <button>
-                add new
-                </button>
-                <search>
-                search for booking..
-                </search>
-                <button>
-                all bookings
-                </button>
-            </span>
-        </div>
-        
+      <div className="toolbar-top-row">
+
+        <span className="rbc-toolbar-label label-group">{label}</span>
+
+        <span className="rbc-btn-group nav-group">
+          <button onClick={() => onNavigate("PREV")}></button>
+          <button onClick={() => onNavigate("TODAY")}>Today</button>
+          <button onClick={() => onNavigate("NEXT")}></button>
+        </span>
+
+        <span className="scheduling-color-bar">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </span>
+
+        <span className="rbc-btn-group view-group calendar-nav-buttons">
+          <button
+            className={view === "month" ? "active-calendar-view" : ""}
+            onClick={() => onView("month")}
+          >
+            Monthly
+          </button>
+
+          <button
+            className={view === "week" ? "active-calendar-view" : ""}
+            onClick={() => onView("week")}
+          >
+            Weekly
+          </button>
+        </span>
+
+      </div>
+
+      <div className="toolbar-bottom-row">
+        <span className="rbc-btn-group actions-group">
+          <button className="calendar-nav-buttons">add new</button>
+          <input type="search" className="calendar-nav-buttons" placeholder="search for booking..."/>
+          <button className="calendar-nav-buttons">all bookings</button>
+        </span>
+      </div>
     </div>
   );
 }
@@ -65,7 +73,7 @@ const MyCalendar = () => {
   ];
 
   return (
-    <div> 
+    <div>
       <Calendar
         localizer={localizer}
         events={myEventsList}
@@ -77,9 +85,8 @@ const MyCalendar = () => {
         view={view}
         onView={setView}
         components={{
-          toolbar: CustomToolbar
+          toolbar: (props) => <CustomToolbar {...props} view={view} />
         }}
-        
       />
     </div>
   );
