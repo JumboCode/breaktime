@@ -1,29 +1,23 @@
-.rbc-toolbar .rbc-toolbar-label {
-    font-size: 40px;
-    font-weight: 600;
-    text-align: left ;
-    padding: 0;
-    flex-grow: 0;
-}
+/*
 
-.rbc-toolbar {
-    display: flex;
-    justify-content: space-between;;
-}
-
+ /* move original span1 to position 2 
 .nav-group{
-  order: 2;  /* move original span1 to position 2 */
+  order: 2; 
 }
 
+ /* move original span2 to position 1 
 .label-group {
-  order: 1;  /* move original span2 to position 1 */
+  order: 1; 
 }
 
+/* keep span3 to position 3 
 .view-group {
-  order: 3;  /* keep span3 to position 3 */
+  order: 3;  
 }
+
+/* move span4 last */ /* just added this, why does stying from 3rd child move to this group?
 .actions-group {
-    order: 4;  /* move span4 last */ /* just added this, why does stying from 3rd child move to this group?*/
+    order: 4;  
   }
 
 span.rbc-btn-group button:hover {
@@ -74,18 +68,21 @@ span.rbc-btn-group button.rbc-active:focus {
     border: none;
 }
 
-.nav-group button:nth-child(2) {  /* "Today" button */
+ /* "Today" button 
+.nav-group button:nth-child(2) { 
     order: 2;
     font-size: 24px;
     padding-top: 0;
     padding-bottom: 0;
 }
 
-.nav-group button:nth-child() { /* "Back" button */
+/* "Back" button 
+.nav-group button:nth-child() { 
     order: 1;
 }
 
-.nav-group button:nth-child(3) { /* "Next" button */
+/* "Next" button 
+.nav-group button:nth-child(3) { 
     order: 3;
 }
 
@@ -150,4 +147,101 @@ span.rbc-btn-group button.rbc-active:focus {
     border: 1px solid black;
     border-radius: 20px;
     padding: 0.5px 4px;
+} */
+
+.rbc-toolbar {
+    display: flex;
+    flex-direction: column;
+}
+
+span.rbc-btn-group.actions-group {
+    display: flex !important;
+    flex-direction: row;
+}
+
+.rbc-toolbar .rbc-toolbar-label {
+    font-size: 40px;
+    font-weight: 600;
+    text-align: left ;
+    padding: 0;
+    flex-grow: 0;
+}
+
+.toolbar-top-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toolbar-bottom-row {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    margin-top: 10px;
+}
+
+.toolbar-bottom-row span.rbc-btn-group.actions-group {
+    display: flex;
+    gap: 40px;
+}
+
+.scheduling-color-bar {
+    width: 500px;
+    height: 40px;
+    display: flex;
+}
+
+.scheduling-color-bar div {
+    height: 40px;
+    width: 25%;
+}
+
+.scheduling-color-bar div:nth-child(1) {
+    background-color: var(--color-cal-orange-bar);
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+}
+
+.scheduling-color-bar div:nth-child(2) {
+    background-color: var(--color-cal-blue-bar);
+}
+
+.scheduling-color-bar div:nth-child(3) {
+    background-color: var(--color-cal-green-bar);
+}
+
+.scheduling-color-bar div:nth-child(4) {
+    background-color: var(--color-cal-pink-bar);
+    border-top-right-radius: 40px;
+    border-bottom-right-radius: 40px;
+}
+
+span.rbc-btn-group.view-group {
+    border: 1px solid black;
+    border-radius: 40px;
+    padding: 0.5px 4px;
+}
+
+span.rbc-btn-group.view-group button {
+    border: none;
+}
+
+span.rbc-btn-group.view-group button:hover,
+span.rbc-btn-group.view-group button:focus,
+span.rbc-btn-group.view-group button:active {
+    box-shadow: none !important;
+}
+
+span.rbc-btn-group.view-group button:hover {
+    background-color: transparent !important;
+}
+
+span.rbc-btn-group.view-group button:focus,
+span.rbc-btn-group.view-group button:active {
+    border: 1px solid black;
+    background-color: var(--color-lime-500) !important;
+    border-radius: 40px;
+    padding: 2px 10px;
+    font-weight: bold;
 }
