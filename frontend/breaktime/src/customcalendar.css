@@ -71,7 +71,6 @@ span.rbc-btn-group.actions-group {
 
 span.rbc-btn-group.view-group {
     width: 190px;
-    height: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -153,6 +152,7 @@ button.calendar-nav-buttons,
     border: 1px solid black;
     border-radius: 40px !important;
     padding: 4px 16px;
+    height: 40px;
 }
 
 button.calendar-nav-buttons:hover,
