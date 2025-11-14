@@ -22,3 +22,39 @@
 .rbc-toolbar span:nth-child(3) {
   order: 3;  /* keep span3 last */
 }
+
+span.rbc-btn-group:first-of-type {
+    display: flex;
+}
+
+span.rbc-btn-group:first-of-type button {
+    border: none;
+}
+
+span.rbc-btn-group:first-of-type button:nth-child(1) {  /* "Today" button */
+    order: 2;
+    font-size: 24px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+span.rbc-btn-group:first-of-type button:nth-child(2) { /* "Back" button */
+    order: 1;
+    width: 38px;
+    overflow-x: hidden;
+    padding: 0;
+}
+
+span.rbc-btn-group:first-of-type button:nth-child(2)::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 45px;
+    background-image: url("/src/assets/maincal/BackButtonCal.png");
+    background-repeat: no-repeat;
+    margin-right: 3px;
+}
+
+span.rbc-btn-group:first-of-type button:nth-child(3) { /* "Next" button */
+    order: 3;
+}
