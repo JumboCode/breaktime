@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Booking = require('../models/Booking');
-const Counter = require('../models/Counter');
+const mongodbPromise = require('../utils/mongodb');
 const { bookingSchema } = require('../schemas/booking');
 
 
@@ -21,11 +20,20 @@ const { bookingSchema } = require('../schemas/booking');
 // POST /create - Create a new booking
 router.post('/create', async (req, res) => {
     try {
+        // Get MongoDB client and connect to services database
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const bookingsCollection = database.collection('bookings');
+        const countersCollection = database.collection('counters');
+
         // Get next bookingID from counter and atomically increment it
-        const counter = await Counter.findOneAndUpdate(
+        const counter = await countersCollection.findOneAndUpdate(
             { name: 'bookingID' },
             { $inc: { value: 1 } },
-            { new: true, upsert: true, setDefaultsOnInsert: true }
+            {
+                returnDocument: 'after',
+                upsert: true
+            }
         );
         const bookingID = counter.value;
         const timestamp = new Date();
@@ -51,21 +59,20 @@ router.post('/create', async (req, res) => {
             });
         }
 
-        // Create and save the booking using Mongoose
-        const newBooking = new Booking(bookingData);
-        const savedBooking = await newBooking.save();
+        // Insert the booking into MongoDB
+        const result = await bookingsCollection.insertOne(bookingData);
 
         return res.status(201).json({
             success: true,
             message: 'Booking created successfully',
             data: {
-                _id: savedBooking._id,
-                bookingID: savedBooking.bookingID,
-                userID: savedBooking.userID,
-                serviceID: savedBooking.serviceID,
-                status: savedBooking.status,
-                timestamp: savedBooking.timestamp,
-                duration: savedBooking.duration
+                _id: result.insertedId,
+                bookingID: bookingData.bookingID,
+                userID: bookingData.userID,
+                serviceID: bookingData.serviceID,
+                status: bookingData.status,
+                timestamp: bookingData.timestamp,
+                duration: bookingData.duration
             }
         });
 
@@ -89,48 +96,84 @@ router.post('/create', async (req, res) => {
     }
 });
 
-// PUT /edit - Edit an existing booking's status
-// Client passes: bookingID and status ('confirmed' or 'canceled')
+// PUT /edit - Edit an existing booking's status and/or duration
+// Client passes: bookingID and optionally status and/or duration
 router.put('/edit', async (req, res) => {
     try {
-        const { bookingID, status } = req.body;
+        // Get MongoDB client and connect to services database
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const bookingsCollection = database.collection('bookings');
 
-        // Validate required fields
-        if (!bookingID) {
+        const { bookingID, status, duration } = req.body;
+
+        // Convert bookingID to number
+        const bookingIDNum = Number(bookingID);
+
+        // Validate required field
+        if (!bookingID || isNaN(bookingIDNum)) {
             return res.status(400).json({
                 success: false,
                 message: 'Validation error',
-                error: 'bookingID is required'
+                error: 'Valid bookingID is required'
             });
         }
 
-        // Validate status exists
-        if (!status) {
+        // Check that at least one field to update is provided
+        if (!status && !duration) {
             return res.status(400).json({
                 success: false,
                 message: 'Validation error',
-                error: 'status is required'
+                error: 'At least one field (status or duration) must be provided for update'
             });
         }
 
-        // Validate status value
-        const validStatuses = ['pending', 'confirmed', 'canceled'];
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Validation error',
-                error: `status must be one of: ${validStatuses.join(', ')}`
-            });
+        // Build the update object dynamically
+        const updateFields = {
+            timestamp: new Date() // Always update timestamp
+        };
+
+        // Validate and add status if provided
+        if (status !== undefined) {
+            const validStatuses = ['pending', 'confirmed', 'canceled'];
+            if (!validStatuses.includes(status)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation error',
+                    error: `status must be one of: ${validStatuses.join(', ')}`
+                });
+            }
+            updateFields.status = status;
+        }
+
+        // Validate and add duration if provided
+        if (duration !== undefined) {
+            // Use Joi to validate duration structure
+            const Joi = require('joi');
+            const durationSchema = Joi.array().items(
+                Joi.object({
+                    day: Joi.string().valid('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday').required(),
+                    startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(),
+                    endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()
+                }).required()
+            ).required();
+
+            const { error } = durationSchema.validate(duration);
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation error',
+                    error: error.details[0].message
+                });
+            }
+            updateFields.duration = duration;
         }
 
         // Find and update the booking
-        const updatedBooking = await Booking.findOneAndUpdate(
-            { bookingID },
-            { 
-                status,
-                timestamp: new Date() // Update timestamp to current time
-            },
-            { new: true } // Return the updated document
+        const updatedBooking = await bookingsCollection.findOneAndUpdate(
+            { bookingID: bookingIDNum },
+            { $set: updateFields },
+            { returnDocument: 'after' } // Return the updated document
         );
 
         // Check if booking was found
@@ -138,7 +181,7 @@ router.put('/edit', async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: 'Booking not found',
-                error: `No booking found with bookingID: ${bookingID}`
+                error: `No booking found with bookingID: ${bookingIDNum}`
             });
         }
 
@@ -170,58 +213,71 @@ router.put('/edit', async (req, res) => {
 // DELETE /delete - Delete a booking
 // Client passes: bookingID
 router.delete('/delete', async (req, res) => {
-        try {
-            // TODO: Check in with Yoda, Luis, and Sean that bookingID should
-            // be the var we delete off of. 
-            const { bookingID } = req.body;
-    
-            // Validate required field
-            if (!bookingID) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Validation error',
-                    error: 'bookingID is required'
-                });
-            }
-    
-            const deletedBooking = await Booking.findOneAndDelete({ bookingID });
-    
-            // Check if booking was found
-            if (!deletedBooking) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Booking not found',
-                    error: `No booking found with bookingID: ${bookingID}`
-                });
-            }
-    
-            // Return delete success response
-            return res.status(200).json({
-                success: true,
-                message: 'Booking deleted successfully',
-                data: {
-                    bookingID: deletedBooking.bookingID,
-                    userID: deletedBooking.userID,
-                    serviceID: deletedBooking.serviceID
-                }
-            });
-    
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({
+    try {
+        // Get MongoDB client and connect to services database
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const bookingsCollection = database.collection('bookings');
+
+        // TODO: Check in with Yoda, Luis, and Sean that bookingID should
+        // be the var we delete off of.
+        const { bookingID } = req.body;
+
+        // Convert bookingID to number
+        const bookingIDNum = Number(bookingID);
+
+        // Validate required field
+        if (!bookingID || isNaN(bookingIDNum)) {
+            return res.status(400).json({
                 success: false,
-                message: 'Error deleting booking',
-                error: error.message
+                message: 'Validation error',
+                error: 'Valid bookingID is required'
             });
         }
-    });
+
+        const deletedBooking = await bookingsCollection.findOneAndDelete({ bookingID: bookingIDNum });
+
+        // Check if booking was found
+        if (!deletedBooking) {
+            return res.status(404).json({
+                success: false,
+                message: 'Booking not found',
+                error: `No booking found with bookingID: ${bookingIDNum}`
+            });
+        }
+
+        // Return delete success response
+        return res.status(200).json({
+            success: true,
+            message: 'Booking deleted successfully',
+            data: {
+                bookingID: deletedBooking.bookingID,
+                userID: deletedBooking.userID,
+                serviceID: deletedBooking.serviceID
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting booking',
+            error: error.message
+        });
+    }
+});
 
 // POST /reset-counter - Reset booking ID counter to 0 (for testing purposes)
 router.post('/reset-counter', async (req, res) => {
     try {
-        await Counter.findOneAndUpdate(
+        // Get MongoDB client and connect to services database
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const countersCollection = database.collection('counters');
+
+        await countersCollection.findOneAndUpdate(
             { name: 'bookingID' },
-            { value: 0 },
+            { $set: { value: 0 } },
             { upsert: true }
         );
 
@@ -241,3 +297,7 @@ router.post('/reset-counter', async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * input that create requires: 
+ */

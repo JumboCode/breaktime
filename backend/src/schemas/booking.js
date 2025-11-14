@@ -12,7 +12,7 @@ const bookingSchema = Joi.object({
          startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(), // "HH:mm"
          endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()
       }).required()
-   )
+   ).required()
 });
 
 module.exports = { bookingSchema };
