@@ -299,5 +299,20 @@ router.post('/reset-counter', async (req, res) => {
 module.exports = router;
 
 /**
- * input that create requires: 
+ * input that /create
+ * userID
+ * serviceID
+ * duration
+ * 
+ * input that /edit requires
+ * bookingID
+ * status
+ * AND OR
+ * duration
+ * 
+ * input that /delete requires
+ * bookingID
+ * 
+ * I think from a security point of view, we need someway to authenticate users who try to /edit or /delete.
+ * this could be done using JWT's, confirming that only admins are executing these functions
  */
