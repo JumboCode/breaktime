@@ -10,36 +10,39 @@ const localizer = momentLocalizer(moment);
 function CustomToolbar({ label, onNavigate, onView }) {
   return (
     <div className="rbc-toolbar">
-
-      <span className="rbc-btn-group nav-group">
-        <button onClick={() => onNavigate("BACK")}></button>
-        <button onClick={() => onNavigate("TODAY")}>Today</button>
-        <button onClick={() => onNavigate("NEXT")}></button>
-      </span>
-
-      <span className="rbc-toolbar-label label-group">{label}</span>
-
-      <span className="rbc-btn-group view-group">
-
-        <button onClick={() => onView("month")}>Month</button>
-        <button onClick={() => onView("week")}>Week</button>
-
-
+        <div className="toolbar-top-row">  
+            <span className="rbc-toolbar-label label-group">{label}</span>
+            <span className="rbc-btn-group nav-group">
+                <button onClick={() => onNavigate("PREV")}></button>
+                <button onClick={() => onNavigate("TODAY")}>Today</button>
+                <button onClick={() => onNavigate("NEXT")}></button>
+            </span>
+            <span className="scheduling-color-bar">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </span>
+            <span className="rbc-btn-group view-group">
+                <button onClick={() => onView("month")}>Monthly</button>
+                <button onClick={() => onView("week")}>Weekly</button>
+            </span>
+        </div>
         
-
-      </span>
-      <span className="rbc-btn-group actions-group">
-        <button>
-          add new
-        </button>
-        <search>
-          search for booking..
-        </search>
-        <button>
-          all bookings
-        </button>
-      </span>
-
+        <div className="toolbar-bottom-row">
+            <span className="rbc-btn-group actions-group">
+                <button>
+                add new
+                </button>
+                <search>
+                search for booking..
+                </search>
+                <button>
+                all bookings
+                </button>
+            </span>
+        </div>
+        
     </div>
   );
 }
