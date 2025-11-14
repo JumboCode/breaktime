@@ -15,7 +15,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Placeholder for calendar view */}
-                <div className={`h-[calc(100vh-120px)] bg-cal-bg border-none font-all rounded-[20px] p-[40px] ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
+                <div className={`h-[calc(100vh-120px)] bg-cal-bg border-none font-all text-cal-font rounded-[20px] p-[40px] ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
                     <MainCalendar />
                 </div>
                 {/* <div className={`h-[calc(100vh-120px)] bg-white rounded-[20px] ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}></div> */}
