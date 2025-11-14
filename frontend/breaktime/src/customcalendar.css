@@ -1,0 +1,24 @@
+.rbc-toolbar .rbc-toolbar-label {
+    font-size: 40px;
+    font-weight: 600;
+    text-align: left ;
+    padding: 0;
+    flex-grow: 0;
+}
+
+.rbc-toolbar {
+    display: flex;
+    justify-content: space-between;;
+}
+
+.rbc-toolbar span:nth-child(1) {
+  order: 2;  /* move original span1 to position 2 */
+}
+
+.rbc-toolbar span:nth-child(2) {
+  order: 1;  /* move original span2 to position 1 */
+}
+
+.rbc-toolbar span:nth-child(3) {
+  order: 3;  /* keep span3 last */
+}
