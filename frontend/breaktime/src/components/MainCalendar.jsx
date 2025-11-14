@@ -4,7 +4,45 @@ import { useState } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
 
+
 const localizer = momentLocalizer(moment);
+
+function CustomToolbar({ label, onNavigate, onView }) {
+  return (
+    <div className="rbc-toolbar">
+
+      <span className="rbc-btn-group nav-group">
+        <button onClick={() => onNavigate("BACK")}></button>
+        <button onClick={() => onNavigate("TODAY")}>Today</button>
+        <button onClick={() => onNavigate("NEXT")}></button>
+      </span>
+
+      <span className="rbc-toolbar-label label-group">{label}</span>
+
+      <span className="rbc-btn-group view-group">
+
+        <button onClick={() => onView("month")}>Month</button>
+        <button onClick={() => onView("week")}>Week</button>
+
+
+        
+
+      </span>
+      <span className="rbc-btn-group actions-group">
+        <button>
+          add new
+        </button>
+        <search>
+          search for booking..
+        </search>
+        <button>
+          all bookings
+        </button>
+      </span>
+
+    </div>
+  );
+}
 
 const MyCalendar = () => {
   const [date, setDate] = useState(new Date());
@@ -35,6 +73,10 @@ const MyCalendar = () => {
         onNavigate={setDate}
         view={view}
         onView={setView}
+        components={{
+          toolbar: CustomToolbar
+        }}
+        
       />
     </div>
   );
