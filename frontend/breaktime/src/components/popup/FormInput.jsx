@@ -7,7 +7,7 @@ const FormInput = ({
  required = false,
 }) => (
  <div className="mb-4">
-   <label className="block text-sm font-medium text-[#273991] mb-1">
+   <label className="block text-sm font-medium text-[#262445] mb-1">
      {label}
    </label>
    <input
@@ -15,7 +15,7 @@ const FormInput = ({
      value={value}
      onChange={onChange}
      required={required}
-     className="w-full px-4 py-2 bg-[#dadefd] text-[#232571] rounded-[14px] border-none focus:outline-none font-medium text-base placeholder:text-[#7375a6]"
+     className="w-full px-4 py-2 caret-[#262445] bg-[#dadefd] text-[#262445] rounded-[14px] border-none focus:outline-none font-medium text-base placeholder:text-[#262445]"
    />
  </div>
 );
