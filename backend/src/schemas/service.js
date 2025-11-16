@@ -8,7 +8,7 @@ const servicesSchema = Joi.object({
    serviceDurationInterval: Joi.number().integer().positive().required(),
    availability : Joi.array().items(
       Joi.object({
-         day: Joi.pattern(/^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/i),
+         day: Joi.string().pattern(/^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/i),
          startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(), // "HH:mm"
          endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()
       }).required()
