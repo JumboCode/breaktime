@@ -16,13 +16,15 @@ app.use(express.json());
 
 /* Routes */
 const exampleRoutes = require('./routes/exampleRoute');
-const admin = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
+const serviceRoutes = require('./routes/service');
 
 app.use('/example', exampleRoutes);
 app.use('/user', userRoutes);
 app.use('/staff', staffRoutes);
-app.use('/admin', admin);
+app.use('/admin', adminRoutes);
+app.use('/service', serviceRoutes);
 
 module.exports = app;
