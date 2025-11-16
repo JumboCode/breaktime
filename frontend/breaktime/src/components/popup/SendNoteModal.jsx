@@ -1,55 +1,61 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { X, Send } from "lucide-react";
+import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_BrightBlue.png";
 
+const SendNoteModal = ({ onClose, onSend }) => {
+  // State to manage the content of the note
+  const [note, setNote] = useState("");
 
-const SendNoteModal = ({ booking, onClose, onSend }) => {
- const [note, setNote] = useState("");
- const handleSend = () => {
-   onSend(booking.id, note);
-   onClose();
- };
- return (
-   <div className="w-[355px] bg-white shadow-xl rounded-[32px] px-5 py-6 mx-auto font-sans">
-     <div className="flex justify-between items-center mb-4">
-       <h2 className="text-xl font-bold text-[#273991] flex items-center">
-         <Send className="mr-2 text-blue-500" size={24} /> Send Note
-       </h2>
-       <button
-         type="button"
-         onClick={onClose}
-         className="text-gray-500 hover:text-gray-700"
-       >
-         <X size={24} />
-       </button>
-     </div>
-     <div className="mb-4 bg-gray-50 p-3 rounded-lg">
-       <p className="text-sm text-gray-600">Sending to:</p>
-       <p className="font-semibold">{booking.client}</p>
-     </div>
-     <textarea
-       value={note}
-       onChange={(e) => setNote(e.target.value)}
-       placeholder="Type your message here..."
-       className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-     />
-     <button
-       type="button"
-       onClick={handleSend}
-       disabled={!note.trim()}
-       className="w-full mt-4 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transform hover:scale-105 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-     >
-       Send Message
-     </button>
-   </div>
- );
+  // Function to handle sending the note
+  const handleSend = () => {
+    onSend(note); // Pass the note content to the onSend callback
+    onClose(); // Close the modal after sending
+  };
+
+  return (
+    <div className="w-[237px] h-[237px] bg-[#F7FCFF] rounded-[24px] px-5 py-4 shadow-lg flex flex-col items-center poppins">
+      {/* Logo */}
+      <img src={logo} alt="Breaktime Logo" className="w-[41px] h-[41px] mb-1" />
+
+      {/* Modal title */}
+      <h2 className="text-[16px] font-semibold text-[#273991] mb-2 text-center">
+        Send a Note
+      </h2>
+
+      {/* Textarea for entering the note */}
+      <textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Text here..."
+        className="w-[197px] h-[70px] bg-white border-2 border-[#6297EA] rounded-[12px] text-[#8D8D8D] text-[12px] px-3 py-2 mb-2 resize-none placeholder:text-[#8D8D8D] placeholder:text-[12px] focus:outline-none focus:ring-2 focus:ring-[#6297EA] text-left"
+      />
+
+      {/* Cancel button */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="text-[#B6B7FB] font-semibold text-[14px] mb-1 hover:underline text-center poppins"
+      >
+        Cancel
+      </button>
+
+      {/* Send button */}
+      <button
+        type="button"
+        onClick={handleSend}
+        disabled={!note.trim()}
+        className="w-[126px] h-[34px] bg-[#ABB9FF] text-[#F0F7F2] font-semibold text-[16px] rounded-full px-4 py- shadow-md"
+      >
+        Send
+      </button>
+    </div>
+  );
 };
+
+// Prop type validation
 SendNoteModal.propTypes = {
- booking: PropTypes.object.isRequired,
- onClose: PropTypes.func.isRequired,
- onSend: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired, // Function to handle modal close
+  onSend: PropTypes.func.isRequired, // Function to handle sending the note
 };
+
 export default SendNoteModal;
-
-
-

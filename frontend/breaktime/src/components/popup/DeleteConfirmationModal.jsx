@@ -1,55 +1,54 @@
 import PropTypes from "prop-types";
-import { X, Trash2 } from "lucide-react";
-const DeleteConfirmationModal = ({ booking, onClose, onConfirm }) => (
- <div className="w-[355px] bg-white shadow-xl rounded-[32px] px-5 py-6 mx-auto font-sans">
-   <div className="flex justify-between items-center mb-4">
-     <h2 className="text-xl font-bold text-red-600 flex items-center">
-       <Trash2 className="mr-2" size={24} /> Delete Booking
-     </h2>
-     <button
-       type="button"
-       onClick={onClose}
-       className="text-gray-500 hover:text-gray-700"
-     >
-       <X size={24} />
-     </button>
-   </div>
-   <div className="mb-6">
-     <p className="text-[#273991] mb-2">
-       Are you sure you want to delete this booking?
-     </p>
-     <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-       <p className="font-semibold">{booking.client}</p>
-       <p className="text-sm text-gray-600">
-         {booking.date} at {booking.time}
-       </p>
-       <p className="text-sm text-gray-600">{booking.service}</p>
-     </div>
-   </div>
-   <div className="flex gap-3">
-     <button
-       type="button"
-       onClick={onClose}
-       className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
-     >
-       Cancel
-     </button>
-     <button
-       type="button"
-       onClick={() => {
-         onConfirm(booking.id);
-         onClose();
-       }}
-       className="flex-1 bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 transform hover:scale-105 transition-all shadow-lg"
-     >
-       Delete
-     </button>
-   </div>
- </div>
+import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_BrightBlue.png";
+
+// DeleteConfirmationModal component displays a modal for confirming the deletion of a booking
+const DeleteConfirmationModal = ({ onClose, onConfirm }) => (
+  <div className="w-[237px] h-[237px] bg-[#F7FCFF] rounded-[24px] px-5 py-4 mx-auto shadow-lg flex flex-col items-center font-poppins">
+    {/* Logo */}
+    <img
+      src={logo}
+      alt="Breaktime Logo"
+      className="w-[41px] h-[41px] mb-1"
+    />
+
+    {/* Modal title */}
+    <h2 className="text-[16px] font-semibold text-[#273991] mb-2 text-center">
+      Delete Booking
+    </h2>
+
+    {/* Modal description */}
+    <p className="text-[#273991] text-[12px] text-center mb-2 leading-5">
+      Are you sure you want to<br />
+      delete this booking?
+    </p>
+
+    {/* Action buttons */}
+    <div className="flex flex-col gap-1 w-full items-center mt-auto">
+      {/* Cancel button */}
+      <button
+        type="button"
+        onClick={onClose}
+        className="text-[#B6B7FB] font-semibold text-[14px] mb-1 hover:underline text-center"
+      >
+        Cancel
+      </button>
+
+      {/* Confirm button */}
+      <button
+        type="button"
+        onClick={onConfirm}
+        className="w-[118px] h-[30px] bg-[#ABB9FF] text-[#786CFF] font-semibold text-[16px] rounded-full px-4 py-1 shadow-md hover:bg-[#9da0e9] transition"
+      >
+        Confirm
+      </button>
+    </div>
+  </div>
 );
+
+// Prop type validation for the component
 DeleteConfirmationModal.propTypes = {
- booking: PropTypes.object.isRequired,
- onClose: PropTypes.func.isRequired,
- onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired, // Function to handle closing the modal
+  onConfirm: PropTypes.func.isRequired, // Function to handle confirming the deletion
 };
+
 export default DeleteConfirmationModal;
