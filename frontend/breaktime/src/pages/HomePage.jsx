@@ -1,6 +1,7 @@
 import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import MainCalendar from "../components/MainCalendar";
+import CalendarCorner from "../assets/maincal/CalendarCorner.svg";
 import { useState } from "react";
 
 export default function HomePage() {
@@ -14,11 +15,16 @@ export default function HomePage() {
                     <SideBar />
                 </div>
 
-                {/* Placeholder for calendar view */}
-                <div className={`h-[calc(100vh-120px)] bg-cal-bg border-none font-all text-cal-font rounded-[20px] p-[50px] ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
-                    <MainCalendar />
+                <div className={`h-[calc(100vh-120px)] relative bg-cal-bg border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
+                    <div>
+                        <img src={CalendarCorner} className="absolute bottom-0 m-[-30px]"/>
+                        <img src={CalendarCorner} className="absolute top-0 right-0 m-[-30px] rotate-180"/>
+                    </div>
+
+                    <div className="bg-cal-bg p-[50px] rounded-inherit h-inherit">
+                        <MainCalendar />
+                    </div>
                 </div>
-                {/* <div className={`h-[calc(100vh-120px)] bg-white rounded-[20px] ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}></div> */}
             </div>
         </div>
     );
