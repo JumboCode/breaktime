@@ -184,3 +184,7 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
     background-size: 10%;
     background-position-x: 174px;
 }
+
+/* .main-calendar-wrapper {
+    background-image: url("/src/assets/maincal/CalendarCorner.svg");
+} */
