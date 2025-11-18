@@ -185,6 +185,8 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
     background-position-x: 174px;
 }
 
-/* .main-calendar-wrapper {
-    background-image: url("/src/assets/maincal/CalendarCorner.svg");
-} */
+/* Used to attached inherit properties that are no longer supported by Tailwind V4 */
+.main-cal-wrapper {
+    border-radius: inherit;
+    height: inherit;
+}

@@ -21,7 +21,7 @@ export default function HomePage() {
                         <img src={CalendarCorner} className="absolute top-0 right-0 m-[-30px] rotate-180"/>
                     </div>
 
-                    <div className="bg-cal-bg p-[50px] rounded-inherit h-inherit">
+                    <div className="bg-cal-bg p-[50px] main-cal-wrapper">
                         <MainCalendar />
                     </div>
                 </div>
