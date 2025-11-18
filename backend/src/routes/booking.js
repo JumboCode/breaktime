@@ -348,7 +348,7 @@ const mongodbPromise = require('../utils/mongodb');
  *        500:
  *          description: - json with an error message if there is an issue connecting to MongoDB
  * */
-router.post('/history', async (req, res) => {
+router.post('/userbookinghistory', async (req, res) => {
     try {
         // Extract and validate userID from request body
         const { userID } = req.body;
