@@ -55,6 +55,22 @@ function CustomToolbar({ label, onNavigate, onView, view }) {
   );
 }
 
+const CustomEvent = ({ event }) => {
+  const timeString = event.start.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).toLowerCase();
+
+  return (
+    <div>
+      <span className="event-time">{timeString}</span>
+      <span > </span>
+      <span className="event-title">{event.title}</span>
+    </div>
+  );
+};
+
 const MyCalendar = () => {
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState('month');
@@ -85,7 +101,8 @@ const MyCalendar = () => {
         view={view}
         onView={setView}
         components={{
-          toolbar: (props) => <CustomToolbar {...props} view={view} />
+          toolbar: (props) => <CustomToolbar {...props} view={view}/>,
+          event: CustomEvent
         }}
       />
     </div>
