@@ -35,14 +35,17 @@ const ModifyBookingModal = ({
   };
 
   return (
-    <div className="flex justify-center items-center h-full poppins">
-      <div className="w-[334px] h-[509px] bg-[#f7fbfd] shadow-xl rounded-[32px] px-5 py-6 font-poppins flex flex-col items-center">
+    <div className="flex justify-center items-center h-full poppins cursor-pointer">
+      <div className="w-[334px] h-[509px] bg-[#f7fbfd] shadow-xl rounded-[32px] 
+      px-5 py-6 font-poppins flex flex-col items-center">
         {/* Service image and dropdown */}
         <div className="relative rounded-[22px] overflow-hidden mb-3">
           <img src={ServiceGraphics} alt="Service" className="w-full" />
-          <div className="absolute top-0 left-1 bg-[#7DDCFB] rounded-[18px] px-3 py-1 shadow-md">
+          <div className="absolute top-0 left-1 bg-[#7DDCFB] rounded-[18px] 
+          px-3 py-1 shadow-md">
             <select
-              className="bg-transparent p-0 font-bold text-[12px] text-[#273991] border-none outline-none cursor-pointer"
+              className="bg-transparent p-0 font-bold text-[12px] 
+              text-[#273991] border-none outline-none cursor-pointer"
               value={formData.service}
               onChange={(e) =>
                 setFormData((f) => ({ ...f, service: e.target.value }))
@@ -90,7 +93,8 @@ const ModifyBookingModal = ({
         >
           {/* Booking info fields */}
           <div className="mb-2 flex items-center gap-x-2 w-full">
-            <span className="w-[98px] h-[40px] bg-[#B9FF00] text-[#273991] rounded-[12px] px-3 py-1 font-semibold flex items-center justify-center">
+            <span className="w-[98px] h-[40px] bg-[#B9FF00] text-[#273991] 
+            rounded-[12px] px-3 py-1 font-semibold flex items-center justify-center">
               YA User
             </span>
             <input
@@ -149,7 +153,12 @@ const ModifyBookingModal = ({
             {/* Update button */}
             <button
               type="submit"
-              className="w-[160px] h-[44px] bg-[#ABB9FF] text-[#273991] py-2 rounded-[17px] font-semibold text-base hover:bg-[#d5ddff]"
+              className="w-[160px]
+                         h-[44px] bg-[#ABB9FF] text-[#273991] 
+                         py-2 rounded-[17px] 
+                         font-semibold 
+                         text-base 
+                         hover:bg-[#d5ddff]"
             >
               Update
             </button>
