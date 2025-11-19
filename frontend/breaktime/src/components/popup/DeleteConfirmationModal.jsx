@@ -3,7 +3,8 @@ import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.
 
 // DeleteConfirmationModal component displays a modal for confirming the deletion of a booking
 const DeleteConfirmationModal = ({ onClose, onConfirm }) => (
-  <div className="w-[237px] h-[237px] bg-[#F0F7F2] rounded-3xl px-5 py-4 mx-auto shadow-lg flex flex-col items-center font-all">
+  <div className="w-[237px] h-[237px] bg-[#F0F7F2] rounded-3xl px-5 py-4 
+  mx-auto shadow-lg flex flex-col items-center font-poppins cursor-pointer">
     {/* Logo */}
     <img
       src={logo}
@@ -28,7 +29,8 @@ const DeleteConfirmationModal = ({ onClose, onConfirm }) => (
       <button
         type="button"
         onClick={onClose}
-        className="text-[#B6B7FB] font-semibold text-[16px] hover:underline text-center"
+        className="text-[#B6B7FB] font-semibold text-[16px] hover:underline 
+        text-center cursor-pointer transition"
       >
         Cancel
       </button>
@@ -37,7 +39,10 @@ const DeleteConfirmationModal = ({ onClose, onConfirm }) => (
       <button
         type="button"
         onClick={onConfirm}
-        className="w-[118px] h-[30px] bg-[#ABB9FF] text-[#F0F7F2] focu:underline shover:scale-110 hover:shadow-xl transition-transform duration-200 ease-out font-semibold text-[16px] rounded-full px-4 py-1 shadow-md hover:bg-[#9da0e9] transition"
+        className="w-[118px] h-[30px] bg-[#ABB9FF] text-[#F0F7F2] focu:underline 
+        shover:scale-110 hover:shadow-xl transition-transform duration-200 ease-out 
+        font-semibold text-[16px] rounded-full px-4 py-1 
+        shadow-md hover:bg-[#9da0e9] transition cursor-pointer"
       >
         Confirm
       </button>
