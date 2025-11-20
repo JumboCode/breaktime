@@ -3,8 +3,6 @@
     flex-direction: column;
 }
 
-
-
 span.rbc-btn-group.actions-group {
     display: flex !important;
     flex-direction: row;
@@ -214,7 +212,8 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
 }
 .rbc-header {
     border: none !important;
-    
+    font-weight: normal;
+    color: black;
 }
 .rbc-day-bg {
     border-bottom: .5px solid rgba(94, 84, 181, 0.4);
@@ -233,10 +232,6 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
     border-left: none !important;
 }
 
-
-
-
-
 .rbc-month-view .rbc-month-row:last-child .rbc-day-bg {
     border-bottom: none;
 }
@@ -248,8 +243,8 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
 
 .rbc-event {
     background-color: #7DDCFB;
-    border-radius: 20px;
-    padding: 1px;
+    border-radius: 5px;
+    padding: 4px 8px;
 }
 
 .rbc-event-content {
@@ -259,15 +254,49 @@ div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
 }
 
 .event-time {
     font-weight: bold;
-    font-size: 6px;
     margin-bottom: 2px;
-
 }
 
-.event-title {
-    font-size: 6px;
+div.bg-cal-bg.p-\[50px\].main-cal-wrapper > div,
+div.bg-cal-bg.p-\[50px\].main-cal-wrapper > div > div {
+    height: 100% !important;
+}
+
+button.rbc-button-link {
+    font-size: 14px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+div.rbc-date-cell.rbc-now.rbc-current > button {
+    color: white;
+    background-color: var(--color-cal-cur-date);
+    width: fit-content;
+    padding: 0px 20px;
+    border-radius: 16px;
+    justify-self: center;
+}
+
+div.rbc-row-bg > div.rbc-day-bg {
+    background-color: transparent;
+}
+
+.rbc-off-range {
+    color: #bdbdbd;
+}
+
+div.rbc-month-view > div.rbc-row.rbc-month-header {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+div.rbc-row-content > div:nth-child(2) > div:nth-child(2) > div > div > div > span:nth-child(2) {
+    display: inline-block;
+    width: 10px;
 }
