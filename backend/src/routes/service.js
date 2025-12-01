@@ -3,6 +3,7 @@ const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { servicesSchema } = require('../schemas/service');
 const { getBookingsValidate } = require('../schemas/booking');
+const { clerkClient } = require('@clerk/backend'); 
 
 /* * POST /create  :
  *      summary: Create a new service in booking extensions collection
