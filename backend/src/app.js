@@ -22,6 +22,7 @@ const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
 const serviceRoutes = require('./routes/service');
 const booking = require('./routes/booking');
+const notificationRoutes = require('./routes/notification');
 
 app.use('/example', exampleRoutes);
 app.use('/user', userRoutes);
@@ -30,5 +31,6 @@ app.use('/admin', adminRoutes);
 app.use('/service', serviceRoutes);
 app.use('/serviceExtension', serviceExtensionRoutes);
 app.use('/booking', booking);
+app.use('/notification', notificationRoutes);
 
 module.exports = app;

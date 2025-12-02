@@ -1,19 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
-const { notificationSchema } = require('../schemas/service');
-const { clerkClient } = require('@clerk/clerk-sdk-node');
+const { notificationSchema } = require('../schemas/notification');
 
-/* This endpoint will receive as input a req.body with the fields listed in the 
-notification schema except for the notificationID.
-
-The endpoint will then check the next available notificationID for the specific user
-
-Ex: If a userID has notificationIDs [2, 3, 4, 6] the endpoint will create a 
-notification object with ID 1.
-
-This endpoint will create a notification object and send it to the notification
-collection in the notification database in Mongo. */
 
 async function getNextNotificationID(userID, collection) {
         let found = false;
@@ -28,6 +17,12 @@ async function getNextNotificationID(userID, collection) {
                 if (notifs.length === 0) {
                         return min + 1;
                 }      
+                for (const notif of notifs) {
+                        if (notif.notificationID > min + 1) {
+                                return min + 1;
+                        }
+                        min = notif.notificationID;
+                }
         }
 }
 
@@ -68,3 +63,5 @@ router.post('/create', async (req, res) => {
         });
     }
 });
+
+module.exports = router;
