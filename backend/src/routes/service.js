@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { servicesSchema } = require('../schemas/service');
-const { clerkClient } = require('@clerk/clerk-sdk-node'); 
+const { getBookingsValidate } = require('../schemas/booking');
 
 /* * POST /create  :
  *      summary: Create a new service in booking extensions collection
@@ -60,7 +60,8 @@ router.post('/create', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { title, id, rules, description, serviceDurationInterval, availability } = req.body;
+                const { title, id, rules, description, 
+                    serviceDurationInterval, availability } = req.body;
 
                 const newService = {
                         title,
@@ -73,7 +74,8 @@ router.post('/create', async (req, res) => {
 
                 const document = await collection.insertOne(newService);
 
-                return res.status(200).json({ message: 'Service created successfully', _id: document.insertedId });
+                return res.status(200).json({ 
+                    message: 'Service created successfully', _id: document.insertedId });
         }
 
     } catch (error){
@@ -141,7 +143,8 @@ router.put('/update', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { title, id, rules, description, serviceDurationInterval, availability } = req.body;
+                const { title, id, rules, description, 
+                    serviceDurationInterval, availability } = req.body;
 
                 const updatedService = {
                         title,
@@ -160,7 +163,9 @@ router.put('/update', async (req, res) => {
 
                 const result = await collection.updateOne({ id }, { $set: updatedService });
 
-                return res.status(200).json({ message: 'Service updated successfully!' });
+                if (result.modifiedCount !== 0) {
+                    return res.status(200).json({ message: 'Service updated successfully!' });
+                }
         }
 
     } catch (error){
@@ -244,6 +249,96 @@ router.delete('/delete', async (req, res) => {
 
                 return res.status(200).json({ message: 'Service deleted successfully!' });
         }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+/* * DELETE /delete  :
+ *      summary: Delete an existing service in booking extensions collection
+ * 
+ *      requestBody:
+ *          required: true
+ *          content: 
+ *              json:
+ *                schema:
+ *                  properties:
+ *                    serviceID:
+ *                     type: string
+ *                    date:
+ *                     type: string
+ *                  required:
+ *                   - serviceID
+ *                   - date
+ *      responses:
+ *        200:
+ *          description: - json with a success message and the json of the 
+ *              retrieved bookings.
+ *        400:
+ *          description: - json with an error message if the request body is invalid
+ *        404:
+ *          description: - json with an error message if the serviceID does not exist 
+ *                         or if there are no bookings with that serviceID found in that month
+ *        500:
+ *          description: - json with an error message if there is an issue connecting to MongoDB
+ * */
+router.get('/AllBookingsForService', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const collection = database.collection('bookings');
+        
+        const { error } = getBookingsValidate.validate(req.body);
+
+        if (error) {
+            res.status(400).send(error.details[0].message);
+        } else {
+            // date = "MM/YYYY"
+            const { serviceID, date } = req.body;
+    
+            const foundId = await collection.findOne({ serviceID });
+            if (!foundId) {
+                return res.status(404).json({ 
+                    message: 'Bookings under Service ID ' + serviceID + 
+                        ' not found.' 
+                });
+            }
+            
+            // parse into month and year 
+            const [month, year] = date.split('/').map(String);
+
+            // build date range
+            const start = new Date(Date.UTC(year, month - 1, 1));  
+            const end = new Date(Date.UTC(year, month, 1));       
+
+            // query bookings inside that month
+            const bookings = await collection.find({
+                serviceID,
+                timestamp: {
+                    $gte: start,
+                    $lt: end
+                }
+            }).toArray();
+            
+            if (bookings.length === 0) {
+                res.status(404).send({
+                    message : 'There are no bookings with service ID ' +
+                    `${serviceID} in date ${date}`
+                });
+            } else {
+                res.status(200).json({
+                    message : `Bookings with service ID ${serviceID} ` +
+                        `in date ${date} successfully retrieved`,
+                    bookings
+                });
+            }
+            
+        }
+
     } catch (error) {
         console.log(error);
         res.status(500).send({
