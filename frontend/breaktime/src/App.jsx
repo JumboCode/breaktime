@@ -1,16 +1,16 @@
-/*
- *  App.jsx
- *  Entry point for the frontend
- * 
- */
+// /*
+//  *  App.jsx
+//  *  Entry point for the frontend
+//  * 
+//  */
 
-import { BrowserRouter as Router, Route, Routes} from 'react-router';
+// import { BrowserRouter as Router, Route, Routes} from 'react-router';
 
 import SignUpPage from './pages/SignUpPage.jsx';
 import SignInPage from './pages/SignInPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 
-function App() {
+// function App() {
   
   return (
     <>
@@ -25,4 +25,10 @@ function App() {
   );
 }
 
-export default App;
+
+
+
+
+
+// 
+
