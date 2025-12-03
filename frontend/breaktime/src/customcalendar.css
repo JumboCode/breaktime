@@ -1,0 +1,302 @@
+.rbc-toolbar {
+    display: flex;
+    flex-direction: column;
+}
+
+span.rbc-btn-group.actions-group {
+    display: flex !important;
+    flex-direction: row;
+}
+
+.rbc-toolbar .rbc-toolbar-label {
+    font-size: 40px;
+    font-weight: 600;
+    text-align: left ;
+    padding: 0;
+    flex-grow: 0;
+    width: 380px;
+}
+
+.toolbar-top-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toolbar-bottom-row {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    margin-top: 10px;
+}
+
+.toolbar-bottom-row span.rbc-btn-group.actions-group {
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    gap: 20px;
+}
+
+.scheduling-color-bar {
+    width: 500px;
+    height: 40px;
+    display: flex;
+}
+
+.scheduling-color-bar div {
+    height: 40px;
+    width: 25%;
+}
+
+.scheduling-color-bar div:nth-child(1) {
+    background-color: var(--color-cal-orange-bar);
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+}
+
+.scheduling-color-bar div:nth-child(2) {
+    background-color: var(--color-cal-blue-bar);
+}
+
+.scheduling-color-bar div:nth-child(3) {
+    background-color: var(--color-cal-green-bar);
+}
+
+.scheduling-color-bar div:nth-child(4) {
+    background-color: var(--color-cal-pink-bar);
+    border-top-right-radius: 40px;
+    border-bottom-right-radius: 40px;
+}
+
+span.rbc-btn-group.view-group {
+    width: 190px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5px 4px;
+}
+
+span.rbc-btn-group.view-group button {
+    border: none;
+}
+
+span.rbc-btn-group.view-group button:hover,
+span.rbc-btn-group.view-group button:focus,
+span.rbc-btn-group.view-group button:active {
+    box-shadow: none !important;
+}
+
+span.rbc-btn-group.view-group button:hover {
+    background-color: transparent !important;
+}
+
+div.toolbar-top-row > span.rbc-btn-group.view-group > button.active-calendar-view {
+    border: 1px solid black;
+    background-color: var(--color-lime-500) !important;
+    border-radius: 40px;
+    height: fit-content;
+    padding: 1px 10px;
+    font-weight: bold;
+}
+
+.toolbar-top-row > span.rbc-btn-group.nav-group button {
+    border: none;
+}
+
+.toolbar-top-row > span.rbc-btn-group.nav-group button:hover,
+.rbc-toolbar button:hover {
+    background-color: transparent !important;
+}
+
+.toolbar-top-row > span.rbc-btn-group.nav-group button:hover,
+.toolbar-top-row > span.rbc-btn-group.nav-group button:focus,
+.rbc-toolbar button:focus,
+.rbc-toolbar button:hover {
+    box-shadow: none !important;
+}
+
+/* Today button */
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(2) {
+    font-size: 24px;
+}
+
+/* Back and Next button */
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(1)::before,
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(3)::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 46px;
+    background-image: url("/src/assets/maincal/BackButtonCal.svg");
+    background-repeat: no-repeat;
+    margin-right: 3px;
+}
+
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(1),
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(3) { 
+    padding: 0; 
+}
+
+.toolbar-top-row > span.rbc-btn-group.nav-group button:nth-child(3)::before {
+    transform: rotate(180deg);
+}
+
+div.toolbar-top-row > span.rbc-btn-group.nav-group {
+    display: flex;
+    align-items: center;
+}
+
+button.calendar-nav-buttons,
+.calendar-nav-buttons {
+    border: 1px solid black;
+    border-radius: 40px !important;
+    padding: 4px 16px;
+    height: 40px;
+}
+
+button.calendar-nav-buttons:hover,
+div.rbc-toolbar > div.toolbar-bottom-row > span > button:active,
+div.rbc-toolbar > div.toolbar-bottom-row > span > button:focus {
+    border: 1px solid black;
+    font-weight: bold;
+    background-color: var(--color-lime-500) !important;
+}
+
+input[type="search"].calendar-nav-buttons {
+    color: black;
+    background-image: none;
+    width: 300px;
+}
+
+/* add new button */
+div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(1) {
+    width: 120px;
+}
+
+/* all bookings button */
+div.rbc-toolbar > div.toolbar-bottom-row > span > button:nth-child(3) {
+    width: 210px;
+    text-align: left;
+    background-image: url("/src/assets/maincal/BackButtonCal.svg");
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: 10%;
+    background-position-x: 174px;
+}
+
+/* Used to attached inherit properties that are no longer supported by Tailwind V4 */
+.main-cal-wrapper {
+    border-radius: inherit;
+    height: inherit;
+}
+
+.rbc-date-cell {
+    text-align: center;
+}
+
+.rbc-date-cell > button,
+.rbc-date-cell > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: x-small;
+}
+
+
+.rbc-month-view,
+.rbc-time-view {
+    border: none; 
+}
+.rbc-header {
+    border: none !important;
+    font-weight: normal;
+    color: black;
+}
+.rbc-day-bg {
+    border-bottom: .5px solid rgba(94, 84, 181, 0.4);
+    border-right: .5px solid rgba(94, 84, 181, 0.4);;
+}
+
+.rbc-month-row {
+    border: none !important;
+}
+
+.rbc-row-segment {
+    border: none !important;
+} 
+
+.rbc-day-bg {
+    border-left: none !important;
+}
+
+.rbc-month-view .rbc-month-row:last-child .rbc-day-bg {
+    border-bottom: none;
+}
+
+
+.rbc-day-bg:nth-child(7n) {
+    border-right: none;
+} 
+
+.rbc-event {
+    background-color: #7DDCFB;
+    border-radius: 5px;
+    padding: 4px 8px;
+}
+
+.rbc-event-content {
+    font-size: 9px;
+    font-display: Poppins, sans-serif;
+    color: #262445;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+}
+
+.event-time {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+div.bg-cal-bg.p-\[50px\].main-cal-wrapper > div,
+div.bg-cal-bg.p-\[50px\].main-cal-wrapper > div > div {
+    height: 100% !important;
+}
+
+button.rbc-button-link {
+    font-size: 14px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+div.rbc-date-cell.rbc-now.rbc-current > button {
+    color: white;
+    background-color: var(--color-cal-cur-date);
+    width: fit-content;
+    padding: 0px 20px;
+    border-radius: 16px;
+    justify-self: center;
+}
+
+div.rbc-row-bg > div.rbc-day-bg {
+    background-color: transparent;
+}
+
+.rbc-off-range {
+    color: #bdbdbd;
+}
+
+div.rbc-month-view > div.rbc-row.rbc-month-header {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+div.rbc-row-content > div:nth-child(2) > div:nth-child(2) > div > div > div > span:nth-child(2) {
+    display: inline-block;
+    width: 10px;
+}
