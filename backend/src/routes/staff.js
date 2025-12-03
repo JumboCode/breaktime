@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { staffUser } = require('../schemas/staff');
-const { clerkClient } = require('@clerk/clerk-sdk-node'); 
+const { clerkClient } = require('@clerk/backend'); 
 
 /* * POST /create :
  *      summary: creates a new staff entry in collection
