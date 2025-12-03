@@ -15,4 +15,11 @@ const bookingSchema = Joi.object({
    ).required()
 });
 
-module.exports = { bookingSchema };
+const getBookingsValidate = Joi.object({
+   serviceID: Joi.string().required(),
+    date: Joi.string() // formatted MM/YYYY
+        .pattern(/^(0[1-9]|1[0-2])\/\d{4}$/)
+        .required()
+});
+
+module.exports = { bookingSchema, getBookingsValidate };
