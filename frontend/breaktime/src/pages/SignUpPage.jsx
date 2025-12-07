@@ -4,6 +4,7 @@ import UserStaffToggle from "../components/UserStaffToggle";
 import { Tagline } from "../components/Tagline";
 import Breaktime_Secondary_Logo from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
 import { useState } from "react";
+import { Link } from "react-router";
 
 export default function SignUpPage() {
     const [selectedType, setSelectedType] = useState('users');
@@ -32,9 +33,9 @@ export default function SignUpPage() {
                                 {selectedType === 'staff' ? <StaffSignup/> : <UserSignup/>}
                             </div>
                             
-                            <a className="text-light-purple uppercase underline hover:text-lime-500" href="">
+                            <Link to="/" className="text-light-purple uppercase underline hover:text-lime-500" href="">
                                 Already have an account? Sign In
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     {/* LOGO STYLE */}
