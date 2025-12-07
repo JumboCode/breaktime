@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 
 export default function StaffSignin() {
   // Initialize state to store form data
@@ -58,12 +59,15 @@ export default function StaffSignin() {
         </div>
 
         <div className="text-dark-navy">
+          <Link to="/home">
           <button
             type="submit"
             className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
           >
-            Log In
+            
+              Log In
           </button>
+            </Link>
         </div>
       </form>
     </div>

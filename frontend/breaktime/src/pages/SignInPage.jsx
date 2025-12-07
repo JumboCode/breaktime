@@ -3,6 +3,7 @@ import UserSignin from "../components/UserSignin";
 import UserStaffToggle from "../components/UserStaffToggle"; 
 import { Tagline } from "../components/Tagline";
 import Breaktime_Secondary_Logo from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
+import { Link } from "react-router";
 import { useState } from "react";
 
 export default function SignInPage() {
@@ -32,9 +33,9 @@ export default function SignInPage() {
                             <div className="flex-1">
                                 {selectedType === 'staff' ? <StaffSignin/> : <UserSignin/>}
                               <div className="flex gap-10 pt-15">
-                                <a className="text-light-purple uppercase underline hover:text-lime-500" href="">
+                                <Link to="/signup" className="text-light-purple uppercase underline hover:text-lime-500" href="">
                                 SIGN UP
-                                </a>
+                                </Link>
                                 <a className="text-light-purple uppercase underline hover:text-lime-500" href="">
                                 FORGOT PASSWORD
                                 </a>

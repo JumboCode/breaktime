@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 
 function UserSignin() {
     const [formData, setFormData] = useState({
@@ -60,12 +61,15 @@ function UserSignin() {
                 </div>
 
                 <div className="text-dark-navy">
-                    <button
-                        type="submit"
-                        className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
-                    >
-                        Log In
-                    </button>
+                    <Link to="/home">
+                        <button
+                            type="submit"
+                            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
+                        >
+                            Log In
+                        </button>
+                    
+                    </Link>
                 </div>
             </form>
         </div>
