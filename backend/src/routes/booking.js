@@ -316,3 +316,79 @@ module.exports = router;
  * I think from a security point of view, we need someway to authenticate users who try to /edit or /delete.
  * this could be done using JWT's, confirming that only admins are executing these functions
  */
+
+//questions
+/**
+ * what is an example input?
+ * 
+ */
+
+const express = require('express');
+const router = express.Router();
+const mongodbPromise = require('../utils/mongodb');
+
+/* * POST /history :
+ *      summary: Get booking history for a specific user
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                schema:
+ *                  properties:
+ *                    userID:
+ *                      type: string
+ *                  required:
+ *                    - userID
+ *      responses:
+ *        200:
+ *          description: - json with array of bookings sorted by timestamp (most recent first)
+ *        400:
+ *          description: - error message when userID is missing or invalid
+ *        500:
+ *          description: - json with an error message if there is an issue connecting to MongoDB
+ * */
+router.post('/userbookinghistory', async (req, res) => {
+    try {
+        // Extract and validate userID from request body
+        const { userID } = req.body;
+
+        if (!userID || typeof userID !== 'string') {
+            return res.status(400).send('userID is required and must be a string');
+        }
+
+        // Validate userID format: must start with "YA_" or "ya_" followed by numbers
+        const userIDPattern = /^ya_\d+$/i; // Case-insensitive check
+        if (!userIDPattern.test(userID)) {
+            return res.status(400).send('userID must start with "YA_" followed by numbers');
+        }
+
+        // Get MongoDB client and connect to bookings collection
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const collection = database.collection('bookings');
+
+        // Query for all bookings with matching userID, sorted by timestamp (descending)
+        const bookings = await collection
+            .find({ userID })
+            .sort({ timestamp: -1 })
+            .toArray();
+
+        // Return bookings array (empty array if no bookings found)
+        return res.status(200).json({ bookings });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+module.exports = router;
+
+/**
+ * need to test this branch
+ * switch to B3A, create lots of bookings, then switch to B4C and test out functionality
+ */
