@@ -1,12 +1,26 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { useSignIn, useAuth } from '@clerk/clerk-react'
+import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 function UserSignin() {
+    const { isLoaded, signIn, setActive } = useSignIn();
+    let navigate = useNavigate();
+    const { isSignedIn } = useAuth();
+
     const [formData, setFormData] = useState({
         ID: "",
         Pin: "",
     });
     const [error, setError] = useState("");
+
+    // auto sign in if already logged in
+    useEffect(() => {
+        if (isSignedIn) {
+            navigate("/home");
+        }
+    }, [isSignedIn]);
+
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -16,9 +30,25 @@ function UserSignin() {
         }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        setError('');
+        if (!isLoaded) return;
+
+        try {
+            const result = await signIn.create({
+                identifier: formData.ID, 
+                password: formData.Pin
+            });
+    
+            if (result.status === "complete") {
+                await setActive({ session: result.createdSessionId });
+                navigate('/home');
+            } else {
+                console.log(result);
+            }
+        } catch (error) {
+            console.log(error);
+        }
         console.log("Form submitted:", formData);
     };
 
@@ -61,15 +91,13 @@ function UserSignin() {
                 </div>
 
                 <div className="text-dark-navy">
-                    <Link to="/home">
-                        <button
-                            type="submit"
-                            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
-                        >
-                            Log In
-                        </button>
+                    <button
+                        type="submit"
+                        className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
+                    >
+                        Log In
+                    </button>
                     
-                    </Link>
                 </div>
             </form>
         </div>
