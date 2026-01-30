@@ -2,12 +2,15 @@ import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import MainCalendar from "../components/MainCalendar";
 import CalendarCorner from "../assets/maincal/CalendarCorner.svg";
+import ModalContainer from "../components/popup/ModalContainer";
 import { useState } from "react";
 
 export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    // TODO: Backend - GET /api/bookings to fetch bookings on mount (useEffect)
+    const [bookings, setBookings] = useState([]);
 
-    return (            
+    return (
         <div className="bg-indigo-purple h-screen w-screen overflow-hidden">
             <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} />
             <div className="flex p-[30px] pt-[10px] gap-[30px]">
@@ -26,6 +29,8 @@ export default function HomePage() {
                     </div>
                 </div>
             </div>
+
+            <ModalContainer bookings={bookings} setBookings={setBookings} />
         </div>
     );
 }

@@ -11,15 +11,31 @@ import SendNoteModal from "./SendNoteModal";
 const ModalContainer = ({ bookings, setBookings }) => {
  const { modalState, closeModal, openModal } = useModal();
  if (!modalState.isOpen) return null;
- const handleSaveBooking = (booking) => setBookings([...bookings, booking]);
+
+ // TODO: Backend - POST /api/bookings to create new booking
+ const handleSaveBooking = (booking) => setBookings([...bookings, booking]){
+  try {
+    
+  } catch (error) {
+    console.log("error creating booking", error);
+  }
+ };
+
+ // TODO: Backend - PUT /api/bookings/:id to update booking
  const handleUpdateBooking = (updatedBooking) =>
    setBookings(
      bookings.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
    );
- const handleDeleteBooking = (id) =>
-   setBookings(bookings.filter((b) => b.id !== id));
- const handleSendNote = (id, note) =>
-   alert(`Note sent to booking #${id}: ${note}`);
+
+ // TODO: Backend - DELETE /api/bookings/:id to delete booking
+ const handleDeleteBooking = (booking) => {
+   setBookings(bookings.filter((b) => b.id !== booking?.id));
+   closeModal();
+ };
+
+ // TODO: Backend - POST /api/bookings/:id/notes to send note
+ const handleSendNote = (note) =>
+   alert(`Note sent: ${note}`);
  return (
    <>
      <div
@@ -36,28 +52,28 @@ const ModalContainer = ({ bookings, setBookings }) => {
              booking={modalState.data}
              onClose={closeModal}
              onUpdate={handleUpdateBooking}
+             onEdit={(booking) => openModal("modify", booking)}
+             onDelete={(booking) => openModal("delete", booking)}
            />
          )}
          {modalState.type === "view" && (
            <ViewBookingModal
              booking={modalState.data}
-             onClose={closeModal}
              onEdit={(booking) => {
                closeModal();
                setTimeout(() => openModal("modify", booking), 100);
              }}
+             onDelete={handleDeleteBooking}
            />
          )}
          {modalState.type === "delete" && (
            <DeleteConfirmationModal
-             booking={modalState.data}
              onClose={closeModal}
-             onConfirm={handleDeleteBooking}
+             onConfirm={() => handleDeleteBooking(modalState.data)}
            />
          )}
          {modalState.type === "sendNote" && (
            <SendNoteModal
-             booking={modalState.data}
              onClose={closeModal}
              onSend={handleSendNote}
            />
