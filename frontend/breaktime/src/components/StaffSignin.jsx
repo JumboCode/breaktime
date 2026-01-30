@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { useSignIn } from '@clerk/clerk-react'
+import { useNavigate } from 'react-router';
 
 export default function StaffSignin() {
+  const { isLoaded, signIn } = useSignIn();
+  let navigate = useNavigate();
+
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
@@ -17,10 +21,22 @@ export default function StaffSignin() {
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Form submitted:", formData);
-  };
+    const handleSubmit = async (event) => {
+        if (!isLoaded) return;
+
+        try {
+            await signIn.create({
+              identifier: formData.username, 
+              password: formData.password});
+            setTimeout(() => {
+                navigate('/home');
+                window.location.reload();
+            }, 0);
+        } catch (error) {
+            console.log(error);
+        }
+        console.log("Form submitted:", formData);
+    };
 
   return (
     <div className="max-w-[354px]">
@@ -59,7 +75,6 @@ export default function StaffSignin() {
         </div>
 
         <div className="text-dark-navy">
-          <Link to="/home">
           <button
             type="submit"
             className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
@@ -67,7 +82,6 @@ export default function StaffSignin() {
             
               Log In
           </button>
-            </Link>
         </div>
       </form>
     </div>
