@@ -1,7 +1,6 @@
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from "react";
 import ServiceImage from "../../assets/popup-icons/ServiceImage.png";
 import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
@@ -56,7 +55,8 @@ function LandingPagePopup() {
                 </div>
 
                 <div className="absolute top-60 right-10">
-                    <div className="w-[520px] mr-30 mt-7">
+                    <div className="w-[520px] mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
+                         pr-4">
                         {sections.map((section) => {
                             const isOpen = expandedSection === section.id;
                         return (
@@ -66,14 +66,23 @@ function LandingPagePopup() {
                                 type="button"
                                 onClick={() => toggleSection(section.id)}
                                 className="
-                                w-full flex items-center justify-between
+                                w-full flex items-center gap-3
                                 text-left
                                 text-[22px] font-medium text-[#2F2F2F]
                                 "
                             >
                                 <span>{section.title}</span>
-                                {isOpen ? <ChevronDown /> : <ChevronRight />}
+                                {isOpen ? <ChevronDown strokeWidth={4} color="#B27DED" /> : <ChevronRight strokeWidth={4} color="#B27DED" />}
                             </button>
+                            {isOpen && (
+                                <div className="mt-4 pl-6 space-y-2">
+                                {section.content.map((item, i) => (
+                                    <p key={i} className="text-[18px] font-thin">
+                                    {item}
+                                    </p>
+                                ))}
+                                </div>
+                            )}
                             </div>
                         );
                         })}
