@@ -31,51 +31,53 @@ function LandingPagePopup() {
     };
 
     return (
-        <div className="absolute bottom-2 top-16 left-20 w-[1250px] h-[680px] bg-white
-        border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
-            <img
-                src={ButtonGoBack}
-                alt="Go Back Button"
-                className="w-[150px] h-[47px] mb-4 mt-2 ml-2"
-            />
-
-            <div className="flex flex-col">
-                <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
-                Shower <br></br>Service</h2>
+        <div className="min-h-screen w-full bg-[#F0F7F2] relative">
+            <div className="absolute bottom-2 top-16 left-20 w-[1250px] h-[680px] 
+            border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
                 <img
-                    src={ServiceImage}
-                    alt="Service"
-                    className="w-[300px] ml-30 mt-7"
+                    src={ButtonGoBack}
+                    alt="Go Back Button"
+                    className="w-[150px] h-[47px] mb-4 mt-2 ml-2"
                 />
-                <img
-                    src={BookButton}
-                    alt="Book button"
-                    className="w-[150px] h-[47px] ml-30 mt-7"
-                />
-            </div>
 
-            <div className="absolute top-60 right-10">
-                <div className="w-[520px] mr-30 mt-7">
-                    {sections.map((section) => {
-                        const isOpen = expandedSection === section.id;
-                    return (
-                        <div key={section.id} className="mb-8">
-                        {/* header row */}
-                        <button
-                            type="button"
-                            onClick={() => toggleSection(section.id)}
-                            className="
-                            w-full flex items-center justify-between
-                            text-left
-                            text-[22px] font-medium text-[#2F2F2F]
-                            "
-                        >
-                            <span>{section.title}</span>
-                            {isOpen ? <ChevronDown /> : <ChevronRight />}
-                        </button>
-                        </div>
-                    );
-                    })}
+                <div className="flex flex-col">
+                    <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
+                    Shower <br></br>Service</h2>
+                    <img
+                        src={ServiceImage}
+                        alt="Service"
+                        className="w-[300px] ml-30 mt-7"
+                    />
+                    <img
+                        src={BookButton}
+                        alt="Book button"
+                        className="w-[150px] h-[47px] ml-30 mt-7"
+                    />
+                </div>
+
+                <div className="absolute top-60 right-10">
+                    <div className="w-[520px] mr-30 mt-7">
+                        {sections.map((section) => {
+                            const isOpen = expandedSection === section.id;
+                        return (
+                            <div key={section.id} className="mb-8">
+                            {/* header row */}
+                            <button
+                                type="button"
+                                onClick={() => toggleSection(section.id)}
+                                className="
+                                w-full flex items-center justify-between
+                                text-left
+                                text-[22px] font-medium text-[#2F2F2F]
+                                "
+                            >
+                                <span>{section.title}</span>
+                                {isOpen ? <ChevronDown /> : <ChevronRight />}
+                            </button>
+                            </div>
+                        );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>
