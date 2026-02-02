@@ -4,23 +4,21 @@ import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 
 function UserSignin() {
-    const { isLoaded, signIn, setActive } = useSignIn();
+    const {  signIn, setActive } = useSignIn();
     let navigate = useNavigate();
-    const { isSignedIn } = useAuth();
+    const { isSignedIn, isLoaded } = useAuth();
 
     const [formData, setFormData] = useState({
         ID: "",
         Pin: "",
     });
-    const [error, setError] = useState("");
 
     // auto sign in if already logged in
     useEffect(() => {
-        if (isSignedIn) {
+        if (isSignedIn && isLoaded) {
             navigate("/home");
         }
     }, [isSignedIn]);
-
 
     const handleChange = (event) => {
         const { name, value } = event.target;
