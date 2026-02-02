@@ -26,7 +26,7 @@ const Bookings = ({ userType }) => {
     return (
         <div className="h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-xl text-dark-navy">Bookings</h3>
+                <h3 className="font-semibold text-xl text-dark-navy">Next Bookings</h3>
                 <span className="text-dark-navy opacity-[60%] underline text-sm cursor-pointer">Past bookings ({visibleBookings.length})</span>
             </div>
 
