@@ -65,3 +65,19 @@
 
 
 }
+
+@layer utilities {
+  .scrollbar-purple::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar-track {
+    background: #5E54B5;
+    border-radius: 100vh;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar-thumb {
+    background: #B27DED;
+    border-radius: 100vh;
+  }
+}
