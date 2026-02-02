@@ -1,14 +1,20 @@
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState } from "react";
 import ServiceImage from "../../assets/popup-icons/ServiceImage.png";
 import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
 import BookButton from "../../assets/popup-icons/BookButton.png";
+import SubmitButton from "../../assets/popup-icons/SubmitButton.png";
 
 
 function LandingPagePopup() {
-    const [expandedSection, setExpandedSection] = useState("expectations");
+    const [expandedSection, setExpandedSection] = useState(null);
+    const [isBooking, setIsBooking] = useState(false);
+
+    const [userInfoOpen, setUserInfoOpen] = useState(false);
+    const [serviceInfoOpen, setServiceInfoOpen] = useState(false);
+
     const sections = [
     {
         id: "expectations",
@@ -29,6 +35,10 @@ function LandingPagePopup() {
         setExpandedSection((prev) => (prev === id ? null : id));
     };
 
+    const handleBookingClick = () => {
+        setIsBooking(true);
+    };
+
     return (
         <div className="min-h-screen w-full bg-[#F0F7F2] relative">
             <div className="absolute bottom-2 top-16 left-20 w-[1250px] h-[680px] 
@@ -47,46 +57,107 @@ function LandingPagePopup() {
                         alt="Service"
                         className="w-[300px] ml-30 mt-7"
                     />
-                    <img
-                        src={BookButton}
-                        alt="Book button"
-                        className="w-[150px] h-[47px] ml-30 mt-7"
-                    />
+                    {!isBooking? (<button onClick={handleBookingClick} className="">
+                        <img
+                            src={BookButton}
+                            alt="Book button"
+                            className="w-[150px] h-[47px] ml-30 mt-7"
+                        />
+                    </button> ): (
+                        <button type="button" onClick={() => console.log("Booking Submitted!")}>
+                            <img
+                                src={SubmitButton}
+                                alt="Submit button"
+                                className="w-[150px] h-[47px] ml-30 mt-7"
+                            />
+                        </button>
+                    )}
                 </div>
 
-                <div className="absolute top-60 right-10">
-                    <div className="w-[520px] mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
-                         pr-4">
-                        {sections.map((section) => {
-                            const isOpen = expandedSection === section.id;
-                        return (
-                            <div key={section.id} className="mb-8">
-                            {/* header row */}
-                            <button
-                                type="button"
-                                onClick={() => toggleSection(section.id)}
-                                className="
-                                w-full flex items-center gap-3
-                                text-left
-                                text-[22px] font-medium text-[#2F2F2F]
-                                "
-                            >
-                                <span>{section.title}</span>
-                                {isOpen ? <ChevronDown strokeWidth={4} color="#B27DED" /> : <ChevronRight strokeWidth={4} color="#B27DED" />}
-                            </button>
-                            {isOpen && (
-                                <div className="mt-4 pl-6 space-y-2">
-                                {section.content.map((item, i) => (
-                                    <p key={i} className="text-[18px] font-thin">
-                                    {item}
-                                    </p>
-                                ))}
+                <div className="absolute top-50 right-10 cursor-pointer">
+                    {!isBooking ? (
+                        <div className="w-[520px] mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
+                         pr-4 ">
+                            {sections.map((section) => {
+                                const isOpen = expandedSection === section.id;
+                            return (
+                                <div key={section.id} className="mb-8">
+                                {/* header row */}
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection(section.id)}
+                                    className="
+                                    w-full flex items-center gap-3
+                                    text-left
+                                    text-[22px] font-medium text-[#2F2F2F]
+                                    "
+                                >
+                                    <span>{section.title}</span>
+                                    {isOpen ? <ChevronDown strokeWidth={4} color="#B27DED" /> : <ChevronRight strokeWidth={4} color="#B27DED" />}
+                                </button>
+                                {isOpen && (
+                                    <div className="mt-4 pl-6 space-y-2">
+                                    {section.content.map((item, i) => (
+                                        <p key={i} className="text-[18px] font-thin">
+                                        {item}
+                                        </p>
+                                    ))}
+                                    </div>
+                                )}
                                 </div>
-                            )}
+                            );
+                            })}
+                        </div>
+                    ) : (
+                    <div className="w-[520px] mr-[120px] mt-5 flex flex-col gap-4 ">
+                        <button type="button"
+                            onClick={() => setUserInfoOpen((p) => !p)}
+                            className="w-full flex items-center text-left"
+                        >
+                            <div className="flex items-center">
+                            <div className="flex items-center gap-4 w-[150px]">
+                            <span className="text-[22px] font-small text-[#2F2F2F]"> User Info </span>
+                            <ChevronRight strokeWidth={4} color="#B27DED" />
                             </div>
-                        );
-                        })}
-                    </div>
+
+                            <div className="px-8 py-3 mr-5 rounded-full bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
+                            <div className="px-8 py-3 rounded-full bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
+                            </div>
+                        </button>
+                   
+                        {userInfoOpen && (
+                            <div className="flex items-center ml-45 w-[150px]">
+                                <div className="flex items-center gap-6">
+                                    <div className="text-[18px] mr-6 font-small text-[#2F2F2F]">
+                                        Name
+                                    </div>
+                                <div className="px-8 py-3 ml-8 rounded-full bg-[#ABB9FF] text-[18px] font-small">
+                                    Allen
+                                </div>
+                                </div>
+                            </div>
+                            )}
+
+                        <button type="button"
+                            onClick={() => setServiceInfoOpen((p) => !p)}
+                            className="w-full flex items-center text-left"
+                        >
+                            <div className="flex items-center">
+                            <div className="flex items-center gap-4 w-[150px]">
+                            <span className="text-[22px] font-small text-[#2F2F2F]"> Service </span>
+                            <ChevronRight strokeWidth={4} color="#B27DED" />
+                            </div>
+                            </div>
+                        </button>
+                        
+                        {serviceInfoOpen && (
+                            <div className="flex items-center ml-45 w-[150px]">
+                                <div className="px-8 py-3 mr-5 text-[#2F2F2F] text-[18px] font-small"> Date</div>
+                                <ChevronLeft strokeWidth={4} color="#B27DED" />
+                                <ChevronRight strokeWidth={4} color="#B27DED" />
+                            </div>
+                            )}
+                    </div>)}
                 </div>
             </div>
         </div>
