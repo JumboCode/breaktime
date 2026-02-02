@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { useSignIn } from '@clerk/clerk-react'
+import { useSignIn, useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 export default function StaffSignin() {
-  const { isLoaded, signIn } = useSignIn();
+  const { signIn, setActive } = useSignIn();
   let navigate = useNavigate();
+  const { isSignedIn, isLoaded } = useAuth();
 
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
+  // auto sign in if already logged in
+  useEffect(() => {
+    if (isSignedIn && isLoaded) {
+        navigate("/home");
+    }
+  }, [isSignedIn]);
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -21,22 +30,28 @@ export default function StaffSignin() {
     }));
   };
 
-    const handleSubmit = async (event) => {
-        if (!isLoaded) return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!isLoaded) return;
 
-        try {
-            await signIn.create({
-              identifier: formData.username, 
-              password: formData.password});
-            setTimeout(() => {
-                navigate('/home');
-                window.location.reload();
-            }, 0);
-        } catch (error) {
-            console.log(error);
+    try {
+        const result = await signIn.create({
+            identifier: formData.username, 
+            password: formData.password
+        });
+
+        if (result.status === "complete") {
+            await setActive({ session: result.createdSessionId });
+            navigate('/home');
+            
+        } else {
+            console.log(result);
         }
-        console.log("Form submitted:", formData);
-    };
+    } catch (error) {
+        console.log(error);
+    }
+    console.log("Form submitted:", formData);
+  };
 
   return (
     <div className="max-w-[354px]">
