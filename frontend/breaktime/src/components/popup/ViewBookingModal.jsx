@@ -4,7 +4,6 @@ import ServiceGraphics from "../../assets/popup-icons/Service_Graphics.png";
 import { useState } from "react";
 
 // Import your modal components
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import SendNoteModal from "./SendNoteModal";
 
 const SERVICE_OPTIONS = [
@@ -20,7 +19,6 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
   );
 
   // State for which popup/modal to display
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showSendNotePopup, setShowSendNotePopup] = useState(false);
 
   // Handler functions
@@ -33,11 +31,8 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
     }).format(date);
   };
 
-  // Show delete confirmation and replace this modal with the popup
-  const handleDeleteClick = () => setShowDeletePopup(true);
-
-  const handleDeleteConfirm = () => {
-    setShowDeletePopup(false);
+  // Trigger the centralized delete flow
+  const handleDeleteClick = () => {
     if (onDelete) onDelete(booking);
   };
 
@@ -49,20 +44,10 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
   };
 
   const handlePopupClose = () => {
-    setShowDeletePopup(false);
     setShowSendNotePopup(false);
   };
 
-  // Popups take precedence and hide the main modal
-  if (showDeletePopup) {
-    return (
-      <DeleteConfirmationModal
-        onClose={handlePopupClose}
-        onConfirm={handleDeleteConfirm}
-      />
-    );
-  }
-
+  // Show send note popup if active
   if (showSendNotePopup) {
     return <SendNoteModal onClose={handlePopupClose} onSend={handleSendNote} />;
   }
