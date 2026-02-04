@@ -5,15 +5,34 @@ import { useState } from "react";
 import ServiceImage from "../../assets/popup-icons/ServiceImage.png";
 import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
 import BookButton from "../../assets/popup-icons/BookButton.png";
-import SubmitButton from "../../assets/popup-icons/SubmitButton.png";
+import { FailurePopup, ConfirmationPopup, SuccessPopup } from './LandingStatusPopups';
+
 
 
 function LandingPagePopup() {
     const [expandedSection, setExpandedSection] = useState(null);
     const [isBooking, setIsBooking] = useState(false);
-
     const [userInfoOpen, setUserInfoOpen] = useState(false);
     const [serviceInfoOpen, setServiceInfoOpen] = useState(false);
+    
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState('');
+    const [extraTime, setExtraTime] = useState('');
+    const [note, setNote] = useState('');
+
+    const [showPopup, setShowPopup] = useState(null);
+
+    // Available time slots
+    const timeSlots = [
+        "9:00 AM", "9:30 AM", "10:00 AM"
+    ];
+
+    // Extra time options
+    const extraTimeOptions = [
+        "+30 minutes",
+        "+45 minutes",
+        "+60 minutes"
+    ];
 
     const sections = [
     {
@@ -30,6 +49,17 @@ function LandingPagePopup() {
         { id: "notices", title: "Notices / Messages", content: ["TBD"] },
     ];
 
+    const handleGoBack = () => {
+        setShowPopup(null);
+        setIsBooking(false);
+        setSelectedDate(null);
+        setSelectedTime('');
+        setExtraTime('');
+        setNote('');
+        setUserInfoOpen(false);
+        setServiceInfoOpen(false);
+    };
+
     
     const toggleSection = (id) => {
         setExpandedSection((prev) => (prev === id ? null : id));
@@ -39,15 +69,53 @@ function LandingPagePopup() {
         setIsBooking(true);
     };
 
+    const handleDateChange = (date) => {
+        // If clicking the same date, unselect it
+        if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+            setSelectedDate(null);
+            setSelectedTime(''); // Also clear the selected time
+        } else {
+            setSelectedDate(date);
+            setSelectedTime(''); // Reset time when date changes
+        }
+    };
+
+    // Submit button handler
+    const handleSubmit = () => {
+        if (!selectedDate || !selectedTime) {
+            setShowPopup('failure');
+        } else {
+            setShowPopup('confirmation');
+        }
+    };
+
+    const handleConfirm = () => {
+        console.log("Booking confirmed!", {selectedDate, selectedTime, extraTime, note});
+        console.log("Setting showPopup to 'success'");
+        setShowPopup('success');
+    };
+
+    const handleSuccessClose = () => {
+        setShowPopup(null);
+        setIsBooking(false);
+        setSelectedDate(null);
+        setSelectedTime('');
+        setExtraTime('');
+        setNote('');
+    };
+
     return (
-        <div className="min-h-screen w-full bg-[#F0F7F2] font-poppins relative">
-            <div className="absolute bottom-2 top-16 left-20 w-[1250px] h-[680px] 
+        <div className="min-h-screen w-full bg-[#F0F7F2] font-poppins text-[#262445] relative">
+            <div className="absolute bottom-2 top-16 left-20 w-[90%] h-[84%] items-center justify-center 
             border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
-                <img
-                    src={ButtonGoBack}
-                    alt="Go Back Button"
-                    className="w-[150px] h-[47px] mb-4 mt-2 ml-2"
-                />
+                <button 
+                    type="button" 
+                    onClick={handleGoBack} 
+                    className="mb-4 mt-2 ml-2 flex gap-2 font-poppins items-center justify-center w-[140px] h-[45px] bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl pr-2 pb-1 py-1">
+                    <ChevronLeft strokeWidth={7} color="#F0F7F2"/>
+                    go back
+                </button>
+                
 
                 <div className="flex flex-col">
                     <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
@@ -57,24 +125,22 @@ function LandingPagePopup() {
                         alt="Service"
                         className="w-[300px] ml-30 mt-7"
                     />
-                    {!isBooking? (<button onClick={handleBookingClick} className="">
-                        <img
-                            src={BookButton}
-                            alt="Book button"
-                            className="w-[150px] h-[47px] ml-30 mt-7"
-                        />
+                    {!isBooking? ( <button 
+                          type="button"
+                            onClick={handleBookingClick} 
+                            className="flex gap-2 font-poppins items-center justify-center mt-4 ml-31 w-[160px] h-[50px] bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl pl-1 py-1"
+                        > Book Now <ChevronRight strokeWidth={7} color="#F0F7F2" />
                     </button> ): (
-                        <button type="button" onClick={() => console.log("Booking Submitted!")}>
-                            <img
-                                src={SubmitButton}
-                                alt="Submit button"
-                                className="w-[150px] h-[47px] ml-30 mt-7 cursor-pointer"
-                            />
-                        </button>
+                    <button 
+                            type="button" 
+                            onClick={handleSubmit}
+                            className="mt-4 ml-60 w-[180px] h-[45px] opacity-40 hover:opacity-100 active:opacity-100 bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl p-0"
+                        > Submit Booking
+                    </button>
                     )}
                 </div>
 
-                <div className="absolute top-10 right-10">
+                <div className="absolute top-10 right-10 font-poppins">
                     {!isBooking ? (
                         <div className="w-[520px] mt-40 mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
                          pr-4 ">
@@ -109,29 +175,29 @@ function LandingPagePopup() {
                             })}
                         </div>
                     ) : (
-                    <div className="w-[520px] grid mr-[120px] mt-5 flex flex-col gap-4 ">
+                    <div className="w-[520px] grid mr-[120px] mt-5 flex flex-col gap-4 font-poppins">
                         <button type="button"
                             onClick={() => setUserInfoOpen((p) => !p)}
                             className="w-full flex items-center text-left"
                         >
-                            <div className="flex flex-row grid-cols-3 items-center">
+                            <div className="flex flex-row items-center">
                             <div className="flex items-center gap-4 w-[150px]">
                             <span className="text-[22px] font-small text-[#2F2F2F]"> User Info </span>
                             <ChevronRight strokeWidth={4} color="#B27DED" />
                             </div>
 
-                            <div className="px-8 py-3 mr-5 rounded-full bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
-                            <div className="px-8 py-3 rounded-full bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
+                            <div className="px-8 py-3 mr-5 rounded-3xl bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
+                            <div className="px-8 py-3 rounded-3xl bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
                             </div>
                         </button>
                    
                         {userInfoOpen && (
                             <div className="flex flex-row items-center ml-45 w-[150px]">
                                 <div className="flex items-center gap-6">
-                                    <div className="text-[18px] mr-6 font-small text-[#2F2F2F]">
+                                    <div className="text-[18px] mr-6 font-poppins font-small text-[#2F2F2F]">
                                         Name
                                     </div>
-                                <div className="px-8 py-3 ml-8 rounded-full bg-[#D6DFFF] text-[18px] font-small">
+                                <div className="px-8 py-3 ml-8 rounded-3xl bg-[#D6DFFF] text-[18px] font-small">
                                     Allen
                                 </div>
                                 </div>
@@ -151,44 +217,169 @@ function LandingPagePopup() {
                         </button>
                         
                         {serviceInfoOpen && (
-                            <div className="ml-8 mt-1 text-[18px] font-small">
+                            <div className="ml-8 mt-1 text-[18px] font-poppins font-small">
                                 <div className="grid grid-cols-[60px_auto] items-start gap-y-5">
                                 <div>Date</div>
-                                <div className="ml-15 origin-top-left scale-80">
+                                <>
+                                  <style>{`
+                                    .react-calendar__tile--active {
+                                    background: #ABB9FF !important;
+                                    border-radius: 50%;
+                                    color: black !important;
+                                    text-decoration: underline 1px solid #262445;
+                                    justify-content: center;
+                                    align-items: center;
+
+                                    }
+
+                                    /* Hover state for tiles */
+                                    .react-calendar__tile:hover {
+                                    background: #D6DFFF !important;
+                                    border-radius: 50%;
+                                    }
+
+                                    /* Today's date when selected */
+                                    .react-calendar__tile--now:enabled:hover,
+                                    .react-calendar__tile--now:enabled:active{
+                                    }
+
+    
+                                    /* Month/Year label */
+                                    .react-calendar__navigation__label {
+                                    font-size: 20px;
+                                    font-weight: 500;
+                                    color: #262445;;
+                                    background: transparent !important;
+                                    font-family: 'Poppins';
+                                    align-items: left;
+                                    }
+
+                                    /* Today's date - no style*/
+                                    .react-calendar__tile--now {
+                                    background: transparent;
+                                    color: inherit !important;
+                                    }
+
+                                    /* Disabled dates (outside current month) */
+                                    .react-calendar__month-view__days__day--neighboringMonth {
+                                    color: 262445 !important;
+                                    opacity: 30%;
+                                    }
+
+                                    /* Weekend days */
+                                    .react-calendar__month-view__days__day--weekend {
+                                    color: #262445;
+                                    font-family: 'Poppins';
+                                    }
+
+                                    /* All tiles (date cells) */
+                                    .react-calendar__tile {
+                                    padding: auto;
+                                    font-size: 20px;
+                                    font-family: 'Poppins';
+                                    color: #262445;
+                                    }
+
+                                    /* Day labels (Mon, Tue, Wed, etc.) */
+                                    .react-calendar__month-view__weekdays {
+                                    font-size: 20px;
+                                    font-weight: 500;
+                                    color: #262445;
+                                    text-transform: uppercase;
+                                    font-family: 'Poppins';
+                                    padding: 5px 0;
+                                    }
+
+                                    /* Individual day label (each abbr element) */
+                                    .react-calendar__month-view__weekdays__weekday {
+                                    padding: 10px 0;
+                                    text-align: center;
+                                    }
+
+                                    /* Remove underline from abbreviation */
+                                    .react-calendar__month-view__weekdays__weekday abbr {
+                                    text-decoration: none;
+                                    cursor: default;
+                                    }
+                                  `}</style>
+                                  <div className="ml-15 origin-top-left scale-80">
                                     <Calendar
                                         className="border-none [&&]:!bg-transparent [&&]:!border-0"
+                                        onChange={handleDateChange}
+                                        value={selectedDate}
                                         nextLabel={<ChevronRight strokeWidth={6} color="#B27DED" />}
                                         prevLabel={<ChevronLeft strokeWidth={6} color="#B27DED" />}
                                         next2Label={null}
                                         prev2Label={null}
                                     />
                                 </div>
+                                </>
 
                                 <div className="-mt-15">Time</div>
-                                <div className="-mt-15 text-gray-400 ml-10">
-                                    Select a day to see available time slots
+                                <div className="-mt-15 ml-10">
+                                    {selectedDate ? (
+                                        <div className="flex gap-3 flex-wrap">
+                                            {timeSlots.map((slot) => (
+                                                <button
+                                                    key={slot}
+                                                    type="button"
+                                                    onClick={() => setSelectedTime(slot)}
+                                                    className={`px-4 py-2 opacity-40 rounded-3xl text-[16px] cursor-pointer transition-colors ${
+                                                        selectedTime === slot 
+                                                            ? 'bg-[#ABB9FF] text-[#262445] opacity-100' 
+                                                            : 'bg-[#ABB9FF] text-[#262445] hover:bg-[#c0cbff]'
+                                                    }`}
+                                                >
+                                                    {slot}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-[##262445] opacity-70">
+                                            Select a day to see available time slots
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="-mt-8 w-[200px]">Request for more time?</div>
-                                <div className="-mt-10 ml-40">
-                                    <div className="px-8 py-3 rounded-full w-[200px] bg-[#D6DFFF] text-[#6B7280] text-[18px] text-center">
-                                    +30 minutes
-                                    </div>
+                                <div className="-mt-5 w-[200px]">Request for more time?</div>
+                                <div className="-mt-6 ml-42">
+                                    <select
+                                        value={extraTime}
+                                        onChange={(e) => setExtraTime(e.target.value)}
+                                        className="px-4 opacity-40 focus:opacity-100 py-2 align-middle rounded-3xl w-[160px] bg-[#ABB9FF] text-[#262445] text-[18px] text-center cursor-pointer outline-none appearance-none"                                    
+                                        >
+                                        {extraTimeOptions.map((option) => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
-                                <div className="-mt-4 w-[200px]">Leave a note</div>
-                                <div className="-mt-4 ml-20">
-                                    <div className="px-8 py-3 rounded-full w-[300px] bg-[#D6DFFF] text-[#6B7280] text-[18px] text-center">
-                                    (optional) request any accommodation ...
-                                    </div>
+                                <div className="w-[200px]">Leave a note</div>
+                                <div className="ml-18">
+                                    <textarea
+                                        value={note}
+                                        onChange={(e) => setNote(e.target.value)}
+                                        placeholder="(optional) request any accommodation ..."
+                                        className="px-4 py-2 opacity-40 active:opacity-100 focus:opacity-100 rounded-3xl w-[260px] h-[70px] bg-[#D6DFFF] text-[#262445] text-[18px] resize-none outline-none placeholder-[#262445]"
+                                    />
                                 </div>
                                 </div>
-                            </div>
+                            </div>                            
                             )}
                         </div>
                     </div>)}
                 </div>
             </div>
+
+            {/* Render popups */}
+            {showPopup === 'failure' && <FailurePopup onClose={() => setShowPopup(null)} />}
+            {showPopup === 'confirmation' && (
+                <ConfirmationPopup 
+                    onClose={() => setShowPopup(null)} 
+                    onConfirm={handleConfirm}
+                />
+            )}
+            {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose} />}
         </div>
     );
 }
