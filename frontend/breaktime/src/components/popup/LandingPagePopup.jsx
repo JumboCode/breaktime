@@ -156,21 +156,30 @@ function LandingPagePopup() {
                                 <div>Date</div>
                                 <div className="ml-15 origin-top-left scale-80">
                                     <Calendar
-                                    className="border-none"
-                                    nextLabel={<ChevronRight strokeWidth={2} />}
-                                    prevLabel={<ChevronLeft strokeWidth={2} />}
+                                        className="border-none [&&]:!bg-transparent [&&]:!border-0"
+                                        nextLabel={<ChevronRight strokeWidth={6} color="#B27DED" />}
+                                        prevLabel={<ChevronLeft strokeWidth={6} color="#B27DED" />}
+                                        next2Label={null}
+                                        prev2Label={null}
                                     />
                                 </div>
 
-                                <div>Time</div>
-                                <div className="text-gray-400 ml-10">
+                                <div className="-mt-15">Time</div>
+                                <div className="-mt-15 text-gray-400 ml-10">
                                     Select a day to see available time slots
                                 </div>
 
-                                <div className="w-[200px]">Request for more time?</div>
-                                <div className="ml-40">
-                                    <div className="px-10 py-4 rounded-full w-[200px] bg-[#D6DFFF] text-[#6B7280] text-[18px] text-center">
+                                <div className="-mt-8 w-[200px]">Request for more time?</div>
+                                <div className="-mt-10 ml-40">
+                                    <div className="px-8 py-3 rounded-full w-[200px] bg-[#D6DFFF] text-[#6B7280] text-[18px] text-center">
                                     +30 minutes
+                                    </div>
+                                </div>
+
+                                <div className="-mt-4 w-[200px]">Leave a note</div>
+                                <div className="-mt-4 ml-20">
+                                    <div className="px-8 py-3 rounded-full w-[300px] bg-[#D6DFFF] text-[#6B7280] text-[18px] text-center">
+                                    (optional) request any accommodation ...
                                     </div>
                                 </div>
                                 </div>
