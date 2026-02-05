@@ -64,7 +64,15 @@
     border-radius: 100vh;
   }
 
+  /* Hide scrollbar while keeping functionality */
+  .ya-carousel-container .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 
+  .ya-carousel-container .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }
 
 @layer utilities {
