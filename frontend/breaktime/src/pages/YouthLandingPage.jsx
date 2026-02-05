@@ -6,7 +6,7 @@ import LaundryCarouselImage from "/src/assets/carousel/LaundryCarouselImage.png"
 import ShowerCarouselImage from "/src/assets/carousel/ShowerCarouselImage.png";
 import StoreCarouselImage from "/src/assets/carousel/StoreCarouselImage.png";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 
 export default function HomePage() {
@@ -16,6 +16,7 @@ export default function HomePage() {
             this.imageImport = imageImport;
         }
     }
+    const carouselRef = useRef(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [userType] = useState('YA');
     const [searchQuery, setSearchQuery] = useState("");
@@ -23,15 +24,34 @@ export default function HomePage() {
     const resourceTileList = [
         new ResourceTile("Shower", ShowerCarouselImage),
         new ResourceTile("Laundry", LaundryCarouselImage),
-        new ResourceTile("Resource Store Appointment", StoreCarouselImage)
+        new ResourceTile("Test Store Appointment", StoreCarouselImage),
+        new ResourceTile("Test1 Store Appointment", StoreCarouselImage),
+        new ResourceTile("Test2 Store Appointment", StoreCarouselImage),
+        new ResourceTile("Test3 Store Appointment", StoreCarouselImage),
+        new ResourceTile("Test4 Store Appointment", StoreCarouselImage),
+        new ResourceTile("Test5 Store Appointment", StoreCarouselImage)
     ];
+
+    const scrollCarousel = (direction) => {
+        if (carouselRef.current) {
+            const scrollAmount = 400; // Adjust this value to control scroll distance
+            const newScrollPosition = direction === 'left' 
+                ? carouselRef.current.scrollLeft - scrollAmount
+                : carouselRef.current.scrollLeft + scrollAmount;
+            
+            carouselRef.current.scrollTo({
+                left: newScrollPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
 
     const filteredResourceTiles = resourceTileList.filter((tile) =>
         tile.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (            
-        <div className="bg-light-grey h-screen w-screen overflow-hidden">
+        <div className="bg-light-grey h-screen w-screen overflow-hidden ya-carousel-container">
             <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType}/>
             <div className="flex p-[30px] pt-[10px] gap-[30px]">
                 <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
@@ -55,9 +75,17 @@ export default function HomePage() {
                             />
                             
                             {/* Left Button */}
-                            <img src={`${CarouselButton}`} className="rotate-180 scale-75 hover:cursor-pointer"/>
+                            <img 
+                                src={`${CarouselButton}`} 
+                                className="rotate-180 scale-75 hover:cursor-pointer" 
+                                onClick={() => scrollCarousel('left')}
+                            />
                             {/* Right Button*/}
-                            <img src={`${CarouselButton}`} className="scale-75 hover:cursor-pointer"/>
+                            <img 
+                                src={`${CarouselButton}`} 
+                                className="scale-75 hover:cursor-pointer" 
+                                onClick={() => scrollCarousel('right')}
+                            />
                         </div>
                         <div className="mb-4 mt-2">
                             <span className="text-dark-navy opacity-60">Hover to see details, then book</span>
@@ -65,7 +93,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Infinite image carousel (dynamic) */}
-                    <div className="flex gap-10">
+                    <div ref={carouselRef} className="flex gap-10 overflow-x-auto scroll-smooth scrollbar-hide">
                         {/* <CarouselItem serviceName="Shower"/> */}
                         { resourceTileList.length == 0 ? (
                             <div>
