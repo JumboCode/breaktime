@@ -111,7 +111,8 @@ function LandingPagePopup() {
                 <button 
                     type="button" 
                     onClick={handleGoBack} 
-                    className="mb-4 mt-2 ml-2 flex gap-2 font-poppins items-center justify-center w-[140px] h-[45px] bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl pr-2 pb-1 py-1">
+                    className="mb-4 mt-2 ml-2 flex gap-2 font-poppins items-center justify-center w-[140px] h-[45px] bg-[#B27DED] 
+                    text-[#F0F7F2] font-normal text-lg rounded-2xl pr-2 pb-1 py-1 hover:bg-[#943BF6] hover:underline">
                     <ChevronLeft strokeWidth={7} color="#F0F7F2"/>
                     go back
                 </button>
@@ -128,7 +129,7 @@ function LandingPagePopup() {
                     {!isBooking? ( <button 
                           type="button"
                             onClick={handleBookingClick} 
-                            className="flex gap-2 font-poppins items-center justify-center mt-4 ml-31 w-[160px] h-[50px] bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl pl-1 py-1"
+                            className="flex gap-2 font-poppins items-center justify-center hover:bg-[#943BF6] hover:underline mt-4 ml-31 w-[160px] h-[50px] bg-[#B27DED] text-[#F0F7F2] font-normal text-lg rounded-2xl pl-1 py-1"
                         > Book Now <ChevronRight strokeWidth={7} color="#F0F7F2" />
                     </button> ): (
                     <button 
@@ -142,7 +143,7 @@ function LandingPagePopup() {
 
                 <div className="absolute top-10 right-10 font-poppins">
                     {!isBooking ? (
-                        <div className="w-[520px] mt-40 mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
+                        <div className="w-[520px] mt-50 mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
                          pr-4 ">
                             {sections.map((section) => {
                                 const isOpen = expandedSection === section.id;
