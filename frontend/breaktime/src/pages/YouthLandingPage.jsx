@@ -58,7 +58,7 @@ export default function HomePage() {
                     <SideBar userType={userType}/>
                 </div>
 
-                <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
+                <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)] text-center mt-20'}`}>
                     <h1 className="text-[104px] leading-[104px] mb-16">
                         Choose a <span className="text-bright-purple">Service</span> to get Started
                     </h1>
@@ -67,7 +67,7 @@ export default function HomePage() {
                         <div className="inline-flex gap-2">
                             {/* search bar itself*/}
                             <input
-                                className="text-dark-navy opacity-80 border-2 border-bright-purple rounded-2xl pl-5 pr-5 pt-0 pb-0 bg-none "
+                                className="text-dark-navy opacity-80 border-2 border-bright-purple rounded-2xl pl-5 pr-5 pt-0 pb-0 bg-none w-70"
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
