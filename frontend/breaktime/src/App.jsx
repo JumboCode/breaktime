@@ -10,6 +10,7 @@ import SignUpPage from './pages/SignUpPage.jsx';
 import SignInPage from './pages/SignInPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ModalProvider from './components/popup/ModalProvider.jsx';
+import TestPage from './pages/testPage.jsx';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
           <Route path='/' element={<SignInPage />} />
           <Route path='/signup' element={<SignUpPage />} />
           <Route path='/home' element={<HomePage />} />
+          <Route path='/test' element={<TestPage />} />
         </Routes>
       </Router>
     </ModalProvider>
