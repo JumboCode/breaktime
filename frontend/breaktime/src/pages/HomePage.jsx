@@ -21,6 +21,7 @@ import { apiCall } from "../utils/general";
  */
 export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [userType] = useState('Staff');
     const [bookings, setBookings] = useState([]);
 
     /**
@@ -125,10 +126,10 @@ export default function HomePage() {
         // ModalProvider wraps the app to provide modal context to all children
         <ModalProvider>
             <div className="bg-indigo-purple h-screen w-screen overflow-hidden">
-                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} />
+                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} />
                 <div className="flex p-[30px] pt-[10px] gap-[30px]">
                     <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
-                        <SideBar />
+                        <SideBar userType={userType}/>
                     </div>
 
                     <div className={`h-[calc(100vh-120px)] relative bg-cal-bg border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
