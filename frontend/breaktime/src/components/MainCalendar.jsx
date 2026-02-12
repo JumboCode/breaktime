@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
 import { useModal } from './popup/useModal';
-import { useModal } from './popup/useModal';
 
 // Initialize moment as the date localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
