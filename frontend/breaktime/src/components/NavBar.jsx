@@ -1,13 +1,23 @@
 import Breaktime_Secondary_Logo_SkyBlue from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
 import Breaktime_Secondary_Logo_MidnightBlue from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_MidnightBlue.png";
 import { useState } from "react";
+import { useClerk } from '@clerk/clerk-react';
 
 const NavBar = ({ isSidebarOpen, onToggle, userType }) => {
     // const [userType, setUserType] = useState('Staff');
     const [viewType, setViewType] = useState('Calendar');
+    const { signOut } = useClerk();
 
     const toggleSidebar = () => {
         if (onToggle) onToggle(!isSidebarOpen);
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error("Error signing out:", error);
+        }
     };
 
     return (
@@ -51,7 +61,14 @@ const NavBar = ({ isSidebarOpen, onToggle, userType }) => {
                         >
                             List
                         </button>
-                    </div>
+                        <button
+                        onClick={() => handleSignOut()}
+                        className={`cursor-pointer hover:underline
+                            ${viewType === 'List' ? 'underline' : 'hover:font-semibold'}`}
+                    >
+                        Sign Out
+                    </button>
+                </div>
                 </div>
             : 
                 <></>

@@ -31,7 +31,9 @@ export default function SignInPage() {
                                 <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
                             
                             <div className="flex-1">
-                                {selectedType === 'staff' ? <StaffSignin/> : <UserSignin/>}
+                                {selectedType === 'staff' ? 
+                                <StaffSignin key="staff-view"/> : 
+                                <UserSignin key="user-view"/>}
                               <div className="flex gap-10 pt-15">
                                 <Link to="/signup" className="text-light-purple uppercase underline hover:text-lime-500" href="">
                                 SIGN UP

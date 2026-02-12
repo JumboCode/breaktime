@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { staffUser } = require('../schemas/staff');
-const { clerkClient } = require('@clerk/backend'); 
+const clerkClient = require('../utils/clerk');
 
 /* * POST /create :
  *      summary: creates a new staff entry in collection
@@ -61,8 +61,8 @@ router.post('/create', async (req, res) => {
                 const newStaff = {
                         firstName, 
                         lastName,
-                        username,
                         email,
+                        username,
                         permissionLevel: 0 
                 };
 
@@ -76,6 +76,7 @@ router.post('/create', async (req, res) => {
                 };
 
                 // Await clerk return, return success
+                console.log("Clerk client: ", clerkClient);
                 const user = await clerkClient.users.createUser(clerkUser);
 
                 if (!user || user.errors) {
