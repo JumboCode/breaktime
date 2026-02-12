@@ -1,0 +1,14 @@
+{
+  "name": "breaktime",
+  "version": "1.0.0",
+  "description": "Breaktime booking application",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend/breaktime && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend/breaktime && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

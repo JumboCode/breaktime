@@ -15,22 +15,58 @@ import ServiceGraphics from "../../assets/popup-icons/Service_Graphics.png";
 import ServiceSelection from "./ServiceSelection";
 import { ChevronLeft } from 'lucide-react';
 
+// Available service types for the dropdown
 const SERVICE_OPTIONS = [
   { value: "services", label: "Shower Services" },
   { value: "laundry", label: "Laundry" },
   { value: "meeting", label: "Meeting" },
 ];
 
-// Add New Booking Modal
-export const AddBookingModal = ({ onClose, onSave }) => {
+/**
+ * AddBookingModal - Modal for creating a new booking
+ *
+ * This modal is shown when:
+ * 1. User clicks "add new" button in the calendar toolbar
+ * 2. User clicks on an empty slot in the calendar (date will be pre-filled)
+ *
+ * Form Fields:
+ * - service: Type of service (dropdown)
+ * - client: Client name (text input)
+ * - date: Booking date (date picker) - pre-filled when clicking calendar slot
+ * - startTime: Start time (time picker)
+ * - endTime: End time (time picker)
+ * - notes: Optional notes (textarea)
+ *
+ * On Submit:
+ * - Calls onSave with form data
+ * - ModalContainer.handleSaveBooking sends data to POST /booking/create
+ *
+ * @param {Function} onClose - Function to close the modal
+ * @param {Function} onSave - Function to save the booking (calls API)
+ * @param {Object} initialData - Pre-filled data (e.g., { date: "2026-02-03" } when clicking calendar)
+ */
+export const AddBookingModal = ({ onClose, onSave, initialData }) => {
+ // Form state - initialized with initialData if provided (e.g., pre-filled date)
  const [formData, setFormData] = useState({
-   date: "",
-   time: "",
-   service: "",
-   client: "",
-   phone: "",
-   notes: "",
+   date: initialData?.date || "",           // Pre-filled when clicking calendar slot
+   startTime: initialData?.startTime || "",
+   endTime: initialData?.endTime || "",
+   service: initialData?.service || "services",
+   client: initialData?.client || "",
+   phone: initialData?.phone || "",
+   notes: initialData?.notes || "",
  });
+
+ /**
+  * handleSubmit - Called when user clicks "Confirm" button
+  *
+  * Creates a booking object with:
+  * - All form data
+  * - Temporary ID (Date.now()) - will be replaced by backend-generated ID
+  * - Status "pending"
+  *
+  * Then calls onSave (which triggers ModalContainer.handleSaveBooking)
+  */
  const handleSubmit = (e) => {
    e.preventDefault();
    onSave({ ...formData, id: Date.now(), status: "pending" });
@@ -150,6 +186,7 @@ export const AddBookingModal = ({ onClose, onSave }) => {
 AddBookingModal.propTypes = {
  onClose: PropTypes.func.isRequired,
  onSave: PropTypes.func.isRequired,
+ initialData: PropTypes.object,
 };
 
 // Modify Booking Modal

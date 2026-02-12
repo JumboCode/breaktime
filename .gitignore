@@ -1,0 +1,10 @@
+# Root dependencies (for concurrently)
+node_modules/
+package-lock.json
+
+# Environment files
+.env
+*.env.local
+
+# OS files
+.DS_Store
