@@ -1,12 +1,25 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { useSignIn, useAuth } from '@clerk/clerk-react'
+import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 export default function StaffSignin() {
+  const { signIn, setActive } = useSignIn();
+  let navigate = useNavigate();
+  const { isSignedIn, isLoaded } = useAuth();
+
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
+  // auto sign in if already logged in
+  useEffect(() => {
+    if (isSignedIn && isLoaded) {
+        navigate("/home");
+    }
+  }, [isSignedIn]);
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -17,8 +30,26 @@ export default function StaffSignin() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!isLoaded) return;
+
+    try {
+        const result = await signIn.create({
+            identifier: formData.username, 
+            password: formData.password
+        });
+
+        if (result.status === "complete") {
+            await setActive({ session: result.createdSessionId });
+            navigate('/home');
+            
+        } else {
+            console.log(result);
+        }
+    } catch (error) {
+        console.log(error);
+    }
     console.log("Form submitted:", formData);
   };
 
@@ -59,7 +90,6 @@ export default function StaffSignin() {
         </div>
 
         <div className="text-dark-navy">
-          <Link to="/home">
           <button
             type="submit"
             className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
@@ -67,7 +97,6 @@ export default function StaffSignin() {
             
               Log In
           </button>
-            </Link>
         </div>
       </form>
     </div>
