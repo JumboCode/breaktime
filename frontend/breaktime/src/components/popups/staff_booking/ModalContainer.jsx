@@ -45,8 +45,9 @@ const getDayFromDate = (dateString) => {
  *
  * @param {Array} bookings - Current array of bookings (from HomePage state)
  * @param {Function} setBookings - Function to update bookings state
+ * @param {Function} onBookingChange - Callback to refetch bookings from backend after CRUD operations
  */
-const ModalContainer = ({ bookings, setBookings }) => {
+const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
  // useModal hook provides modal state and control functions
  const { modalState, closeModal, openModal } = useModal();
 
@@ -120,10 +121,14 @@ const ModalContainer = ({ bookings, setBookings }) => {
      console.warn('API unavailable, using local state only:', err);
    }
 
-   // Always update local state and close modal
+   // Update local state for immediate UI feedback, then refetch from backend
+   // to ensure calendar shows the latest data from MongoDB
    setBookings([...bookings, localBooking]);
    setLoading(false);
    closeModal();
+   // TODO (Backend Integration): Once /booking/monthlyBookings is implemented,
+   // this refetch will pull only the current month's active bookings from Mongo
+   if (onBookingChange) onBookingChange();
  };
 
  /**
@@ -176,6 +181,8 @@ const ModalContainer = ({ bookings, setBookings }) => {
    );
    setLoading(false);
    closeModal();
+   // Refetch from backend to ensure calendar is in sync with MongoDB
+   if (onBookingChange) onBookingChange();
  };
 
  /**
@@ -210,6 +217,8 @@ const ModalContainer = ({ bookings, setBookings }) => {
    setBookings(bookings.filter((b) => b.id !== bookingID && b.bookingID !== bookingID));
    setLoading(false);
    closeModal();
+   // Refetch from backend to ensure calendar is in sync with MongoDB
+   if (onBookingChange) onBookingChange();
  };
 
  /**
@@ -343,6 +352,7 @@ const ModalContainer = ({ bookings, setBookings }) => {
 ModalContainer.propTypes = {
  bookings: PropTypes.array.isRequired,
  setBookings: PropTypes.func.isRequired,
+ onBookingChange: PropTypes.func,
 };
 
 export default ModalContainer;

@@ -1,6 +1,6 @@
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
@@ -158,15 +158,36 @@ const CustomEvent = ({ event }) => {
  * - Click "add new" button → opens Add Booking modal
  *
  * @param {Array} bookings - Array of booking objects to display
+ * @param {Function} onDateChange - Callback when calendar date changes (month navigation)
+ * @param {Function} onViewChange - Callback when calendar view changes (month/week toggle)
  */
-const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp, view: viewProp, onView: onViewProp }) => {
-  const [internalDate, setInternalDate] = useState(new Date());
-  const date = dateProp ?? internalDate;
-  const setDate = onNavigateProp ?? setInternalDate;
-  const [internalView, setInternalView] = useState('month');
-  const view = viewProp ?? internalView;
-  const setView = onViewProp ?? setInternalView;
+const MyCalendar = ({ bookings = [], onDateChange, onViewChange }) => {
+  const [date, setDate] = useState(new Date());
+  const [view, setView] = useState('month');
   const { openModal } = useModal(); // Hook to control modal state
+
+  /**
+   * handleNavigate - Called when user navigates to a different date
+   * Updates local date state and notifies parent to refetch bookings
+   * for the new month/year via the /monthlyBookings endpoint.
+   *
+   * @param {Date} newDate - The date navigated to
+   */
+  const handleNavigate = useCallback((newDate) => {
+    setDate(newDate);
+    if (onDateChange) onDateChange(newDate);
+  }, [onDateChange]);
+
+  /**
+   * handleViewChange - Called when user switches between month/week views
+   * Updates local view state and notifies parent to refetch bookings.
+   *
+   * @param {string} newView - The new view ("month" or "week")
+   */
+  const handleViewChange = useCallback((newView) => {
+    setView(newView);
+    if (onViewChange) onViewChange(newView);
+  }, [onViewChange]);
 
   /**
    * handleAddNew - Called when "add new" button is clicked
@@ -212,9 +233,9 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
         endAccessor="end"
         style={{ height: 500 }}
         date={date}
-        onNavigate={setDate}
+        onNavigate={handleNavigate}
         view={view}
-        onView={setView}
+        onView={handleViewChange}
         selectable                        // Enable clicking on empty slots
         onSelectEvent={handleSelectEvent} // Handler for clicking on events
         onSelectSlot={handleSelectSlot}   // Handler for clicking on empty slots
@@ -229,10 +250,8 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
 
 MyCalendar.propTypes = {
   bookings: PropTypes.array,
-  date: PropTypes.instanceOf(Date),
-  onNavigate: PropTypes.func,
-  view: PropTypes.string,
-  onView: PropTypes.func,
+  onDateChange: PropTypes.func,
+  onViewChange: PropTypes.func,
 };
 
 export default MyCalendar;
