@@ -6,10 +6,11 @@ import ServiceImage from "../../assets/popup-icons/ServiceImage.png";
 import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
 import BookButton from "../../assets/popup-icons/BookButton.png";
 import { FailurePopup, ConfirmationPopup, SuccessPopup } from './LandingStatusPopups';
+import { apiCall } from "../../utils/general.js";
 
 
 
-function LandingPagePopup() {
+function LandingPagePopup({onClose}) {
     const [expandedSection, setExpandedSection] = useState(null);
     const [isBooking, setIsBooking] = useState(false);
     const [userInfoOpen, setUserInfoOpen] = useState(false);
@@ -30,8 +31,6 @@ function LandingPagePopup() {
     // Extra time options
     const extraTimeOptions = [
         "+30 minutes",
-        "+45 minutes",
-        "+60 minutes"
     ];
 
     const sections = [
@@ -58,8 +57,30 @@ function LandingPagePopup() {
         setNote('');
         setUserInfoOpen(false);
         setServiceInfoOpen(false);
+        onClose();
     };
 
+    const calculateTimes = (timeSlot, extraTime) => {
+        // Parse "9:00 AM" into hours and minutes
+        const [time, period] = timeSlot.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+        
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+
+        // Start time in "HH:MM" format
+        const startTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+        // Default slot is 30 min, add extra time if selected
+        let totalMinutes = minutes + 30;
+        if (extraTime === '+30 minutes') totalMinutes += 30;
+
+        hours += Math.floor(totalMinutes / 60);
+        const endMinutes = totalMinutes % 60;
+        const endTime = `${String(hours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+
+        return { startTime, endTime };
+    };
     
     const toggleSection = (id) => {
         setExpandedSection((prev) => (prev === id ? null : id));
@@ -68,6 +89,7 @@ function LandingPagePopup() {
     const handleBookingClick = () => {
         setIsBooking(true);
     };
+
 
     const handleDateChange = (date) => {
         // If clicking the same date, unselect it
@@ -89,10 +111,34 @@ function LandingPagePopup() {
         }
     };
 
-    const handleConfirm = () => {
-        console.log("Booking confirmed!", {selectedDate, selectedTime, extraTime, note});
-        console.log("Setting showPopup to 'success'");
-        setShowPopup('success');
+    const getDayFromDate = (dateString) => {
+        if (!dateString) return 'monday';
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const date = new Date(dateString);
+            return days[date.getDay()] || 'monday';
+        };
+
+    const handleConfirm = async () => {
+        const { startTime, endTime } = calculateTimes(selectedTime, extraTime);
+
+        try {
+            const requestData =  {
+                userID: "YA_2",
+                serviceID: "shower",
+                duration: [{
+                    day: getDayFromDate(selectedDate),
+                    startTime: startTime,  
+                    endTime: endTime,    
+                }],
+                clientName: "Emily"
+            };
+
+            const response = await apiCall('/booking/create', 'POST', requestData, null);
+            setShowPopup('success');
+        } catch (error) {
+            console.error("Error creating booking:", error);
+            setShowPopup('failure');
+        }
     };
 
     const handleSuccessClose = () => {
@@ -105,7 +151,8 @@ function LandingPagePopup() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-[#F0F7F2] font-poppins text-[#262445] relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F0F7F2] font-poppins text-[#262445]">
+        <div className="overflow-auto h-[100vh] w-full bg-[#F0F7F2] font-poppins text-[#262445] relative">
             <div className="absolute bottom-2 top-16 left-20 w-[90%] h-[84%] items-center justify-center 
             border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
                 <button 
@@ -344,15 +391,15 @@ function LandingPagePopup() {
 
                                 <div className="-mt-5 w-[200px]">Request for more time?</div>
                                 <div className="-mt-6 ml-42">
-                                    <select
-                                        value={extraTime}
-                                        onChange={(e) => setExtraTime(e.target.value)}
-                                        className="px-4 opacity-40 focus:opacity-100 py-2 align-middle rounded-3xl w-[160px] bg-[#ABB9FF] text-[#262445] text-[18px] text-center cursor-pointer outline-none appearance-none"                                    
-                                        >
-                                        {extraTimeOptions.map((option) => (
-                                            <option key={option} value={option}>{option}</option>
-                                        ))}
-                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setExtraTime(prev => prev === '+30 minutes' ? '' : '+30 minutes')}
+                                        className={`px-4 py-2 rounded-3xl w-[160px] bg-[#ABB9FF] text-[#262445] text-[18px] text-center cursor-pointer ${
+                                            extraTime === '+30 minutes' ? 'opacity-100' : 'opacity-40'
+                                        }`}
+                                    >
+                                        +30 minutes
+                                    </button>
                                 </div>
 
                                 <div className="w-[200px]">Leave a note</div>
@@ -381,6 +428,7 @@ function LandingPagePopup() {
                 />
             )}
             {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose} />}
+        </div>
         </div>
     );
 }
