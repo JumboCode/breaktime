@@ -2,7 +2,7 @@ import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import MainCalendar from "../components/MainCalendar";
 import CalendarCorner from "../assets/maincal/CalendarCorner.svg";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ModalProvider from "../components/popup/ModalProvider";
 import ModalContainer from "../components/popup/ModalContainer";
 import { apiCall } from "../utils/general";
@@ -23,104 +23,126 @@ export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [userType] = useState('Staff');
     const [bookings, setBookings] = useState([]);
+    // Track the current date displayed on the calendar so we can fetch
+    // bookings for the correct month when the user navigates
+    const [calendarDate, setCalendarDate] = useState(new Date());
 
     /**
-     * useEffect - Fetch bookings from backend when component mounts
+     * getDateFromDay - Converts a day name to an actual date
      *
-     * API Call: POST /booking/userbookinghistory
-     * Request Body: { userID: "YA_1" }
-     * Response: { bookings: [...] }
+     * The backend stores "monday", "tuesday", etc.
+     * The frontend forms need "2026-02-03" format.
      *
-     * The backend stores bookings with:
-     *   - userID: "YA_1" (authenticated user)
-     *   - clientName: "John Doe" (display name)
-     *   - duration: [{ day: "monday", startTime: "09:00", endTime: "10:00" }]
+     * This finds the next occurrence of that day from today.
+     * Example: If today is Sunday and day is "tuesday", returns next Tuesday's date.
      *
-     * We need to map this to frontend format:
-     *   - id: bookingID
-     *   - client: clientName (for display)
-     *   - date: "2026-02-03" (converted from day name)
-     *   - startTime, endTime: from duration array
+     * @param {string} dayName - Day name like "monday", "tuesday", etc.
+     * @returns {string} Date in YYYY-MM-DD format
      */
-    useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                // Fetch all bookings for the calendar
-                const response = await apiCall('/booking/all', 'GET', null, null);
+    const getDateFromDay = (dayName) => {
+        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const today = new Date();
+        const targetDay = days.indexOf(dayName?.toLowerCase());
+        if (targetDay === -1) return '';
 
-                if (response.bookings) {
-                    /**
-                     * getDateFromDay - Converts a day name to an actual date
-                     *
-                     * The backend stores "monday", "tuesday", etc.
-                     * The frontend forms need "2026-02-03" format.
-                     *
-                     * This finds the next occurrence of that day from today.
-                     * Example: If today is Sunday and day is "tuesday", returns next Tuesday's date.
-                     *
-                     * @param {string} dayName - Day name like "monday", "tuesday", etc.
-                     * @returns {string} Date in YYYY-MM-DD format
-                     */
-                    const getDateFromDay = (dayName) => {
-                        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-                        const today = new Date();
-                        const targetDay = days.indexOf(dayName?.toLowerCase());
-                        if (targetDay === -1) return '';
+        const currentDay = today.getDay();
+        let diff = targetDay - currentDay;
+        if (diff < 0) diff += 7;
 
-                        const currentDay = today.getDay();
-                        let diff = targetDay - currentDay;
-                        if (diff < 0) diff += 7; // If day already passed this week, get next week's
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + diff);
+        return targetDate.toISOString().split('T')[0];
+    };
 
-                        const targetDate = new Date(today);
-                        targetDate.setDate(today.getDate() + diff);
-                        return targetDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-                    };
+    /**
+     * mapBackendBooking - Maps a backend booking object to frontend format
+     *
+     * Backend format:
+     * { bookingID, userID, clientName, serviceID, duration: [{ day, startTime, endTime }] }
+     *
+     * Frontend format:
+     * { id, client, service, date (YYYY-MM-DD), startTime, endTime }
+     */
+    const mapBackendBooking = (b) => ({
+        ...b,
+        id: b.bookingID,
+        client: b.clientName || b.userID,
+        service: b.serviceID,
+        ...(b.duration && b.duration[0] ? {
+            date: getDateFromDay(b.duration[0].day),
+            startTime: b.duration[0].startTime,
+            endTime: b.duration[0].endTime,
+        } : {})
+    });
 
-                    /**
-                     * Map backend booking format to frontend format
-                     *
-                     * Backend format:
-                     * {
-                     *   bookingID: 12,
-                     *   userID: "YA_1",
-                     *   clientName: "John Doe",
-                     *   serviceID: "services",
-                     *   duration: [{ day: "monday", startTime: "09:00", endTime: "10:00" }]
-                     * }
-                     *
-                     * Frontend format:
-                     * {
-                     *   id: 12,
-                     *   client: "John Doe",
-                     *   service: "services",
-                     *   date: "2026-02-03",
-                     *   startTime: "09:00",
-                     *   endTime: "10:00"
-                     * }
-                     */
-                    const mappedBookings = response.bookings.map(b => ({
-                        ...b,                                    // Keep all original fields
-                        id: b.bookingID,                         // Map bookingID → id
-                        client: b.clientName || b.userID,        // Use clientName, fallback to userID
-                        service: b.serviceID,                    // Map serviceID → service
-                        // Extract date/time from duration array if available
-                        ...(b.duration && b.duration[0] ? {
-                            date: getDateFromDay(b.duration[0].day),  // Convert day name to date
-                            startTime: b.duration[0].startTime,
-                            endTime: b.duration[0].endTime,
-                        } : {})
-                    }));
-                    setBookings(mappedBookings);
-                }
-            } catch (err) {
-                // If API fails (e.g., backend not running), just log warning
-                // App will still work with local state
-                console.warn('Could not fetch bookings:', err);
+    /**
+     * fetchMonthlyBookings - Fetches bookings for a specific month/year
+     *
+     * This is called:
+     *   1. On initial page load (component mount)
+     *   2. When the user navigates to a different month on the calendar
+     *   3. When the calendar view changes (month ↔ week)
+     *   4. When a booking is created, updated, or deleted (via onBookingChange)
+     *
+     * @param {Date} date - The date whose month/year to fetch bookings for
+     */
+    const fetchMonthlyBookings = useCallback(async (date = new Date()) => {
+        const month = date.getMonth() + 1; // JS months are 0-indexed, API expects 1-indexed
+        const year = date.getFullYear();
+
+        try {
+            // TODO (Backend Integration): Once the GET /booking/monthlyBookings endpoint is
+            // implemented, replace the line below with:
+            //
+            //   const response = await apiCall(
+            //     `/booking/monthlyBookings?month=${month}&year=${year}`,
+            //     'GET', null, null
+            //   );
+            //
+            // The endpoint should return { bookings: [...] } containing only active bookings
+            // (isActive === true) whose timestamp falls within the given month and year.
+            //
+            // Current fallback: fetches ALL bookings via /booking/all
+            const response = await apiCall('/booking/all', 'GET', null, null);
+
+            if (response.bookings) {
+                const mappedBookings = response.bookings.map(mapBackendBooking);
+                setBookings(mappedBookings);
             }
-        };
+        } catch (err) {
+            console.warn('Could not fetch bookings:', err);
+        }
+    }, []);
 
-        fetchBookings();
-    }, []); // Empty dependency array = run once on mount
+    // Fetch bookings on mount and whenever the displayed month changes
+    useEffect(() => {
+        fetchMonthlyBookings(calendarDate);
+    }, [calendarDate, fetchMonthlyBookings]);
+
+    /**
+     * handleDateChange - Called by MainCalendar when user navigates to a new date.
+     * Updates calendarDate which triggers the useEffect to refetch bookings.
+     */
+    const handleDateChange = useCallback((newDate) => {
+        setCalendarDate(newDate);
+    }, []);
+
+    /**
+     * handleViewChange - Called by MainCalendar when the view switches (month ↔ week).
+     * Refetches bookings to ensure the calendar data is fresh for the new view.
+     */
+    const handleViewChange = useCallback(() => {
+        fetchMonthlyBookings(calendarDate);
+    }, [calendarDate, fetchMonthlyBookings]);
+
+    /**
+     * handleBookingChange - Called by ModalContainer after a booking is created,
+     * updated, or deleted. Refetches bookings from the backend so the calendar
+     * displays the latest data.
+     */
+    const handleBookingChange = useCallback(() => {
+        fetchMonthlyBookings(calendarDate);
+    }, [calendarDate, fetchMonthlyBookings]);
 
     return (
         // ModalProvider wraps the app to provide modal context to all children
@@ -139,8 +161,13 @@ export default function HomePage() {
                         </div>
 
                         <div className="bg-cal-bg p-[50px] main-cal-wrapper">
-                            {/* MainCalendar receives bookings to display as events */}
-                            <MainCalendar bookings={bookings} />
+                            {/* MainCalendar receives bookings to display as events.
+                                onDateChange/onViewChange trigger refetches for fresh data. */}
+                            <MainCalendar
+                                bookings={bookings}
+                                onDateChange={handleDateChange}
+                                onViewChange={handleViewChange}
+                            />
                         </div>
                     </div>
                 </div>
@@ -150,7 +177,12 @@ export default function HomePage() {
                   - Creates, updates, and deletes bookings via API
                   - Updates local state to reflect changes immediately
                 */}
-                <ModalContainer bookings={bookings} setBookings={setBookings} />
+                {/* onBookingChange triggers a refetch after create/update/delete */}
+                <ModalContainer
+                    bookings={bookings}
+                    setBookings={setBookings}
+                    onBookingChange={handleBookingChange}
+                />
             </div>
         </ModalProvider>
     );
