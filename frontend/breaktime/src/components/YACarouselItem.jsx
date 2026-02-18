@@ -2,7 +2,7 @@ import { useState } from "react";
 import LandingPagePopup from "./popup/LandingPagePopup";
 import { createPortal } from "react-dom";
 
-const CarouselItem = ({ name, image }) => {
+const CarouselItem = ({ service }) => {
     const [isHovering, setIsHovering] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
 
@@ -14,7 +14,7 @@ const CarouselItem = ({ name, image }) => {
             onMouseLeave={() => setIsHovering(false)}
         >
             <div className="relative w-76 h-76">
-                <img className={`${isHovering ? 'blur-[2px]' : ''} rounded-xl shadow-md object-cover`} src={image} alt={name} />
+                <img className={`${isHovering ? 'blur-[2px]' : ''} rounded-xl shadow-md object-cover`} src={service.imageImport} alt={service.name} />
                 <div
                     className={`absolute inset-0 flex items-center justify-center rounded-xl transition-opacity duration-200 ${isHovering ? 'opacity-100' : 'opacity-0'}`}
                     style={{ backgroundColor: 'rgb(38, 36, 69, 0.4)' }}
@@ -28,12 +28,13 @@ const CarouselItem = ({ name, image }) => {
             </div>
             
             <p className={`${isHovering ? 'underline' : ''} font-bold text-lg`}>
-                { isHovering ? "Details & Guidelines" : name } 
+                { isHovering ? "Details & Guidelines" : service.name } 
             </p>
         </div>
         {/* Portal renders the popup at document.body level, outside the carousel */}
         {showPopup && createPortal(
-            <LandingPagePopup onClose={() => setShowPopup(false)} />,
+            <LandingPagePopup onClose={() => setShowPopup(false)} 
+            service={ service }/>,
             document.body
         )}
         </>

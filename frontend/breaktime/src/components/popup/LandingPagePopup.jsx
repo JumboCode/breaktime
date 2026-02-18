@@ -10,7 +10,7 @@ import { apiCall } from "../../utils/general.js";
 
 
 
-function LandingPagePopup({onClose}) {
+function LandingPagePopup({onClose, service }) {
     const [expandedSection, setExpandedSection] = useState(null);
     const [isBooking, setIsBooking] = useState(false);
     const [userInfoOpen, setUserInfoOpen] = useState(false);
@@ -167,11 +167,13 @@ function LandingPagePopup({onClose}) {
 
                 <div className="flex flex-col">
                     <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
-                    Shower <br></br>Service</h2>
+                    {service?.name ?? "Service"}
+                    </h2>
+
                     <img
-                        src={ServiceImage}
-                        alt="Service"
-                        className="w-[300px] ml-30 mt-7"
+                    src={service?.imageImport ?? ServiceImage}
+                    alt={service?.name ?? "Service"}
+                    className="w-[300px] ml-30 mt-7"
                     />
                     {!isBooking? ( <button 
                           type="button"
