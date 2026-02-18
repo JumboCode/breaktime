@@ -107,7 +107,7 @@ export default function HomePage() {
                             <div className="flex gap-10">
                                 {filteredResourceTiles.map((resource, index) => (
                                     <div key={index} className="flex-shrink-0">
-                                        <CarouselItem name={resource.name} image={resource.imageImport} />
+                                       <CarouselItem service={resource} />
                                     </div>
                                 ))}
                             </div>
