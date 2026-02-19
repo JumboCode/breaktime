@@ -23,7 +23,9 @@ import { apiCall } from "../../utils/general";
 const getDayFromDate = (dateString) => {
   if (!dateString) return 'monday';
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const date = new Date(dateString);
+  // Split the YYYY-MM-DD string to avoid UTC parsing shifting the day
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
   return days[date.getDay()] || 'monday';
 };
 
@@ -98,6 +100,7 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
        serviceID: booking.service || "services",
        duration: [{
          day: getDayFromDate(booking.date), // Convert "2026-02-03" to "monday"
+         date: booking.date,                // Store actual date for accurate display
          startTime: booking.startTime || booking.time || "09:00",
          endTime: booking.endTime || "10:00"
        }],
@@ -156,6 +159,7 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
        status: updatedBooking.status || 'pending',
        duration: [{
          day: getDayFromDate(updatedBooking.date),
+         date: updatedBooking.date,
          startTime: updatedBooking.startTime || updatedBooking.time || "09:00",
          endTime: updatedBooking.endTime || "10:00"
        }],
