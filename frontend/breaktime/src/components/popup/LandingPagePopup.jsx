@@ -7,6 +7,7 @@ import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
 import BookButton from "../../assets/popup-icons/BookButton.png";
 import { FailurePopup, ConfirmationPopup, SuccessPopup } from './LandingStatusPopups';
 import { apiCall } from "../../utils/general.js";
+import { useUser } from '@clerk/clerk-react';
 
 
 
@@ -117,20 +118,24 @@ function LandingPagePopup({onClose, service }) {
             const date = new Date(dateString);
             return days[date.getDay()] || 'monday';
         };
+    
+    const { user, isLoaded, isSignedIn } = useUser();
 
     const handleConfirm = async () => {
+        if (!isLoaded) return;          
+        if (!isSignedIn || !user) return;
         const { startTime, endTime } = calculateTimes(selectedTime, extraTime);
 
         try {
             const requestData =  {
-                userID: "YA_2",
-                serviceID: "shower",
+                userID: user.id,
+                serviceID: service?.name || "Service",
                 duration: [{
                     day: getDayFromDate(selectedDate),
                     startTime: startTime,  
                     endTime: endTime,    
                 }],
-                clientName: "Emily"
+                clientName: user.firstName || "YA User", // Fallback to "YA User" if firstName is not available
             };
 
             const response = await apiCall('/booking/create', 'POST', requestData, null);
@@ -225,10 +230,10 @@ function LandingPagePopup({onClose, service }) {
                             })}
                         </div>
                     ) : (
-                    <div className="w-[520px] grid mr-[120px] mt-5 flex flex-col gap-4 font-poppins">
+                    <div className="w-[520px] mt-20 grid mr-[120px] mt-5 flex flex-col gap-4 font-poppins">
                         <button type="button"
                             onClick={() => setUserInfoOpen((p) => !p)}
-                            className="w-full flex items-center text-left"
+                            className="w-full flex items-left text-left"
                         >
                             <div className="flex flex-row items-center">
                             <div className="flex items-center gap-4 w-[150px]">
@@ -236,18 +241,18 @@ function LandingPagePopup({onClose, service }) {
                             <ChevronRight strokeWidth={4} color="#B27DED" />
                             </div>
 
-                            <div className="px-8 py-3 mr-5 rounded-3xl bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
-                            <div className="px-8 py-3 rounded-3xl bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
+                            <div className="px-8 py-2 mr-5 rounded-2xl bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
+                            <div className="px-15 py-2 rounded-2xl bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
                             </div>
                         </button>
                    
                         {userInfoOpen && (
-                            <div className="flex flex-row items-center ml-45 w-[150px]">
-                                <div className="flex items-center gap-6">
+                            <div className="flex flex-row items-center ml-47 w-[150px]">
+                                <div className="flex items-center gap-x-5">
                                     <div className="text-[18px] mr-6 font-poppins font-small text-[#2F2F2F]">
                                         Name
                                     </div>
-                                <div className="px-8 py-3 ml-8 rounded-3xl bg-[#D6DFFF] text-[18px] font-small">
+                                <div className="px-17 py-2 ml-5 rounded-2xl bg-[#D6DFFF] text-[18px] font-small">
                                     Allen
                                 </div>
                                 </div>
@@ -322,27 +327,31 @@ function LandingPagePopup({onClose, service }) {
                                     font-family: 'Poppins';
                                     }
 
+                                    .react-calendar__nextLabel, .react-calendar__prevLabel {
+                                    background: transparent !important;
+                                    }
+
                                     /* All tiles (date cells) */
                                     .react-calendar__tile {
                                     padding: auto;
-                                    font-size: 20px;
+                                    font-size: 18px;
                                     font-family: 'Poppins';
                                     color: #262445;
                                     }
 
                                     /* Day labels (Mon, Tue, Wed, etc.) */
                                     .react-calendar__month-view__weekdays {
-                                    font-size: 20px;
+                                    font-size: 18px;
                                     font-weight: 500;
                                     color: #262445;
                                     text-transform: uppercase;
                                     font-family: 'Poppins';
-                                    padding: 5px 0;
+                                    padding: 5px -2px;
                                     }
 
                                     /* Individual day label (each abbr element) */
                                     .react-calendar__month-view__weekdays__weekday {
-                                    padding: 10px 0;
+                                    padding: 5px 0px;
                                     text-align: center;
                                     }
 
@@ -365,8 +374,8 @@ function LandingPagePopup({onClose, service }) {
                                 </div>
                                 </>
 
-                                <div className="-mt-15">Time</div>
-                                <div className="-mt-15 ml-10">
+                                <div className="-mt-17">Time</div>
+                                <div className="-mt-17 ml-10">
                                     {selectedDate ? (
                                         <div className="flex gap-3 flex-wrap">
                                             {timeSlots.map((slot) => (
@@ -391,8 +400,8 @@ function LandingPagePopup({onClose, service }) {
                                     )}
                                 </div>
 
-                                <div className="-mt-5 w-[200px]">Request for more time?</div>
-                                <div className="-mt-6 ml-42">
+                                <div className="-mt-8 w-[200px]">Request for more time?</div>
+                                <div className="-mt-9 ml-42">
                                     <button
                                         type="button"
                                         onClick={() => setExtraTime(prev => prev === '+30 minutes' ? '' : '+30 minutes')}
@@ -404,8 +413,8 @@ function LandingPagePopup({onClose, service }) {
                                     </button>
                                 </div>
 
-                                <div className="w-[200px]">Leave a note</div>
-                                <div className="ml-18">
+                                <div className="-mt-2 w-[200px]">Leave a note</div>
+                                <div className="-mt-1 ml-18">
                                     <textarea
                                         value={note}
                                         onChange={(e) => setNote(e.target.value)}
