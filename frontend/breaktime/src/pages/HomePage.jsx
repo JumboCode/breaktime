@@ -78,7 +78,6 @@ export default function HomePage() {
             // (isActive === true) whose timestamp falls within the given month and year.
             //
             // Current fallback: fetches ALL bookings via /booking/all
-            void month; void year;
             const response = await apiCall('/booking/all', 'GET', null, null);
 
             if (response.bookings) {

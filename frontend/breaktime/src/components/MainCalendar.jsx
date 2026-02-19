@@ -37,27 +37,30 @@ const bookingToEvent = (booking) => {
     endDate = new Date(year, month - 1, day, endHour, endMin);
 
   } else if (booking.duration && booking.duration.length > 0) {
-    // CASE 2: Backend format - has duration array with day name (e.g., "monday")
-    // We need to calculate the actual date from the day name
+    // CASE 2: Backend format - has duration array
     const duration = booking.duration[0];
-    const today = new Date();
-
-    // Map day names to day numbers (0 = Sunday, 1 = Monday, etc.)
-    const dayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
-    const targetDay = dayMap[duration.day] || 0;
-    const currentDay = today.getDay();
-    const diff = targetDay - currentDay;
-
-    // Calculate the date for this day of the week
-    const eventDate = new Date(today);
-    eventDate.setDate(today.getDate() + diff);
 
     // Parse the time strings
     const [startHour, startMin] = duration.startTime.split(':').map(Number);
     const [endHour, endMin] = duration.endTime.split(':').map(Number);
 
-    startDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), startHour, startMin);
-    endDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), endHour, endMin);
+    if (duration.date) {
+      // Has actual date string (YYYY-MM-DD) — use it directly
+      const [year, month, day] = duration.date.split('-').map(Number);
+      startDate = new Date(year, month - 1, day, startHour, startMin);
+      endDate = new Date(year, month - 1, day, endHour, endMin);
+    } else {
+      // Fallback: only has day name, estimate relative to current week
+      const dayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+      const today = new Date();
+      const targetDay = dayMap[duration.day] || 0;
+      const diff = targetDay - today.getDay();
+      const eventDate = new Date(today);
+      eventDate.setDate(today.getDate() + diff);
+
+      startDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), startHour, startMin);
+      endDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), endHour, endMin);
+    }
 
   } else {
     // CASE 3: Fallback - no valid date info, use current time
