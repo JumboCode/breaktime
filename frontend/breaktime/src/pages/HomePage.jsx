@@ -69,7 +69,7 @@ export default function HomePage() {
         client: b.clientName || b.userID,
         service: b.serviceID,
         ...(b.duration && b.duration[0] ? {
-            date: getDateFromDay(b.duration[0].day),
+            date: b.duration[0].date || getDateFromDay(b.duration[0].day),
             startTime: b.duration[0].startTime,
             endTime: b.duration[0].endTime,
         } : {})
@@ -91,19 +91,10 @@ export default function HomePage() {
         const year = date.getFullYear();
 
         try {
-            // TODO (Backend Integration): Once the GET /booking/monthlyBookings endpoint is
-            // implemented, replace the line below with:
-            //
-            //   const response = await apiCall(
-            //     `/booking/monthlyBookings?month=${month}&year=${year}`,
-            //     'GET', null, null
-            //   );
-            //
-            // The endpoint should return { bookings: [...] } containing only active bookings
-            // (isActive === true) whose timestamp falls within the given month and year.
-            //
-            // Current fallback: fetches ALL bookings via /booking/all
-            const response = await apiCall('/booking/all', 'GET', null, null);
+            const response = await apiCall(
+                `/booking/monthlyBookings?month=${month}&year=${year}`,
+                'GET', null, null
+            );
 
             if (response.bookings) {
                 const mappedBookings = response.bookings.map(mapBackendBooking);
