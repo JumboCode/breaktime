@@ -35,18 +35,38 @@ function LandingPagePopup({onClose, service }) {
         "+30 minutes",
     ];
 
+    const serviceDetails = {
+        "Laundry": {
+            expectations: [
+                "The Resource Hub’s Laundry Center allows you to leave Breaktime with cleaned and dried clothes. One cycle, which includes both washing and drying, takes 90 minutes, though you remain in the space for up to three hours. While you wait for your clothes to dry, you’re welcome to hang out in our Resource Hub, play some games, charge your devices, and/or chat with Breaktime staff.",
+            ],
+            provided: ["Laundry Machines", "Laundry Detergent", "Folding area"],
+            bring: ["Clothes for washing"],
+        },
+        "Test Store Appointment": {
+            expectations: [
+                "The Resource Hub’s no-cost store offers clothing, hygiene products, menstrual products, and food to shop visitors. Feel free to stock up on everything you need at the Breaktime store without worry about costs.",
+            ],
+            provided: [
+                "Staff at Breaktime’s resource hub will help you select items from the store. They’ll also note items needed at “check-out” so that we can restock for future visitors, and they’ll offer a bag with which you can take your things.",
+            ],
+            bring: ["Nothing!"],
+        },
+        "Shower": {
+            expectations: [
+                "You can book a 20-minute shower appointment in Breaktime’s Resource Hub. The Hub’s brand-new showers can help you feel refreshed and energized as you continue with your day. When you shower at Breaktime, you’re welcome to spend up to 90 minutes in our space.",
+            ],
+            provided: ["Shampoo", "Conditioner", "Body Wash", "Towel", "Shower Shoes", "Shower Caddy"],
+            bring: ["Nothing!"],
+        },
+    };
+
+    const details = serviceDetails[service?.name] ?? { expectations: ["TBD"], provided: ["TBD"], bring: ["TBD"] };
+    console.log("service name:", service?.name);
     const sections = [
-    {
-        id: "expectations",
-        title: "Expectations & Rules",
-        content: [
-        "1. Make sure you clean before you use",
-        "2. Make sure you clean again before you use",
-        "3. Please make sure you clean before you use",
-        ],
-    },
-        { id: "provided", title: "What's Provided", content: ["TBD"] },
-        { id: "bring", title: "What You Need to Bring", content: ["TBD"] },
+        { id: "expectations", title: "Expectations & Rules", content: details.expectations },
+        { id: "provided", title: "What's Provided", content: details.provided },
+        { id: "bring", title: "What You Need to Bring", content: details.bring },
         { id: "notices", title: "Notices / Messages", content: ["TBD"] },
     ];
 
