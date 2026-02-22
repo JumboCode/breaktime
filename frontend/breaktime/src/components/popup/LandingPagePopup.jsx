@@ -23,6 +23,7 @@ function LandingPagePopup({onClose, service }) {
     const [note, setNote] = useState('');
 
     const [showPopup, setShowPopup] = useState(null);
+    const [clientName, setClientName] = useState('')
 
     // Available time slots
     const timeSlots = [
@@ -135,7 +136,7 @@ function LandingPagePopup({onClose, service }) {
                     startTime: startTime,  
                     endTime: endTime,    
                 }],
-                clientName: user.firstName || "YA User", // Fallback to "YA User" if firstName is not available
+                clientName: clientName.trim(),
             };
 
             const response = await apiCall('/booking/create', 'POST', requestData, null);
@@ -171,8 +172,8 @@ function LandingPagePopup({onClose, service }) {
                 
 
                 <div className="flex flex-col">
-                    <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
-                    {service?.name ?? "Service"}
+                    <h2 className="text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10 max-w-[400px] break-words">
+                        {service?.name ?? "Service"}
                     </h2>
 
                     <img
@@ -252,9 +253,14 @@ function LandingPagePopup({onClose, service }) {
                                     <div className="text-[18px] mr-6 font-poppins font-small text-[#2F2F2F]">
                                         Name
                                     </div>
-                                <div className="px-17 py-2 ml-5 rounded-2xl bg-[#D6DFFF] text-[18px] font-small">
-                                    Allen
-                                </div>
+                               <input
+                                    type="text"
+                                    value={clientName}
+                                    onChange={(e) => setClientName(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    placeholder="Enter your name"
+                                    className="px-4 py-2 ml-5 rounded-2xl bg-[#D6DFFF] text-[18px] font-small text-[#262445] outline-none border-none focus:ring-0 placeholder-[#262445]/50 w-[180px]"
+                                />
                                 </div>
                             </div>
                             )}
