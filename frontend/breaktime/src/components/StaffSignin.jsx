@@ -3,18 +3,29 @@ import { useSignIn, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
+import { useClerk } from '@clerk/clerk-react';
+
 
 export default function StaffSignin() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { signIn, setActive } = useSignIn();
   let navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
+  const { signOut } = useClerk();
 
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  
+  const handleSignOut = async () => {
+    try {
+        await signOut( );
+    } catch (error) {
+        console.error("Error signing out:", error);
+    }
+  };
 
   // auto sign in if already logged in
   useEffect(() => {
@@ -22,13 +33,18 @@ export default function StaffSignin() {
           const permissionLevel = user.publicMetadata?.permission;
           console.log("Permission Level:", permissionLevel);
 
-          if (permissionLevel === 1 || permissionLevel == 2) {
+          if (permissionLevel === "1" || permissionLevel == "2") {
               navigate('/home');
           } else {
+              // handleSignOut();
               setErrorMessage(ERROR_MESSAGES[422]);
+              // signOut();
+              setFormData({username: "", password: ""});
+
+              setActive({ session: null });
           }
       }
-  }, [isLoaded, isSignedIn, user]);
+  }, [isLoaded, isSignedIn, user, navigate, signOut]);
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -50,7 +66,15 @@ export default function StaffSignin() {
         });
 
         if (result.status === "complete") {
-            await setActive({ session: result.createdSessionId });
+          // const permissionLevel = user.publicMetadata?.permission;
+
+          // dont create an active session unless staff
+          // if (permissionLevel === "0") {
+          //     setErrorMessage(ERROR_MESSAGES[400]);
+          //     return;
+          // }  
+
+          await setActive({ session: result.createdSessionId });
             
         } else {
             console.log(result);
@@ -58,6 +82,7 @@ export default function StaffSignin() {
     } catch (error) {
         setErrorMessage(ERROR_MESSAGES[error.status] 
                 || ERROR_MESSAGES[500]);
+        setFormData({ username: "", password: "" });
     }
     console.log("Form submitted:", formData);
   };
@@ -72,7 +97,7 @@ export default function StaffSignin() {
               type="text"
               id="staffUsername"
               name="username"
-              autoComplete="username"
+              autoComplete="off"
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
@@ -85,7 +110,7 @@ export default function StaffSignin() {
               type="password"
               id="staffPassword"
               name="password"
-              autoComplete="current-password"
+              autoComplete="off"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
