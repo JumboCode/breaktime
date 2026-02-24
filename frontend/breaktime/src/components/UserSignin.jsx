@@ -3,17 +3,29 @@ import { useSignIn, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
+import { useClerk } from '@clerk/clerk-react';
+
 
 function UserSignin() {
     const { user, isLoaded, isSignedIn } = useUser();
     const { signIn, setActive } = useSignIn();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
+    const { signOut } = useClerk();
+    const [ loggedIn, setLoggedIn ] = useState('');
 
     const [formData, setFormData] = useState({
         ID: "",
         Pin: "",
     });
+    
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error("Error signing out:", error);
+        }
+    };
 
     // auto sign in if already logged in
     useEffect(() => {
@@ -21,13 +33,18 @@ function UserSignin() {
             const permissionLevel = user.publicMetadata?.permission;
             console.log("Permission Level:", permissionLevel);
 
-            if (permissionLevel === 0) {
+            if (permissionLevel === "0") {
                 navigate('/yahome');
             } else {
                 setErrorMessage(ERROR_MESSAGES[422]);
+                // signout();
+                setFormData({ ID: "", Pin: ""});
+                
+                setActive({ session: null });
+
             }
         }
-    }, [isLoaded, isSignedIn, user]);
+    }, [isLoaded, isSignedIn, user, navigate, signOut]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -40,6 +57,7 @@ function UserSignin() {
     const handleSubmit = async (event) => {
         console.log("isLoaded in user: ", isLoaded)
         event.preventDefault();
+
         if (!isLoaded) return;
         
         try {
@@ -49,6 +67,14 @@ function UserSignin() {
             });
             
             if (result.status === "complete") {
+                // const permissionLevel = user.publicMetadata?.permission;
+
+                // dont create an active session unless a user
+                // if (permissionLevel !== "0") {
+                //     setErrorMessage(ERROR_MESSAGES[400]);
+                //     return;
+                // }  
+
                 await setActive({ session: result.createdSessionId });
                 
             } else {
@@ -58,6 +84,7 @@ function UserSignin() {
             console.log(error.status);
             setErrorMessage(ERROR_MESSAGES[error.status] 
                 || ERROR_MESSAGES[500]);
+            setFormData({ ID: "", Pin: "" });
         }
         console.log("Form submitted:", formData);
     };
