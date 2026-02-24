@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSignIn, useUser } from '@clerk/clerk-react'
+import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
@@ -9,6 +9,7 @@ import { useClerk } from '@clerk/clerk-react';
 function UserSignin() {
     const { user, isLoaded, isSignedIn } = useUser();
     const { signIn, setActive } = useSignIn();
+    const { session } = useSession();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
     const { signOut } = useClerk();
@@ -37,11 +38,8 @@ function UserSignin() {
                 navigate('/yahome');
             } else {
                 setErrorMessage(ERROR_MESSAGES[422]);
-                // signout();
                 setFormData({ ID: "", Pin: ""});
-                
-                setActive({ session: null });
-
+                session?.end(); // revokes session server-side without navigating
             }
         }
     }, [isLoaded, isSignedIn, user, navigate, signOut]);
@@ -85,6 +83,9 @@ function UserSignin() {
             setErrorMessage(ERROR_MESSAGES[error.status] 
                 || ERROR_MESSAGES[500]);
             setFormData({ ID: "", Pin: "" });
+            if (setActive) {
+                setActive({ session: null});
+            }
         }
         console.log("Form submitted:", formData);
     };

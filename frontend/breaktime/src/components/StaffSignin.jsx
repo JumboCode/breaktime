@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSignIn, useUser } from '@clerk/clerk-react'
+import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
@@ -9,6 +9,7 @@ import { useClerk } from '@clerk/clerk-react';
 export default function StaffSignin() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { signIn, setActive } = useSignIn();
+  const { session } = useSession();
   let navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
   const { signOut } = useClerk();
@@ -36,12 +37,9 @@ export default function StaffSignin() {
           if (permissionLevel === "1" || permissionLevel == "2") {
               navigate('/home');
           } else {
-              // handleSignOut();
               setErrorMessage(ERROR_MESSAGES[422]);
-              // signOut();
               setFormData({username: "", password: ""});
-
-              setActive({ session: null });
+              session?.end(); // revokes session server-side without navigating
           }
       }
   }, [isLoaded, isSignedIn, user, navigate, signOut]);
@@ -83,6 +81,9 @@ export default function StaffSignin() {
         setErrorMessage(ERROR_MESSAGES[error.status] 
                 || ERROR_MESSAGES[500]);
         setFormData({ username: "", password: "" });
+        if (setActive) {
+          setActive({ session: null});
+        }
     }
     console.log("Form submitted:", formData);
   };
