@@ -22,9 +22,9 @@ if (!CLERK_PUBLISHABLE_KEY) {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <ModalProvider>
-        <Router>
+    <ModalProvider>
+      <Router>
+        <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/">
           <Routes>
             <Route path='/' element={<SignInPage />} />
             <Route path='/signup' element={<SignUpPage />} />
@@ -32,9 +32,9 @@ function App() {
             <Route path='/yahome' element={<YouthLandingPage />} />
             <Route path='/test' element={<TestPage />} />
           </Routes>
-        </Router>
-      </ModalProvider>
-    </ClerkProvider>
+        </ClerkProvider>
+      </Router>
+    </ModalProvider>
   );
 }
 
