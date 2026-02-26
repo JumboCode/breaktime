@@ -1,0 +1,350 @@
+/* ============================================================
+   sidecalendar.css  –  styles for the SideCalendar widget
+   Overrides react-calendar defaults to match the Breaktime
+   dark-sidebar aesthetic shown in the design screenshot.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Wrapper
+---------------------------------------------------------- */
+.side-cal-wrapper {
+    border-radius: 16px;
+    color: white;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ----------------------------------------------------------
+   Header  (title + "View All Bookings" link)
+---------------------------------------------------------- */
+.side-cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.side-cal-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+}
+
+.side-cal-view-all {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    opacity: 0.85;
+}
+
+.side-cal-view-all:hover {
+    opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   Month label shown above the grid
+---------------------------------------------------------- */
+.side-cal-month-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+/* ----------------------------------------------------------
+   react-calendar base overrides
+---------------------------------------------------------- */
+.side-cal-wrapper .react-calendar {
+    background: transparent;
+    border: none;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+}
+
+/* ----------------------------------------------------------
+   Navigation bar — hide label, style only the arrow buttons
+---------------------------------------------------------- */
+
+/* Navigation bar — label + arrows all on one row */
+.side-cal-wrapper .react-calendar__navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  min-height: unset;
+}
+
+/* Show the label and style it as the month/year text */
+.side-cal-wrapper .react-calendar__navigation__label {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  background: none !important;
+  border: none;
+  padding: 0;
+  cursor: default;
+  pointer-events: none; /* prevent drilling into month/year picker */
+  flex-grow: 1;
+  text-align: left;
+}
+
+.side-cal-wrapper .react-calendar__navigation__label:hover,
+.side-cal-wrapper .react-calendar__navigation__label:focus,
+.side-cal-wrapper .react-calendar__navigation__label:enabled:hover,
+.side-cal-wrapper .react-calendar__navigation__label:enabled:focus {
+  background: none !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Kill background/border defaults on ALL nav buttons */
+.side-cal-wrapper .react-calendar__navigation button {
+  background: none !important;
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none !important;
+  outline: none;
+  padding: 0;
+  min-width: unset;
+}
+
+.side-cal-wrapper .react-calendar__navigation button:hover,
+.side-cal-wrapper .react-calendar__navigation button:focus,
+.side-cal-wrapper .react-calendar__navigation button:active,
+.side-cal-wrapper .react-calendar__navigation button:enabled:hover,
+.side-cal-wrapper .react-calendar__navigation button:enabled:focus {
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Hide text ONLY on the arrow buttons, not the label */
+.side-cal-wrapper .react-calendar__navigation__prev-button,
+.side-cal-wrapper .react-calendar__navigation__next-button {
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  width: 34px;
+  height: 46px;
+  min-width: 34px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.side-cal-wrapper .react-calendar__navigation button:hover,
+.side-cal-wrapper .react-calendar__navigation button:focus,
+.side-cal-wrapper .react-calendar__navigation button:active,
+.side-cal-wrapper .react-calendar__navigation button:enabled:hover,
+.side-cal-wrapper .react-calendar__navigation button:enabled:focus {
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Size the prev/next arrow buttons */
+.side-cal-wrapper .react-calendar__navigation__prev-button,
+.side-cal-wrapper .react-calendar__navigation__next-button {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.side-cal-wrapper .react-calendar__navigation__prev-button::before,
+.side-cal-wrapper .react-calendar__navigation__next-button::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url("/src/assets/sidebarcal/GreenBackButton.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  font-size: 14px;
+}
+
+.side-cal-wrapper .react-calendar__navigation__next-button::before {
+  transform: rotate(180deg);
+  margin-left: 10px;
+}
+
+.side-cal-wrapper .react-calendar__navigation__prev-button:hover,
+.side-cal-wrapper .react-calendar__navigation__next-button:hover {
+  opacity: 0.7;
+}
+
+.side-cal-wrapper .react-calendar__navigation__label {
+  order: -1;
+}
+
+.side-cal-wrapper .react-calendar__navigation__prev-button {
+  order: 1;
+}
+
+.side-cal-wrapper .react-calendar__navigation__next-button {
+  order: 2;
+}
+
+/* ----------------------------------------------------------
+   Current week highlight
+---------------------------------------------------------- */
+
+/* Green border on all days in the current week */
+.side-cal-wrapper .react-calendar__tile.current-week-tile {
+  border-top: 1.5px solid var(--color-lime-500, #a3e635) !important;
+  border-bottom: 1.5px solid var(--color-lime-500, #a3e635) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0px;
+}
+
+/* Round the left edge on Sunday */
+.side-cal-wrapper .react-calendar__month-view__days__day:nth-child(7n+1).current-week-tile {
+  border-left: 1.5px solid var(--color-lime-500, #a3e635) !important;
+  border-radius: 40px 0 0 40px !important;
+}
+
+/* Round the right edge on Saturday */
+.side-cal-wrapper .react-calendar__month-view__days__day:nth-child(7n).current-week-tile {
+  border-right: 1.5px solid var(--color-lime-500, #a3e635) !important;
+  border-radius: 0 40px 40px 0 !important;
+}
+
+/* ----------------------------------------------------------
+   Weekday header row  (Sun  Mon  Tue … Sat)
+---------------------------------------------------------- */
+.side-cal-wrapper .react-calendar__month-view__weekdays {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 2px;
+}
+
+.side-cal-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+}
+
+/* ----------------------------------------------------------
+   Day tiles
+---------------------------------------------------------- */
+.side-cal-wrapper .react-calendar__tile {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 12px;
+    font-family: inherit;
+    padding: 4px 2px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+    border-radius: 6px;
+    transition: background 0.1s;
+    aspect-ratio: 1;
+    height: 26px;
+}
+
+/* Disable the default react-calendar blue hover/active */
+.side-cal-wrapper .react-calendar__tile:enabled:hover,
+.side-cal-wrapper .react-calendar__tile:enabled:focus {
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+}
+
+/* Highlight today */
+.side-cal-wrapper .react-calendar__tile--now {
+    color: white;
+    background: transparent;
+}
+
+.side-cal-wrapper .react-calendar__tile--now abbr {
+    background-color: var(--color-cal-cur-date, #7c3aed);
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Current selected tile – no blue highlight */
+.side-cal-wrapper .react-calendar__tile--active,
+.side-cal-wrapper .react-calendar__tile--active:enabled:hover,
+.side-cal-wrapper .react-calendar__tile--active:enabled:focus {
+    background: transparent;
+    color: white;
+}
+
+/* Greyed-out days from adjacent months */
+.side-cal-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* ----------------------------------------------------------
+   Indicator dots container
+   Positioned at the top-right corner of each tile
+---------------------------------------------------------- */
+.side-cal-dots {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    pointer-events: none;
+}
+
+.side-cal-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dot-purple {
+    background-color: var(--color-dot-purple, #a855f7);
+}
+
+.dot-red {
+    background-color: var(--color-dot-red, #ef4444);
+}
+
+/* When only one dot is present it should still hug the top-right */
+.side-cal-dots:has(.side-cal-dot:only-child) {
+    justify-content: flex-end;
+}
+
+/* ----------------------------------------------------------
+   Legend
+---------------------------------------------------------- */
+.side-cal-legend {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: self-end;
+}
+
+.side-cal-legend-item {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.side-cal-legend-item .side-cal-dot {
+    flex-shrink: 0;
+}
