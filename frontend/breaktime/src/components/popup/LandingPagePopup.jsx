@@ -70,6 +70,16 @@ function LandingPagePopup({onClose, service }) {
         { id: "notices", title: "Notices / Messages", content: ["TBD"] },
     ];
 
+    const goToLandingState = () => {
+        setIsBooking(false);
+        setSelectedDate(null);
+        setSelectedTime('');
+        setExtraTime('');
+        setNote('');
+        setUserInfoOpen(false);
+        setServiceInfoOpen(false);
+    };
+
     const handleGoBack = () => {
         setShowPopup(null);
         setIsBooking(false);
@@ -143,23 +153,27 @@ function LandingPagePopup({onClose, service }) {
     const { user, isLoaded, isSignedIn } = useUser();
 
     const handleConfirm = async () => {
-        if (!isLoaded) return;          
+        if (!isLoaded) return;
         if (!isSignedIn || !user) return;
+
         const { startTime, endTime } = calculateTimes(selectedTime, extraTime);
 
         try {
-            const requestData =  {
-                userID: user.id,
-                serviceID: service?.name || "Service",
-                duration: [{
-                    day: getDayFromDate(selectedDate),
-                    startTime: startTime,  
-                    endTime: endTime,    
-                }],
-                clientName: clientName.trim(),
+            const requestData = {
+            userID: user.id,
+            serviceID: service?.name || "Service",
+            duration: [{
+                day: getDayFromDate(selectedDate),
+                startTime,
+                endTime,
+            }],
+            clientName: clientName.trim(),
             };
 
-            const response = await apiCall('/booking/create', 'POST', requestData, null);
+            await apiCall('/booking/create', 'POST', requestData, null);
+
+            goToLandingState();
+
             setShowPopup('success');
         } catch (error) {
             console.error("Error creating booking:", error);
@@ -169,18 +183,15 @@ function LandingPagePopup({onClose, service }) {
 
     const handleSuccessClose = () => {
         setShowPopup(null);
-        setIsBooking(false);
-        setSelectedDate(null);
-        setSelectedTime('');
-        setExtraTime('');
-        setNote('');
+        onClose();
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F0F7F2] font-poppins text-[#262445]">
-        <div className="overflow-auto h-[100vh] w-full bg-[#F0F7F2] font-poppins text-[#262445] relative">
+        <div className="overflow-auto h-[100vh] w-full bg-[#F0F7F2] font-poppins text-[#262445] relative overflow-hidden">
             <div className="absolute bottom-2 top-16 left-20 w-[90%] h-[84%] items-center justify-center 
-            border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
+            border-1 border-solid border-[#B28DED] rounded-lg font-poppins cursor-pointer overflow-hidden">
+            
                 <button 
                     type="button" 
                     onClick={handleGoBack} 
@@ -216,7 +227,7 @@ function LandingPagePopup({onClose, service }) {
                     )}
                 </div>
 
-                <div className="absolute top-10 right-10 font-poppins">
+                <div className="absolute top-10 right-20 font-poppins">
                     {!isBooking ? (
                         <div className="w-[520px] mt-50 mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
                          pr-4 ">
@@ -270,7 +281,7 @@ function LandingPagePopup({onClose, service }) {
                         {userInfoOpen && (
                             <div className="flex flex-row items-center ml-47 w-[150px]">
                                 <div className="flex items-center gap-x-5">
-                                    <div className="text-[18px] mr-6 font-poppins font-small text-[#2F2F2F]">
+                                    <div className="text-[18px] mr-5 font-poppins font-small text-[#2F2F2F]">
                                         Name
                                     </div>
                                <input
@@ -439,13 +450,13 @@ function LandingPagePopup({onClose, service }) {
                                     </button>
                                 </div>
 
-                                <div className="-mt-2 w-[200px]">Leave a note</div>
-                                <div className="-mt-1 ml-18">
+                                <div className="-mt-3 w-[200px]">Leave a note</div>
+                                <div className="-mt-2 ml-18">
                                     <textarea
                                         value={note}
                                         onChange={(e) => setNote(e.target.value)}
                                         placeholder="(optional) request any accommodation ..."
-                                        className="px-4 py-2 opacity-40 active:opacity-100 focus:opacity-100 rounded-3xl w-[260px] h-[70px] bg-[#D6DFFF] text-[#262445] text-[18px] resize-none outline-none placeholder-[#262445]"
+                                        className="px-4 py-1 opacity-40 active:opacity-100 focus:opacity-100 rounded-3xl w-[260px] h-[60px] bg-[#D6DFFF] text-[#262445] text-[18px] resize-none outline-none placeholder-[#262445] placeholder:text-[17px] overflow-hidden"
                                     />
                                 </div>
                                 </div>
@@ -464,7 +475,7 @@ function LandingPagePopup({onClose, service }) {
                     onConfirm={handleConfirm}
                 />
             )}
-            {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose} />}
+            {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose}/>}
         </div>
         </div>
     );
