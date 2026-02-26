@@ -3,7 +3,6 @@ import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
-import { useClerk } from '@clerk/clerk-react';
 
 
 function UserSignin() {
@@ -12,21 +11,11 @@ function UserSignin() {
     const { session } = useSession();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
-    const { signOut } = useClerk();
-    const [ loggedIn, setLoggedIn ] = useState('');
 
     const [formData, setFormData] = useState({
         ID: "",
         Pin: "",
     });
-    
-    const handleSignOut = async () => {
-        try {
-            await signOut();
-        } catch (error) {
-            console.error("Error signing out:", error);
-        }
-    };
 
     // auto sign in if already logged in
     useEffect(() => {
@@ -34,7 +23,7 @@ function UserSignin() {
             const permissionLevel = user.publicMetadata?.permission;
             console.log("Permission Level:", permissionLevel);
 
-            if (permissionLevel === "0") {
+            if (permissionLevel === "1") {
                 navigate('/yahome');
             } else {
                 setErrorMessage(ERROR_MESSAGES[422]);
@@ -42,7 +31,7 @@ function UserSignin() {
                 session?.end(); // revokes session server-side without navigating
             }
         }
-    }, [isLoaded, isSignedIn, user, navigate, signOut]);
+    }, [isLoaded, isSignedIn, user, navigate]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -65,14 +54,6 @@ function UserSignin() {
             });
             
             if (result.status === "complete") {
-                // const permissionLevel = user.publicMetadata?.permission;
-
-                // dont create an active session unless a user
-                // if (permissionLevel !== "0") {
-                //     setErrorMessage(ERROR_MESSAGES[400]);
-                //     return;
-                // }  
-
                 await setActive({ session: result.createdSessionId });
                 
             } else {
