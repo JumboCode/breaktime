@@ -4,7 +4,7 @@ import UserStaffToggle from "../components/UserStaffToggle";
 import { Tagline } from "../components/Tagline";
 import Breaktime_Secondary_Logo from "../assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function SignUpPage() {
     const [selectedType, setSelectedType] = useState('users');
