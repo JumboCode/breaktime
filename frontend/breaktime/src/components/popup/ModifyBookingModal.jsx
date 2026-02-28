@@ -26,6 +26,39 @@ const ModifyBookingModal = ({
     endTime: booking.endTime || "",
     note: booking.note || "",
   });
+  // Validation state for time range
+  const [timeError, setTimeError] = useState("");
+  // Validation state for date (can't be in the past)
+  const [dateError, setDateError] = useState("");
+
+  // helper to convert "HH:MM" to minutes since midnight
+  const timeToMinutes = (t) => {
+    if (!t) return null;
+    const [hh, mm] = t.split(":");
+    const h = parseInt(hh, 10);
+    const m = parseInt(mm, 10);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    return h * 60 + m;
+  };
+
+  const validateTimes = (start, end) => {
+    // if either is empty, no validation error here (required attribute covers emptiness)
+    if (!start || !end) return "";
+    const s = timeToMinutes(start);
+    const e = timeToMinutes(end);
+    if (s === null || e === null) return "";
+    if (e < s) return "End time cannot be earlier than start time.";
+    return "";
+  };
+
+  const validateDate = (dateStr) => {
+    if (!dateStr) return "";
+    const selected = new Date(dateStr + "T00:00:00");
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (selected < today) return "Date cannot be earlier than today.";
+    return "";
+  };
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -33,6 +66,16 @@ const ModifyBookingModal = ({
     onUpdate({ ...booking, ...formData }); // Update booking with new form data
     onClose(); // Close the modal
   };
+
+  // form validity: require client, date, startTime and endTime, and no time error
+  const isFormInvalid =
+    !!timeError ||
+    !!dateError ||
+    !formData.client ||
+    !formData.client.trim() ||
+    !formData.date ||
+    !formData.startTime ||
+    !formData.endTime;
 
   return (
     <div className="flex justify-center items-center h-full poppins cursor-pointer">
@@ -112,20 +155,30 @@ const ModifyBookingModal = ({
             type="date"
             className="bg-[#ABB9FF] rounded-[12px] px-3 py-2 mb-2 text-[#273991] font-medium outline-none w-full"
             value={formData.date}
-            onChange={(e) =>
-              setFormData((f) => ({ ...f, date: e.target.value }))
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData((f) => ({ ...f, date: val }));
+              setDateError(validateDate(val));
+            }}
             required
           />
+          {dateError && (
+            <div className="w-full text-sm text-red-600 mt-2" role="alert" aria-live="assertive">
+              {dateError}
+            </div>
+          )}
           {/* Time range inputs */}
           <div className="flex items-center gap-2 w-full">
             <input
               type="time"
               className="flex-1 bg-[#ABB9FF] px-3 py-2 rounded-[12px] text-[#273991] font-medium text-center outline-none"
               value={formData.startTime}
-              onChange={(e) =>
-                setFormData((f) => ({ ...f, startTime: e.target.value }))
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((f) => ({ ...f, startTime: val }));
+                // validate against current endTime
+                setTimeError(validateTimes(val, formData.endTime));
+              }}
               required
             />
             <span className="text-[#273991] font-semibold">to</span>
@@ -133,12 +186,26 @@ const ModifyBookingModal = ({
               type="time"
               className="flex-1 bg-[#ABB9FF] px-3 py-2 rounded-[12px] text-[#273991] font-medium text-center outline-none"
               value={formData.endTime}
-              onChange={(e) =>
-                setFormData((f) => ({ ...f, endTime: e.target.value }))
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((f) => ({ ...f, endTime: val }));
+                // validate against current startTime
+                setTimeError(validateTimes(formData.startTime, val));
+              }}
               required
             />
           </div>
+
+          {/* Time validation error */}
+          {timeError && (
+            <div
+              className="w-full text-sm text-red-600 mt-2"
+              role="alert"
+              aria-live="assertive"
+            >
+              {timeError}
+            </div>
+          )}
 
           {/* Buttons at bottom */}
           <div className="mt-auto flex gap-2 w-full justify-center">
@@ -158,7 +225,8 @@ const ModifyBookingModal = ({
                          py-2 rounded-[17px] 
                          font-semibold 
                          text-base 
-                         hover:bg-[#d5ddff]"
+                         hover:bg-[#d5ddff] disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isFormInvalid}
             >
               Update
             </button>
