@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { apiCall } from "../utils/general";
 
 
 function UserSignup() {
@@ -8,9 +10,12 @@ function UserSignup() {
         age: "",
         gender: "",
         ethnicity: "",
+        password: "",
         zone: "",
     });
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
     
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -22,8 +27,38 @@ function UserSignup() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setError('');
-        console.log("Form submitted:", formData);
+        setError("");
+        setSuccess("");
+
+        // Build the body expected by the backend schema
+        const body = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            password: formData.password,
+            age: Number(formData.age),
+            gender: formData.gender,
+            race: formData.ethnicity, // backend expects 'race'
+            zone: formData.zone,
+        };
+
+        // Basic client-side validation
+        if (!body.firstName || !body.lastName || !body.password || !body.age || !body.gender || !body.race || !body.zone) {
+            setError('Please fill out all fields.');
+            return;
+        }
+
+        (async () => {
+            try {
+                const res = await apiCall('/user/create', 'POST', body, null);
+                setSuccess(res.message || 'Account created successfully');
+                setFormData({ firstName: "", lastName: "", age: "", gender: "", ethnicity: "", password: "", zone: "" });
+                // Redirect to login page
+                navigate('/');
+            } catch (err) {
+                console.error('Signup error', err);
+                setError(err?.statusText || err?.message || 'Failed to create account');
+            }
+        })();
     };
 
     return (
@@ -113,6 +148,21 @@ function UserSignup() {
                             value={formData.ethnicity}
                             onChange={handleChange}
                             required
+                            />
+                        </div>
+                    </div>
+                    <div className="flex space-x-4 mt-3">
+                        <div>
+                            <label htmlFor="password"></label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                autoComplete="new-password"
+                                placeholder="Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
                             />
                         </div>
                     </div>
