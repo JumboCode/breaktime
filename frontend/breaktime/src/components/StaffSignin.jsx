@@ -1,25 +1,38 @@
 import { useState } from "react";
-import { useSignIn, useAuth } from '@clerk/clerk-react'
+import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
+import { ERROR_MESSAGES } from "../utils/errorMessages";
+
 
 export default function StaffSignin() {
+  const { user, isLoaded, isSignedIn } = useUser();
   const { signIn, setActive } = useSignIn();
+  const { session } = useSession();
   let navigate = useNavigate();
-  const { isSignedIn, isLoaded } = useAuth();
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-
+  
   // auto sign in if already logged in
   useEffect(() => {
-    if (isSignedIn && isLoaded) {
-        navigate("/home");
-    }
-  }, [isSignedIn]);
+      if (isLoaded && isSignedIn && user) {
+          const permissionLevel = user.publicMetadata?.permission;
+          console.log("Permission Level:", permissionLevel);
+
+          if (permissionLevel === "2") {
+              navigate('/home');
+          } else {
+              setErrorMessage(ERROR_MESSAGES[422]);
+              setFormData({username: "", password: ""});
+              session?.end(); // revokes session server-side without navigating
+          }
+      }
+  }, [isLoaded, isSignedIn, user, navigate]);
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -41,14 +54,18 @@ export default function StaffSignin() {
         });
 
         if (result.status === "complete") {
-            await setActive({ session: result.createdSessionId });
-            navigate('/home');
+          await setActive({ session: result.createdSessionId });
             
         } else {
             console.log(result);
         }
     } catch (error) {
-        console.log(error);
+        setErrorMessage(ERROR_MESSAGES[error.status] 
+                || ERROR_MESSAGES[500]);
+        setFormData({ username: "", password: "" });
+        if (setActive) {
+          setActive({ session: null});
+        }
     }
     console.log("Form submitted:", formData);
   };
@@ -63,7 +80,7 @@ export default function StaffSignin() {
               type="text"
               id="staffUsername"
               name="username"
-              autoComplete="username"
+              autoComplete="off"
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
@@ -76,7 +93,7 @@ export default function StaffSignin() {
               type="password"
               id="staffPassword"
               name="password"
-              autoComplete="current-password"
+              autoComplete="off"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
@@ -92,11 +109,14 @@ export default function StaffSignin() {
         <div className="text-dark-navy">
           <button
             type="submit"
-            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
+            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-12"
           >
             
               Log In
           </button>
+        </div>
+        <div className="text-red mt-2"> 
+            {errorMessage}
         </div>
       </form>
     </div>

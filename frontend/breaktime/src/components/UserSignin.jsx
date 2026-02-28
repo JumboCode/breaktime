@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { useSignIn, useAuth } from '@clerk/clerk-react'
+import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
+import { ERROR_MESSAGES } from "../utils/errorMessages";
+
 
 function UserSignin() {
-    const {  signIn, setActive } = useSignIn();
-    let navigate = useNavigate();
-    const { isSignedIn, isLoaded } = useAuth();
+    const { user, isLoaded, isSignedIn } = useUser();
+    const { signIn, setActive } = useSignIn();
+    const { session } = useSession();
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState('');
 
     const [formData, setFormData] = useState({
         ID: "",
@@ -15,10 +19,19 @@ function UserSignin() {
 
     // auto sign in if already logged in
     useEffect(() => {
-        if (isSignedIn && isLoaded) {
-            navigate("/home");
+        if (isLoaded && isSignedIn && user) {
+            const permissionLevel = user.publicMetadata?.permission;
+            console.log("Permission Level:", permissionLevel);
+
+            if (permissionLevel === "1") {
+                navigate('/yahome');
+            } else {
+                setErrorMessage(ERROR_MESSAGES[422]);
+                setFormData({ ID: "", Pin: ""});
+                session?.end(); // revokes session server-side without navigating
+            }
         }
-    }, [isSignedIn]);
+    }, [isLoaded, isSignedIn, user, navigate]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -26,26 +39,34 @@ function UserSignin() {
             ...prevData,
             [name]: value,
         }));
-    };
+    }
 
     const handleSubmit = async (event) => {
+        console.log("isLoaded in user: ", isLoaded)
         event.preventDefault();
-        if (!isLoaded) return;
 
+        if (!isLoaded) return;
+        
         try {
             const result = await signIn.create({
                 identifier: formData.ID, 
                 password: formData.Pin
             });
-    
+            
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId });
-                navigate('/home');
+                
             } else {
                 console.log(result);
             }
         } catch (error) {
-            console.log(error);
+            console.log(error.status);
+            setErrorMessage(ERROR_MESSAGES[error.status] 
+                || ERROR_MESSAGES[500]);
+            setFormData({ ID: "", Pin: "" });
+            if (setActive) {
+                setActive({ session: null});
+            }
         }
         console.log("Form submitted:", formData);
     };
@@ -91,11 +112,14 @@ function UserSignin() {
                 <div className="text-dark-navy">
                     <button
                         type="submit"
-                        className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-[48px]"
+                        className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-12"
                     >
                         Log In
                     </button>
                     
+                </div>
+                <div className="text-red mt-2"> 
+                    {errorMessage}
                 </div>
             </form>
         </div>
