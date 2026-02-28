@@ -247,11 +247,10 @@ const ModalContainer = ({ bookings, setBookings }) => {
  return (
    <>
      {/* Modal backdrop - clicking closes the modal */}
-     <div
-       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-       onClick={closeModal}
-       style={{ backdropFilter: "blur(4px)" }}
-     >
+    <div
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={closeModal}
+    >
        {/* Modal content - stopPropagation prevents closing when clicking inside */}
        <div onClick={(e) => e.stopPropagation()} className="animate-fadeIn relative">
 
