@@ -1,5 +1,5 @@
-import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import Calendar from 'react-calendar';
 import { ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState } from "react";
 import ServiceImage from "../../assets/popup-icons/ServiceImage.png";

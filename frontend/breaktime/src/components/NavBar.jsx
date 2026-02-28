@@ -61,18 +61,19 @@ const NavBar = ({ isSidebarOpen, onToggle, userType }) => {
                         >
                             List
                         </button>
-                        <button
-                        onClick={() => handleSignOut()}
-                        className={`cursor-pointer hover:underline
-                            ${viewType === 'List' ? 'underline' : 'hover:font-semibold'}`}
-                    >
-                        Sign Out
-                    </button>
+                       
                 </div>
                 </div>
             : 
                 <></>
             }
+             <button
+                onClick={() => handleSignOut()}
+                className={`cursor-pointer hover:underline
+                    ${viewType === 'List' ? 'underline' : 'hover:font-semibold'}`}
+            >
+                Sign Out
+            </button>
         </div>
     );
 };
