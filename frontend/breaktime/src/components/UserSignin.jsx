@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
 
@@ -20,11 +20,11 @@ function UserSignin() {
     // auto sign in if already logged in
     useEffect(() => {
         if (isLoaded && isSignedIn && user) {
-            const permissionLevel = user.publicMetadata?.permission;
+            const permissionLevel = Number(user.publicMetadata?.permission ?? 0);
             console.log("Permission Level:", permissionLevel);
 
-            if (permissionLevel === "1") {
-                navigate('/yahome');
+            if (permissionLevel === 1) {
+                navigate('/home');
             } else {
                 setErrorMessage(ERROR_MESSAGES[422]);
                 setFormData({ ID: "", Pin: ""});

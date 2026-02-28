@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { apiCall } from "../utils/general";
 
 // Create the StaffSignup functional component
 function StaffSignup() {
@@ -12,6 +14,8 @@ function StaffSignup() {
     password: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   // Handle input changes and update state
   const handleChange = (event) => {
@@ -31,7 +35,27 @@ function StaffSignup() {
     //   return;
     // }
     setError('');
-    console.log("Form submitted:", formData);
+    setSuccess('');
+
+    // Basic client-side validation
+    const { firstName, lastName, email, username, password } = formData;
+    if (!firstName || !lastName || !email || !username || !password) {
+      setError('Please fill out all fields.');
+      return;
+    }
+
+    (async () => {
+      try {
+        const body = { firstName, lastName, email, username, password };
+        const res = await apiCall('/staff/create', 'POST', body, null);
+        setSuccess(res.message || 'Account created successfully');
+        setFormData({ firstName: "", lastName: "", email: "", username: "", password: "" });
+        navigate('/');
+      } catch (err) {
+        console.error('Staff signup error', err);
+        setError(err?.statusText || err?.message || 'Failed to create account');
+      }
+    })();
   };
 
   return (

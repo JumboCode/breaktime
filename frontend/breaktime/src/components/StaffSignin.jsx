@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ERROR_MESSAGES } from "../utils/errorMessages";
 
@@ -21,10 +21,10 @@ export default function StaffSignin() {
   // auto sign in if already logged in
   useEffect(() => {
       if (isLoaded && isSignedIn && user) {
-          const permissionLevel = user.publicMetadata?.permission;
-          console.log("Permission Level:", permissionLevel);
+      const permissionLevel = Number(user.publicMetadata?.permission ?? 0);
+      console.log("Permission Level:", permissionLevel);
 
-          if (permissionLevel === "2") {
+      if (permissionLevel === 2) {
               navigate('/home');
           } else {
               setErrorMessage(ERROR_MESSAGES[422]);
