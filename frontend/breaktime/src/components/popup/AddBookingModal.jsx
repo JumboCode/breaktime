@@ -56,6 +56,40 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
    phone: initialData?.phone || "",
    notes: initialData?.notes || "",
  });
+  
+  // Validation state for time range
+  const [timeError, setTimeError] = useState("");
+  // Validation state for date (can't be in the past)
+  const [dateError, setDateError] = useState("");
+  
+  // helper to convert "HH:MM" to minutes since midnight
+  const timeToMinutes = (t) => {
+    if (!t) return null;
+    const [hh, mm] = t.split(":");
+    const h = parseInt(hh, 10);
+    const m = parseInt(mm, 10);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    return h * 60 + m;
+  };
+  
+  const validateTimes = (start, end) => {
+    if (!start || !end) return "";
+    const s = timeToMinutes(start);
+    const e = timeToMinutes(end);
+    if (s === null || e === null) return "";
+    if (e < s) return "End time cannot be earlier than start time.";
+    return "";
+  };
+
+  const validateDate = (dateStr) => {
+    if (!dateStr) return "";
+    // parse as local midnight to avoid timezone/timezone-shift issues
+    const selected = new Date(dateStr + "T00:00:00");
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (selected < today) return "Date cannot be earlier than today.";
+    return "";
+  };
 
  /**
   * handleSubmit - Called when user clicks "Confirm" button
@@ -72,6 +106,15 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
    onSave({ ...formData, id: Date.now(), status: "pending" });
    onClose();
  };
+  // Form validity: client, date, start and end required; notes optional. Also respect timeError
+  const isFormInvalid =
+    !!timeError ||
+    !!dateError ||
+    !formData.client ||
+    !formData.client.trim() ||
+    !formData.date ||
+    !formData.startTime ||
+    !formData.endTime;
  return (
   <div className="flex justify-center items-center h-full font-all border-none">
     <div className="w-[334px] h-[509px] bg-[#f7fbfd] shadow-xl rounded-3xl p-2 m-1 flex-col">
@@ -103,11 +146,11 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
         >
           {/* Booking info fields */}
           <div className="mb-2 flex items-center gap-x-3 w-full ml-1">
-            <span className="w-[98px] h-[40px] bg-[#B9FF00] shadow-xl text-[#262445] rounded-2xl px-3 py-1 font-semibold flex items-center justify-center">
+            <span className="w-[98px] h-[40px] bg-[#B9FF00] shadow-xl text-[#273991] rounded-2xl px-3 py-1 font-semibold flex items-center justify-center">
               YA User
             </span>
             <input
-              className="w-[202px] h-[40px] bg-[#ABB9FF] font-medium shadow-xl rounded-2xl px-3 py-1 font-medium flex items-center justify-center placeholder:text-[#262445] caret-[#262445] hover:underline text-[#262445] outline-none focus:ouline-none focus:ring-0 focus:border-none"
+              className="w-[202px] h-[40px] bg-[#ABB9FF] font-medium shadow-xl rounded-2xl px-3 py-1 font-medium flex items-center justify-center placeholder:text-[#262445] caret-[#262445] hover:underline text-[#273991] outline-none focus:ouline-none focus:ring-0 focus:border-none"
               value={formData.client}
               onChange={(e) =>
                 setFormData((f) => ({ ...f, client: e.target.value }))
@@ -119,35 +162,53 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
           {/* Date input */}
           <input
             type="date"
-            className="shadow-xl bg-[#ABB9FF] opacity-40 focus:opacity-100 w-98/100 hover:underline rounded-2xl px-3 py-2 mb-2 text-[#262445] font-medium outline-none"
+            className="shadow-xl bg-[#ABB9FF] rounded-2xl px-3 py-2 mb-2 text-[#273991] font-medium outline-none"
             value={formData.date}
-            onChange={(e) =>
-              setFormData((f) => ({ ...f, date: e.target.value }))
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData((f) => ({ ...f, date: val }));
+              setDateError(validateDate(val));
+            }}
             required
           />
+          {/* Date validation error */}
+          {dateError && (
+            <div className="w-full text-sm text-red-600 mt-2" role="alert" aria-live="assertive">
+              {dateError}
+            </div>
+          )}
           {/* Time range inputs */}
           <div className="flex items-center gap-2 w-98/100">
             <input
               type="time"
-              className="flex-1 bg-[#ABB9FF] opacity-40 focus:opacity-100 px-3 py-2 shadow-xl rounded-2xl text-[#262445] font-medium text-center outline-none"
+              className="flex-1 bg-[#ABB9FF] px-3 py-2 rounded-[12px] text-[#273991] font-medium text-center outline-none"
               value={formData.startTime}
-              onChange={(e) =>
-                setFormData((f) => ({ ...f, startTime: e.target.value }))
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((f) => ({ ...f, startTime: val }));
+                setTimeError(validateTimes(val, formData.endTime));
+              }}
               required
             />
             <span className="text-[#262445] font-semibold">to</span>
             <input
               type="time"
-              className="flex-1 bg-[#ABB9FF] opacity-40 focus:opacity-100 px-3 py-2 shadow-xl rounded-2xl text-[#262445] font-medium text-center outline-none"
+              className="flex-1 bg-[#ABB9FF] px-3 py-2 rounded-[12px] text-[#273991] font-medium text-center outline-none"
               value={formData.endTime}
-              onChange={(e) =>
-                setFormData((f) => ({ ...f, endTime: e.target.value }))
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((f) => ({ ...f, endTime: val }));
+                setTimeError(validateTimes(formData.startTime, val));
+              }}
               required
             />
           </div>
+          {/* Time validation error */}
+          {timeError && (
+            <div className="w-full text-sm text-red-600 mt-2" role="alert" aria-live="assertive">
+              {timeError}
+            </div>
+          )}
           {/* Notes input */}
           <textarea
             type="text"
@@ -172,7 +233,8 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
             {/* Update button */}
             <button
               type="submit"
-              className="w-[145px] h-[40px] hover:scale-110 hover:shadow-xl focus:bg-[#94A5FA] focus:underline transition-transform duration-200 ease-out bg-[#ABB9FF] text-[#F0F7F2] py-2 rounded-2xl font-semibold text-base hover:p-2"
+              disabled={isFormInvalid}
+              className="w-[145px] h-[40px] hover:scale-110 hover:shadow-xl focus:bg-[#94A5FA] focus:underline transition-transform duration-200 ease-out bg-[#ABB9FF] text-[#F0F7F2] py-2 rounded-2xl font-semibold text-base hover:p-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm
             </button>
@@ -181,13 +243,15 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
       </div>
     </div>
   </div>
- );
+  );
 };
+
 AddBookingModal.propTypes = {
  onClose: PropTypes.func.isRequired,
  onSave: PropTypes.func.isRequired,
  initialData: PropTypes.object,
 };
+
 
 // Modify Booking Modal
 export const ModifyBookingModal = ({ booking, onClose, onUpdate }) => {
@@ -197,6 +261,9 @@ export const ModifyBookingModal = ({ booking, onClose, onUpdate }) => {
    onUpdate(formData);
    onClose();
  };
+  // small-form validity: require client, date, time
+  const isModifyInvalid =
+    !formData.client || !formData.client.trim() || !formData.date || !formData.time;
  return (
    <div className="w-[355px] bg-[#f7fbfd] shadow-xl rounded-[32px] px-5 py-6 mx-auto font-sans">
      <div className="flex justify-between items-center mb-4">
@@ -244,12 +311,13 @@ export const ModifyBookingModal = ({ booking, onClose, onUpdate }) => {
            required
          />
        </div>
-       <button
-         type="submit"
-         className="w-full bg-[#c6d2ff] text-[#273991] py-3 rounded-[17px] font-semibold text-base hover:bg-[#d5ddff] mt-2"
-       >
-         Update Booking
-       </button>
+      <button
+        type="submit"
+        disabled={isModifyInvalid}
+        className="w-full bg-[#c6d2ff] text-[#273991] py-3 rounded-[17px] font-semibold text-base hover:bg-[#d5ddff] mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Update Booking
+      </button>
      </form>
    </div>
  );
