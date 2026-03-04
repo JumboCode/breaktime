@@ -1,9 +1,9 @@
 import SideCalendar from "./SideCalendar";
 
-function Calendar({ bookings = [], onViewAllClick }) {
+function Calendar({ bookings = [], onViewAllClick, onDayClick }) {
     return (
         <div className="h-full flex flex-col">
-            <SideCalendar bookings={bookings} onViewAllClick={onViewAllClick} />
+            <SideCalendar bookings={bookings} onViewAllClick={onViewAllClick} onDayClick={onDayClick} />
         </div>
     );
 }

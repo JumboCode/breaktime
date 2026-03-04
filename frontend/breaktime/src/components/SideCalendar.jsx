@@ -15,7 +15,7 @@ import '../sidecalendar.css';
  * @param {Function} onViewAllClick  - Called when "View All Bookings" is clicked;
  *                                     receives the currently displayed month's Date
  */
-const SideCalendar = ({ bookings = [], onViewAllClick }) => {
+const SideCalendar = ({ bookings = [], onViewAllClick, onDayClick }) => {
   const [activeStartDate, setActiveStartDate] = useState(new Date());
 
   /**
@@ -125,7 +125,7 @@ const SideCalendar = ({ bookings = [], onViewAllClick }) => {
       <div className="side-cal-header">
         <span className="side-cal-title">Bookings</span>
         <button className="side-cal-view-all" onClick={handleViewAll}>
-          View All Bookings (20+)
+          View All Bookings
         </button>
       </div>
 
@@ -140,8 +140,7 @@ const SideCalendar = ({ bookings = [], onViewAllClick }) => {
         /* Don't let users drill into decade/year views */
         minDetail="month"
         showNavigation={true}
-        /* Don't select dates – this is a display-only widget */
-        onClickDay={() => {}}
+        onClickDay={(date) => onDayClick && onDayClick(date)}
         locale="en-US"
       />
 
@@ -161,6 +160,7 @@ const SideCalendar = ({ bookings = [], onViewAllClick }) => {
 SideCalendar.propTypes = {
   bookings: PropTypes.array,
   onViewAllClick: PropTypes.func,
+  onDayClick: PropTypes.func,
 };
 
 export default SideCalendar;
