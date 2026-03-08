@@ -159,9 +159,13 @@ const CustomEvent = ({ event }) => {
  *
  * @param {Array} bookings - Array of booking objects to display
  */
-const MyCalendar = ({ bookings = [] }) => {
-  const [date, setDate] = useState(new Date());
-  const [view, setView] = useState('month');
+const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp, view: viewProp, onView: onViewProp }) => {
+  const [internalDate, setInternalDate] = useState(new Date());
+  const date = dateProp ?? internalDate;
+  const setDate = onNavigateProp ?? setInternalDate;
+  const [internalView, setInternalView] = useState('month');
+  const view = viewProp ?? internalView;
+  const setView = onViewProp ?? setInternalView;
   const { openModal } = useModal(); // Hook to control modal state
 
   /**
@@ -224,6 +228,10 @@ const MyCalendar = ({ bookings = [] }) => {
 
 MyCalendar.propTypes = {
   bookings: PropTypes.array,
+  date: PropTypes.instanceOf(Date),
+  onNavigate: PropTypes.func,
+  view: PropTypes.string,
+  onView: PropTypes.func,
 };
 
 export default MyCalendar;
