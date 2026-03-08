@@ -31,21 +31,32 @@ const Joi = require('joi');
 const bookingSchema = Joi.object({
    userID: Joi.string().required(),
    serviceID: Joi.string().required(),
-   bookingID: Joi.number().integer().positive().required(),
-   status: Joi.string().valid('pending', 'confirmed', 'canceled').default('pending'),
+   bookingID: Joi.string().required(),
+   status: Joi.string().valid('pending', 'confirmed', 'canceled').default('pending').required(),
    timestamp: Joi.date().required(),
-   duration : Joi.array().items(
-      Joi.object({
-         day: Joi.string().valid('sunday', 'monday', 'tuesday', 'wednesday', 
-            'thursday', 'friday', 'saturday').required(),
-         startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(), 
-         // HH:mm format
-         endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()    
-         // HH:mm format
-      }).required()
-   ).required(),
-   clientName: Joi.string().optional() 
-   // Display name for the client (added for frontend integration)
+   duration: Joi.object({
+      day: Joi.string()
+         .valid('sunday', 'monday', 'tuesday','wednesday','thursday','friday', 'saturday')
+         .required(),
+
+      startTime: Joi.string() // Formatted HH:MM
+         .pattern(/^\d{2}:\d{2}$/)
+         .required(),
+
+      endTime: Joi.string() // Formatted HH:MM
+         .pattern(/^\d{2}:\d{2}$/)
+         .required()
+   }).required(),
+   clientName: Joi.string().allow('').optional(), 
+   activity: Joi.array().items(
+      Joi.array().ordered(
+         Joi.string().valid('created', 'pending', 'confirmed', 'canceled', 
+                            'modified', 'time', 'note'),
+         Joi.string()
+      ).length(2)
+   ).min(1).required(),
+   notes: Joi.string().allow('').optional()
+
 });
 
 /**
@@ -60,4 +71,11 @@ const getBookingsValidate = Joi.object({
         .required()
 });
 
-module.exports = { bookingSchema, getBookingsValidate };
+const bookingCreationSchema = Joi.object({
+   userID: bookingSchema.extract('userID'),
+   serviceID: bookingSchema.extract('serviceID'),
+   duration: bookingSchema.extract('duration'),
+   clientName: bookingSchema.extract('clientName')
+});
+
+module.exports = { bookingSchema, getBookingsValidate, bookingCreationSchema };
