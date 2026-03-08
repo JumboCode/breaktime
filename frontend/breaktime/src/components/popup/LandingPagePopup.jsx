@@ -6,10 +6,12 @@ import ServiceImage from "../../assets/popup-icons/ServiceImage.png";
 import ButtonGoBack from "../../assets/popup-icons/ButtonGoBack.png";
 import BookButton from "../../assets/popup-icons/BookButton.png";
 import { FailurePopup, ConfirmationPopup, SuccessPopup } from './LandingStatusPopups';
+import { apiCall } from "../../utils/general.js";
+import { useUser } from '@clerk/clerk-react';
 
 
 
-function LandingPagePopup() {
+function LandingPagePopup({onClose, service }) {
     const [expandedSection, setExpandedSection] = useState(null);
     const [isBooking, setIsBooking] = useState(false);
     const [userInfoOpen, setUserInfoOpen] = useState(false);
@@ -21,6 +23,7 @@ function LandingPagePopup() {
     const [note, setNote] = useState('');
 
     const [showPopup, setShowPopup] = useState(null);
+    const [clientName, setClientName] = useState('')
 
     // Available time slots
     const timeSlots = [
@@ -30,24 +33,52 @@ function LandingPagePopup() {
     // Extra time options
     const extraTimeOptions = [
         "+30 minutes",
-        "+45 minutes",
-        "+60 minutes"
     ];
 
+    const serviceDetails = {
+        "Laundry": {
+            expectations: [
+                "The Resource Hub’s Laundry Center allows you to leave Breaktime with cleaned and dried clothes. One cycle, which includes both washing and drying, takes 90 minutes, though you remain in the space for up to three hours. While you wait for your clothes to dry, you’re welcome to hang out in our Resource Hub, play some games, charge your devices, and/or chat with Breaktime staff.",
+            ],
+            provided: ["Laundry Machines", "Laundry Detergent", "Folding area"],
+            bring: ["Clothes for washing"],
+        },
+        "Test Store Appointment": {
+            expectations: [
+                "The Resource Hub’s no-cost store offers clothing, hygiene products, menstrual products, and food to shop visitors. Feel free to stock up on everything you need at the Breaktime store without worry about costs.",
+            ],
+            provided: [
+                "Staff at Breaktime’s resource hub will help you select items from the store. They’ll also note items needed at “check-out” so that we can restock for future visitors, and they’ll offer a bag with which you can take your things.",
+            ],
+            bring: ["Nothing!"],
+        },
+        "Shower": {
+            expectations: [
+                "You can book a 20-minute shower appointment in Breaktime’s Resource Hub. The Hub’s brand-new showers can help you feel refreshed and energized as you continue with your day. When you shower at Breaktime, you’re welcome to spend up to 90 minutes in our space.",
+            ],
+            provided: ["Shampoo", "Conditioner", "Body Wash", "Towel", "Shower Shoes", "Shower Caddy"],
+            bring: ["Nothing!"],
+        },
+    };
+
+    const details = serviceDetails[service?.name] ?? { expectations: ["TBD"], provided: ["TBD"], bring: ["TBD"] };
+    console.log("service name:", service?.name);
     const sections = [
-    {
-        id: "expectations",
-        title: "Expectations & Rules",
-        content: [
-        "1. Make sure you clean before you use",
-        "2. Make sure you clean again before you use",
-        "3. Please make sure you clean before you use",
-        ],
-    },
-        { id: "provided", title: "What's Provided", content: ["TBD"] },
-        { id: "bring", title: "What You Need to Bring", content: ["TBD"] },
+        { id: "expectations", title: "Expectations & Rules", content: details.expectations },
+        { id: "provided", title: "What's Provided", content: details.provided },
+        { id: "bring", title: "What You Need to Bring", content: details.bring },
         { id: "notices", title: "Notices / Messages", content: ["TBD"] },
     ];
+
+    const goToLandingState = () => {
+        setIsBooking(false);
+        setSelectedDate(null);
+        setSelectedTime('');
+        setExtraTime('');
+        setNote('');
+        setUserInfoOpen(false);
+        setServiceInfoOpen(false);
+    };
 
     const handleGoBack = () => {
         setShowPopup(null);
@@ -58,8 +89,30 @@ function LandingPagePopup() {
         setNote('');
         setUserInfoOpen(false);
         setServiceInfoOpen(false);
+        onClose();
     };
 
+    const calculateTimes = (timeSlot, extraTime) => {
+        // Parse "9:00 AM" into hours and minutes
+        const [time, period] = timeSlot.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+        
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+
+        // Start time in "HH:MM" format
+        const startTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+        // Default slot is 30 min, add extra time if selected
+        let totalMinutes = minutes + 30;
+        if (extraTime === '+30 minutes') totalMinutes += 30;
+
+        hours += Math.floor(totalMinutes / 60);
+        const endMinutes = totalMinutes % 60;
+        const endTime = `${String(hours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+
+        return { startTime, endTime };
+    };
     
     const toggleSection = (id) => {
         setExpandedSection((prev) => (prev === id ? null : id));
@@ -68,6 +121,7 @@ function LandingPagePopup() {
     const handleBookingClick = () => {
         setIsBooking(true);
     };
+
 
     const handleDateChange = (date) => {
         // If clicking the same date, unselect it
@@ -89,25 +143,55 @@ function LandingPagePopup() {
         }
     };
 
-    const handleConfirm = () => {
-        console.log("Booking confirmed!", {selectedDate, selectedTime, extraTime, note});
-        console.log("Setting showPopup to 'success'");
-        setShowPopup('success');
+    const getDayFromDate = (dateString) => {
+        if (!dateString) return 'monday';
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const date = new Date(dateString);
+            return days[date.getDay()] || 'monday';
+        };
+    
+    const { user, isLoaded, isSignedIn } = useUser();
+
+    const handleConfirm = async () => {
+        if (!isLoaded) return;
+        if (!isSignedIn || !user) return;
+
+        const { startTime, endTime } = calculateTimes(selectedTime, extraTime);
+
+        try {
+            const requestData = {
+            userID: user.id,
+            serviceID: service?.name || "Service",
+            duration: [{
+                day: getDayFromDate(selectedDate),
+                startTime,
+                endTime,
+            }],
+            clientName: clientName.trim(),
+            };
+
+            await apiCall('/booking/create', 'POST', requestData, null);
+
+            goToLandingState();
+
+            setShowPopup('success');
+        } catch (error) {
+            console.error("Error creating booking:", error);
+            setShowPopup('failure');
+        }
     };
 
     const handleSuccessClose = () => {
         setShowPopup(null);
-        setIsBooking(false);
-        setSelectedDate(null);
-        setSelectedTime('');
-        setExtraTime('');
-        setNote('');
+        onClose();
     };
 
     return (
-        <div className="min-h-screen w-full bg-[#F0F7F2] font-poppins text-[#262445] relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F0F7F2] font-poppins text-[#262445]">
+        <div className="overflow-auto h-[100vh] w-full bg-[#F0F7F2] font-poppins text-[#262445] relative overflow-hidden">
             <div className="absolute bottom-2 top-16 left-20 w-[90%] h-[84%] items-center justify-center 
-            border-1 border-solid border-[#B27DED] rounded-lg font-poppins cursor-pointer">
+            border-1 border-solid border-[#B28DED] rounded-lg font-poppins cursor-pointer overflow-hidden">
+            
                 <button 
                     type="button" 
                     onClick={handleGoBack} 
@@ -119,12 +203,14 @@ function LandingPagePopup() {
                 
 
                 <div className="flex flex-col">
-                    <h2 className = "text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10">
-                    Shower <br></br>Service</h2>
+                    <h2 className="text-6xl font-thin text-[#B27DED] text-align ml-30 font-poppins mt-10 max-w-[400px] break-words">
+                        {service?.name ?? "Service"}
+                    </h2>
+
                     <img
-                        src={ServiceImage}
-                        alt="Service"
-                        className="w-[300px] ml-30 mt-7"
+                    src={service?.imageImport ?? ServiceImage}
+                    alt={service?.name ?? "Service"}
+                    className="w-[300px] ml-30 mt-7"
                     />
                     {!isBooking? ( <button 
                           type="button"
@@ -141,7 +227,7 @@ function LandingPagePopup() {
                     )}
                 </div>
 
-                <div className="absolute top-10 right-10 font-poppins">
+                <div className="absolute top-10 right-20 font-poppins">
                     {!isBooking ? (
                         <div className="w-[520px] mt-50 mr-30 mt-7 h-[360px] scrollbar-purple overflow-y-auto
                          pr-4 ">
@@ -176,10 +262,10 @@ function LandingPagePopup() {
                             })}
                         </div>
                     ) : (
-                    <div className="w-[520px] grid mr-[120px] mt-5 flex flex-col gap-4 font-poppins">
+                    <div className="w-[520px] mt-20 grid mr-[120px] mt-5 flex flex-col gap-4 font-poppins">
                         <button type="button"
                             onClick={() => setUserInfoOpen((p) => !p)}
-                            className="w-full flex items-center text-left"
+                            className="w-full flex items-left text-left"
                         >
                             <div className="flex flex-row items-center">
                             <div className="flex items-center gap-4 w-[150px]">
@@ -187,20 +273,25 @@ function LandingPagePopup() {
                             <ChevronRight strokeWidth={4} color="#B27DED" />
                             </div>
 
-                            <div className="px-8 py-3 mr-5 rounded-3xl bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
-                            <div className="px-8 py-3 rounded-3xl bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
+                            <div className="px-8 py-2 mr-5 rounded-2xl bg-[#B9FF00] text-[#2F2F2F] text-[18px] font-small"> YA User</div>
+                            <div className="px-15 py-2 rounded-2xl bg-[#ABB9FF] text-[#2F2F2F] text-[18px] font-small"> 123123 </div>
                             </div>
                         </button>
                    
                         {userInfoOpen && (
-                            <div className="flex flex-row items-center ml-45 w-[150px]">
-                                <div className="flex items-center gap-6">
-                                    <div className="text-[18px] mr-6 font-poppins font-small text-[#2F2F2F]">
+                            <div className="flex flex-row items-center ml-47 w-[150px]">
+                                <div className="flex items-center gap-x-5">
+                                    <div className="text-[18px] mr-5 font-poppins font-small text-[#2F2F2F]">
                                         Name
                                     </div>
-                                <div className="px-8 py-3 ml-8 rounded-3xl bg-[#D6DFFF] text-[18px] font-small">
-                                    Allen
-                                </div>
+                               <input
+                                    type="text"
+                                    value={clientName}
+                                    onChange={(e) => setClientName(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    placeholder="Enter your name"
+                                    className="px-4 py-2 ml-5 rounded-2xl bg-[#D6DFFF] text-[18px] font-small text-[#262445] outline-none border-none focus:ring-0 placeholder-[#262445]/50 w-[180px]"
+                                />
                                 </div>
                             </div>
                             )}
@@ -273,27 +364,31 @@ function LandingPagePopup() {
                                     font-family: 'Poppins';
                                     }
 
+                                    .react-calendar__nextLabel, .react-calendar__prevLabel {
+                                    background: transparent !important;
+                                    }
+
                                     /* All tiles (date cells) */
                                     .react-calendar__tile {
                                     padding: auto;
-                                    font-size: 20px;
+                                    font-size: 18px;
                                     font-family: 'Poppins';
                                     color: #262445;
                                     }
 
                                     /* Day labels (Mon, Tue, Wed, etc.) */
                                     .react-calendar__month-view__weekdays {
-                                    font-size: 20px;
+                                    font-size: 18px;
                                     font-weight: 500;
                                     color: #262445;
                                     text-transform: uppercase;
                                     font-family: 'Poppins';
-                                    padding: 5px 0;
+                                    padding: 5px -2px;
                                     }
 
                                     /* Individual day label (each abbr element) */
                                     .react-calendar__month-view__weekdays__weekday {
-                                    padding: 10px 0;
+                                    padding: 5px 0px;
                                     text-align: center;
                                     }
 
@@ -316,8 +411,8 @@ function LandingPagePopup() {
                                 </div>
                                 </>
 
-                                <div className="-mt-15">Time</div>
-                                <div className="-mt-15 ml-10">
+                                <div className="-mt-17">Time</div>
+                                <div className="-mt-17 ml-10">
                                     {selectedDate ? (
                                         <div className="flex gap-3 flex-wrap">
                                             {timeSlots.map((slot) => (
@@ -342,26 +437,26 @@ function LandingPagePopup() {
                                     )}
                                 </div>
 
-                                <div className="-mt-5 w-[200px]">Request for more time?</div>
-                                <div className="-mt-6 ml-42">
-                                    <select
-                                        value={extraTime}
-                                        onChange={(e) => setExtraTime(e.target.value)}
-                                        className="px-4 opacity-40 focus:opacity-100 py-2 align-middle rounded-3xl w-[160px] bg-[#ABB9FF] text-[#262445] text-[18px] text-center cursor-pointer outline-none appearance-none"                                    
-                                        >
-                                        {extraTimeOptions.map((option) => (
-                                            <option key={option} value={option}>{option}</option>
-                                        ))}
-                                    </select>
+                                <div className="-mt-8 w-[200px]">Request for more time?</div>
+                                <div className="-mt-9 ml-42">
+                                    <button
+                                        type="button"
+                                        onClick={() => setExtraTime(prev => prev === '+30 minutes' ? '' : '+30 minutes')}
+                                        className={`px-4 py-2 rounded-3xl w-[160px] bg-[#ABB9FF] text-[#262445] text-[18px] text-center cursor-pointer ${
+                                            extraTime === '+30 minutes' ? 'opacity-100' : 'opacity-40'
+                                        }`}
+                                    >
+                                        +30 minutes
+                                    </button>
                                 </div>
 
-                                <div className="w-[200px]">Leave a note</div>
-                                <div className="ml-18">
+                                <div className="-mt-3 w-[200px]">Leave a note</div>
+                                <div className="-mt-2 ml-18">
                                     <textarea
                                         value={note}
                                         onChange={(e) => setNote(e.target.value)}
                                         placeholder="(optional) request any accommodation ..."
-                                        className="px-4 py-2 opacity-40 active:opacity-100 focus:opacity-100 rounded-3xl w-[260px] h-[70px] bg-[#D6DFFF] text-[#262445] text-[18px] resize-none outline-none placeholder-[#262445]"
+                                        className="px-4 py-1 opacity-40 active:opacity-100 focus:opacity-100 rounded-3xl w-[260px] h-[60px] bg-[#D6DFFF] text-[#262445] text-[18px] resize-none outline-none placeholder-[#262445] placeholder:text-[17px] overflow-hidden"
                                     />
                                 </div>
                                 </div>
@@ -380,7 +475,8 @@ function LandingPagePopup() {
                     onConfirm={handleConfirm}
                 />
             )}
-            {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose} />}
+            {showPopup === 'success' && <SuccessPopup onClose={handleSuccessClose}/>}
+        </div>
         </div>
     );
 }
