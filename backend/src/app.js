@@ -34,5 +34,8 @@ app.use('/serviceExtension', serviceExtensionRoutes);
 app.use('/booking', booking);
 app.use('/notification', notificationRoutes);
 app.use('/booking', bookingRoutes);
+app.use('/', (req, res) => {
+    res.status(200).send('Backend is working');
+});
 
 module.exports = app;

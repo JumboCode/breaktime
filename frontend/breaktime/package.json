@@ -29,7 +29,6 @@
     "@types/react-dom": "^19.0.3",
     "@vite-pwa/assets-generator": "^0.2.6",
     "@vitejs/plugin-react": "^4.3.4",
-    "baseline-browser-mapping": "^2.9.0",
     "eslint": "^9.18.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
