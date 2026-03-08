@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ERROR_MESSAGES } from "../utils/errorMessages";
+import { ERROR_MESSAGES } from "../utils/ErrorMessages";
 
 
 function UserSignin() {
