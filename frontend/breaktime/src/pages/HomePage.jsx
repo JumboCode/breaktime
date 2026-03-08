@@ -23,6 +23,13 @@ export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [userType] = useState('Staff');
     const [bookings, setBookings] = useState([]);
+    const [calendarDate, setCalendarDate] = useState(new Date());
+    const [calendarView, setCalendarView] = useState('month');
+
+    const handleDayClick = (date) => {
+        setCalendarDate(date);
+        setCalendarView('day');
+    };
 
     /**
      * useEffect - Fetch bookings from backend when component mounts
@@ -129,7 +136,12 @@ export default function HomePage() {
                 <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} />
                 <div className="flex p-[30px] pt-[10px] gap-[30px]">
                     <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
-                        <SideBar userType={userType}/>
+                        <SideBar
+                            userType={userType}
+                            bookings={bookings}
+                            onViewAllClick={(widgetDate) => setCalendarDate(widgetDate)}
+                            onDayClick={handleDayClick}
+                        />
                     </div>
 
                     <div className={`h-[calc(100vh-120px)] relative bg-cal-bg border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
@@ -139,8 +151,8 @@ export default function HomePage() {
                         </div>
 
                         <div className="bg-cal-bg p-[50px] main-cal-wrapper">
-                            {/* MainCalendar receives bookings to display as events */}
-                            <MainCalendar bookings={bookings} />
+                            {/* MainCalendar receives bookings and controlled date from HomePage */}
+                            <MainCalendar bookings={bookings} date={calendarDate} onNavigate={setCalendarDate} view={calendarView} onView={setCalendarView} />
                         </div>
                     </div>
                 </div>
