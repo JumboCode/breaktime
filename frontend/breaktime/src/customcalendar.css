@@ -42,29 +42,19 @@ span.rbc-btn-group.actions-group {
     width: 500px;
     height: 40px;
     display: flex;
+
 }
 
 .scheduling-color-bar div {
     height: 40px;
-    width: 25%;
 }
 
-.scheduling-color-bar div:nth-child(1) {
-    background-color: var(--color-cal-orange-bar);
+.scheduling-color-bar div:first-child {
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
 }
 
-.scheduling-color-bar div:nth-child(2) {
-    background-color: var(--color-cal-blue-bar);
-}
-
-.scheduling-color-bar div:nth-child(3) {
-    background-color: var(--color-cal-green-bar);
-}
-
-.scheduling-color-bar div:nth-child(4) {
-    background-color: var(--color-cal-pink-bar);
+.scheduling-color-bar div:last-child {
     border-top-right-radius: 40px;
     border-bottom-right-radius: 40px;
 }

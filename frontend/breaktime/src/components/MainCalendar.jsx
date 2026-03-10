@@ -1,6 +1,7 @@
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { useState } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
+import { useUser } from '@clerk/clerk-react';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
@@ -8,6 +9,18 @@ import { useModal } from './popup/useModal';
 
 // Initialize moment as the date localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
+
+const services = [
+  { id: 'all', label: 'All Bookings', color: '#F2A6E0' },
+  { id: 'laundry', label: 'Laundry', color: '#FFB680' },
+  { id: 'meeting', label: 'Store Appointment', color: '#7DDCFB' },
+  { id: 'services', label: 'Shower', color: '#C8E887' },
+];
+
+const visibleServices = services.filter(s => s.id !== 'all' && counts[s.id]);
+const total = visibleServices.reduce((sum, s) => sum + counts[s.id], 0);
+
+const serviceColorMap = Object.fromEntries(services.map(s => [s.id, s.color]));
 
 /**
  * bookingToEvent - Converts a booking object to a calendar event format
@@ -78,7 +91,13 @@ const bookingToEvent = (booking) => {
  * CustomToolbar - Custom toolbar component for the calendar
  * Includes navigation buttons, view switchers, and "add new" button
  */
-function CustomToolbar({ label, onNavigate, onView, view, onAddNew }) {
+function CustomToolbar({ label, onNavigate, onView, view, onAddNew, selectedService, onServiceChange, services, isAdmin, searchQuery, onSearchChange, allEvents}) {
+  const total = allEvents.length;
+  const counts = {};
+  allEvents.forEach(ev => {
+    if (ev.serviceType) counts[ev.serviceType] = (counts[ev.serviceType] || 0) + 1;
+  });
+
   return (
     <div className="rbc-toolbar">
       <div className="toolbar-top-row">
@@ -92,10 +111,13 @@ function CustomToolbar({ label, onNavigate, onView, view, onAddNew }) {
         </span>
 
         <span className="scheduling-color-bar">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
+          {visibleServices.map(s => (
+            <div
+              key={s.id}
+              title={`${s.label}: ${counts[s.id]}`}
+              style={{ flex: counts[s.id] / total, background: s.color }}
+            />
+          ))}
         </span>
 
         <span className="rbc-btn-group view-group calendar-nav-buttons">
@@ -120,8 +142,33 @@ function CustomToolbar({ label, onNavigate, onView, view, onAddNew }) {
         <span className="rbc-btn-group actions-group">
           {/* "add new" button - opens the Add Booking modal */}
           <button className="calendar-nav-buttons" onClick={onAddNew}>add new</button>
-          <input type="search" className="calendar-nav-buttons" placeholder="search for booking..."/>
-          <button className="calendar-nav-buttons">all bookings</button>
+          {isAdmin && (
+            <input
+              type="search"
+              className="calendar-nav-buttons"
+              placeholder="search for booking..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          )}
+          <button className="calendar-nav-buttons" style={{ position: 'relative' }}>
+          {services.find(s => s.id === selectedService)?.label ?? 'all bookings'}
+          <select
+            value={selectedService}
+            onChange={(e) => onServiceChange(e.target.value)}
+            style={{
+              position: 'absolute',
+              top: 0, left: 0,
+              width: '100%', height: '100%',
+              opacity: 0,
+              cursor: 'pointer',
+            }}
+          >
+            {services.map(s => (
+              <option key={s.id} value={s.id}>{s.label}</option>
+            ))}
+          </select>
+        </button>
         </span>
       </div>
     </div>
@@ -167,6 +214,12 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
   const view = viewProp ?? internalView;
   const setView = onViewProp ?? setInternalView;
   const { openModal } = useModal(); // Hook to control modal state
+  const [selectedService, setSelectedService] = useState('all');
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.permission === '2';
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchTimerRef = useRef(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   /**
    * handleAddNew - Called when "add new" button is clicked
@@ -199,14 +252,60 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
     openModal("add", { date: selectedDate });
   };
 
+  const handleSearchChange = (value) => {
+    setSearchQuery(value); 
+    setDebouncedSearch(value);
+    //searchTimerRef.current = setTimeout(() => {
+    // setDebouncedSearch(value); 
+    //}, 1000);
+  };
+  
+
   // Convert all bookings to calendar event format
-  const events = bookings.map(bookingToEvent);
+  const allEvents = useMemo(() => bookings.map(booking => ({
+    ...bookingToEvent(booking),
+    serviceType: booking.service,
+    color: serviceColorMap[booking.service],
+  })), [bookings]);
+
+  const filteredEvents = useMemo(() => {
+    let result = allEvents;
+    if (selectedService !== 'all') {
+      result = result.filter(ev => ev.serviceType === selectedService);
+    }
+    if (isAdmin && debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase();
+      result = result.filter(ev =>
+        String(ev.id || '').toLowerCase().includes(q) ||
+        String(ev.title || '').toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [allEvents, selectedService, debouncedSearch, isAdmin]);
+
+  const toolbarComponent = useCallback((props) => (
+      <CustomToolbar 
+        {...props} 
+        view={view}
+        onAddNew={handleAddNew}
+        selectedService={selectedService}
+        onServiceChange={setSelectedService}
+        services={services}
+        isAdmin={isAdmin}
+        onSearchChange={handleSearchChange}
+        searchQuery={searchQuery}
+        allEvents={allEvents}
+      />
+  ), [view, handleAddNew, selectedService, setSelectedService, services, isAdmin, handleSearchChange, searchQuery, allEvents]);
 
   return (
     <div>
       <Calendar
         localizer={localizer}
-        events={events}
+        events={filteredEvents}
+        eventPropGetter={(event) => ({
+          style: { backgroundColor: event.color, border: 'none', borderRadius: '6px', color: '#2a2a2a' }
+        })}
         startAccessor="start"
         endAccessor="end"
         style={{ height: 500 }}
@@ -218,7 +317,7 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
         onSelectEvent={handleSelectEvent} // Handler for clicking on events
         onSelectSlot={handleSelectSlot}   // Handler for clicking on empty slots
         components={{
-          toolbar: (props) => <CustomToolbar {...props} view={view} onAddNew={handleAddNew}/>,
+          toolbar: toolbarComponent,
           event: CustomEvent
         }}
       />
