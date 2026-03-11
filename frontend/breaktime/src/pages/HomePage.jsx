@@ -1,6 +1,7 @@
 import NavBar from "/src/components/NavBar";
 import SideBar from "/src/components/SideBar";
 import MainCalendar from "/src/components/MainCalendar";
+import InboxView from "../components/InboxView";
 import CalendarCorner from "/src/assets/maincal/CalendarCorner.svg";
 import { useState, useEffect } from "react";
 import ModalProvider from "/src/components/popups/staff_booking/ModalProvider";
@@ -22,6 +23,7 @@ import { apiCall } from "/src/utils/general";
 export default function HomePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [userType] = useState('Staff');
+    const [currentView, setCurrentView] = useState('calendar');
     const [bookings, setBookings] = useState([]);
     const [calendarDate, setCalendarDate] = useState(new Date());
     const [calendarView, setCalendarView] = useState('month');
@@ -106,7 +108,7 @@ export default function HomePage() {
         // ModalProvider wraps the app to provide modal context to all children
         <ModalProvider>
             <div className="bg-indigo-purple h-screen w-screen overflow-hidden">
-                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} />
+                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} currentView={currentView} onViewChange={setCurrentView} />
                 <div className="flex p-[30px] pt-[10px] gap-[30px]">
                     <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
                         <SideBar
@@ -114,19 +116,25 @@ export default function HomePage() {
                             bookings={bookings}
                             onViewAllClick={(widgetDate) => setCalendarDate(widgetDate)}
                             onDayClick={handleDayClick}
+                            onOpenInbox={() => setCurrentView('inbox')}
                         />
                     </div>
 
-                    <div className={`h-[calc(100vh-120px)] relative bg-cal-bg border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'}`}>
-                        <div>
-                            <img src={CalendarCorner} className="absolute bottom-0 m-[-30px]"/>
-                            <img src={CalendarCorner} className="absolute top-0 right-0 m-[-30px] rotate-180"/>
-                        </div>
-
-                        <div className="bg-cal-bg p-[50px] main-cal-wrapper">
-                            {/* MainCalendar receives bookings and controlled date from HomePage */}
-                            <MainCalendar bookings={bookings} date={calendarDate} onNavigate={setCalendarDate} view={calendarView} onView={setCalendarView} />
-                        </div>
+                    <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' ? '' : 'bg-cal-bg text-cal-font'}`}>
+                        {currentView === 'inbox' ? (
+                            <InboxView />
+                        ) : (
+                            <>
+                                <div>
+                                    <img src={CalendarCorner} className="absolute bottom-0 m-[-30px]"/>
+                                    <img src={CalendarCorner} className="absolute top-0 right-0 m-[-30px] rotate-180"/>
+                                </div>
+                                <div className="bg-cal-bg p-[50px] main-cal-wrapper">
+                                    {/* MainCalendar receives bookings and controlled date from HomePage */}
+                                    <MainCalendar bookings={bookings} date={calendarDate} onNavigate={setCalendarDate} view={calendarView} onView={setCalendarView} />
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
                 {/*

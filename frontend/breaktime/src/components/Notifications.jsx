@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Notifications = ({ userType }) => {
+const Notifications = ({ userType, onOpenInbox }) => {
     class Notification {
         constructor(id, title, message) {
             this.id = id;
@@ -32,7 +32,7 @@ const Notifications = ({ userType }) => {
         <div className="h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
                 <h3 className={`font-semibold text-xl ${notificationTextColor}`}>Notifications</h3>
-                <span className={`${openInboxTextColor} opacity-[60%] underline text-sm cursor-pointer`}>Open Inbox ({visibleNotifications.length})</span>
+                <span onClick={onOpenInbox} className={`${openInboxTextColor} opacity-[60%] underline text-sm cursor-pointer`}>Open Inbox ({visibleNotifications.length})</span>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar">
