@@ -17,9 +17,6 @@ const services = [
   { id: 'services', label: 'Shower', color: '#C8E887' },
 ];
 
-const visibleServices = services.filter(s => s.id !== 'all' && counts[s.id]);
-const total = visibleServices.reduce((sum, s) => sum + counts[s.id], 0);
-
 const serviceColorMap = Object.fromEntries(services.map(s => [s.id, s.color]));
 
 /**
@@ -97,6 +94,7 @@ function CustomToolbar({ label, onNavigate, onView, view, onAddNew, selectedServ
   allEvents.forEach(ev => {
     if (ev.serviceType) counts[ev.serviceType] = (counts[ev.serviceType] || 0) + 1;
   });
+  const visibleServices = services.filter(s => s.id !== 'all' && counts[s.id]);
 
   return (
     <div className="rbc-toolbar">
@@ -255,9 +253,6 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
   const handleSearchChange = (value) => {
     setSearchQuery(value); 
     setDebouncedSearch(value);
-    //searchTimerRef.current = setTimeout(() => {
-    // setDebouncedSearch(value); 
-    //}, 1000);
   };
   
 
