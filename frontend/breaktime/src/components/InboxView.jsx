@@ -68,16 +68,79 @@ const DUMMY_MESSAGES = [
         note: "How can I sign up for weekly job training?",
         detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
     },
+    {
+        id: 7,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
+    {
+        id: 8,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
+    {
+        id: 9,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
+    {
+        id: 10,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
+    {
+        id: 11,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
+    {
+        id: 12,
+        type: 'action',
+        subtype: 'general_inquiry',
+        title: 'Send A Message',
+        source: 'General Inquiry',
+        timeAgo: '4 hours ago',
+        isRead: false,
+        note: "How can I sign up for weekly job training?",
+        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
+    },
 ];
 
-const SERVICE_BADGE_COLORS = {
-    'Shower Service': 'bg-cyan-200 text-cyan-900',
-    'Laundry Service': 'bg-emerald-200 text-emerald-900',
-};
+const SERVICE_BADGE_COLOR = 'bg-[#7DDCFB] text-black';
 
 // Filled medium-purple circle with white checkmark — used for update messages
 const UpdateIcon = () => (
-    <div className="w-10 h-10 rounded-full bg-dark-purple flex items-center justify-center flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-light-purple flex items-center justify-center flex-shrink-0">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" stroke="white">
             <path d="M5 13l4 4L19 7" />
         </svg>
@@ -86,15 +149,14 @@ const UpdateIcon = () => (
 
 // Filled red circle with white exclamation — used for action-required messages
 const ActionIcon = () => (
-    <div className="w-10 h-10 rounded-full bg-red flex items-center justify-center flex-shrink-0">
-        <span className="text-white font-bold text-xl leading-none select-none">!</span>
+    <div className="w-10 h-10 rounded-full bg-dot-red flex items-center justify-center flex-shrink-0">
+        <span className="text-lime-500 font-bold text-xl leading-none select-none">!</span>
     </div>
 );
 
 function ServiceBadge({ service }) {
-    const colorClass = SERVICE_BADGE_COLORS[service] || 'bg-gray-200 text-gray-800';
     return (
-        <span className={`${colorClass} text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap`}>
+        <span className={`${SERVICE_BADGE_COLOR} text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap`}>
             {service}
         </span>
     );
@@ -102,7 +164,7 @@ function ServiceBadge({ service }) {
 
 function ExtraTimeBadge({ time }) {
     return (
-        <span className="bg-lime-200 text-lime-900 text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
+        <span className="bg-light-purple text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
             {time}
         </span>
     );
@@ -111,7 +173,7 @@ function ExtraTimeBadge({ time }) {
 function NoteBadge({ note }) {
     const truncated = note.length > 38 ? note.slice(0, 38) + '...' : note;
     return (
-        <span className="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full max-w-[260px] truncate inline-block">
+        <span className="bg-light-purple text-white text-xs px-3 py-1 rounded-full max-w-[260px] truncate inline-block">
             {truncated}
         </span>
     );
@@ -126,8 +188,7 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
     return (
         <div
             onClick={onClick}
-            className={`flex items-start gap-4 px-8 py-4 border-b border-gray-100 cursor-pointer transition-colors
-                ${isSelected ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+            className="flex items-start gap-4 px-8 py-4 mx-8 my-4 shadow-sm shadow-light-purple rounded-2xl cursor-pointer transition-colors hover:bg-staff-main-comp-hover"
         >
             {/* Conditional icon based on message type */}
             <div className="mt-1 flex-shrink-0">
@@ -160,7 +221,7 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
                     <div className="flex items-center gap-3">
                         <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Approve</button>
                         <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Reject</button>
-                        <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
+                        <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
                             {msg.isRead ? 'Mark as unread' : 'Mark as read'}
                         </button>
                     </div>
@@ -168,89 +229,17 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
                 {(msg.subtype === 'note' || msg.subtype === 'general_inquiry') && (
                     <div className="flex items-center gap-3">
                         <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Send a message</button>
-                        <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
+                        <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
                             {msg.isRead ? 'Mark as unread' : 'Mark as read'}
                         </button>
                     </div>
                 )}
                 {msg.type === 'update' && (
-                    <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
+                    <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
                         {msg.isRead ? 'Mark as unread' : 'Mark as read'}
                     </button>
                 )}
             </div>
-        </div>
-    );
-}
-
-function DetailPanel({ message, onClose }) {
-    const isUpdate = message.type === 'update';
-
-    return (
-        <div className="w-[380px] flex-shrink-0 border-l border-dashed border-gray-200 flex flex-col overflow-y-auto p-6">
-            {/* Panel header */}
-            <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                    {isUpdate ? <UpdateIcon /> : <ActionIcon />}
-                    <span className="font-bold text-dark-navy text-lg leading-tight">{message.title}</span>
-                </div>
-                <button
-                    onClick={onClose}
-                    className="text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer flex-shrink-0 ml-2"
-                >
-                    ×
-                </button>
-            </div>
-
-            <p className="text-sm text-gray-400 mb-5">{message.detailDate}</p>
-
-            {/* Extra time detail */}
-            {message.subtype === 'extra_time' && (
-                <>
-                    <div className="border border-gray-200 rounded-xl p-4 mb-5 space-y-3">
-                        <div className="flex gap-3 text-sm">
-                            <span className="text-gray-500 w-24 flex-shrink-0">Requested:</span>
-                            <span className="text-red font-semibold">+30 minutes</span>
-                        </div>
-                        <div className="flex gap-3 text-sm">
-                            <span className="text-gray-500 w-24 flex-shrink-0">Note:</span>
-                            <span className="text-dark-navy italic">"{message.note}"</span>
-                        </div>
-                    </div>
-                    <div className="flex gap-3">
-                        <button className="flex-1 bg-red text-white rounded-full py-2 font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity">
-                            Approve
-                        </button>
-                        <button className="flex-1 border border-gray-300 text-dark-navy rounded-full py-2 font-semibold text-sm cursor-pointer hover:bg-gray-50 transition-colors">
-                            Reject
-                        </button>
-                    </div>
-                </>
-            )}
-
-            {/* Note / general inquiry detail */}
-            {(message.subtype === 'note' || message.subtype === 'general_inquiry') && (
-                <>
-                    <div className="border border-gray-200 rounded-xl p-4 mb-5">
-                        <div className="flex gap-3 text-sm">
-                            <span className="text-gray-500 w-12 flex-shrink-0">Note:</span>
-                            <span className="text-dark-navy italic">"{message.note}"</span>
-                        </div>
-                    </div>
-                    <button className="w-full bg-red text-white rounded-full py-2 font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity">
-                        Send A Message
-                    </button>
-                </>
-            )}
-
-            {/* Update (confirmed/modified/canceled) detail */}
-            {isUpdate && (
-                <div className="border border-gray-200 rounded-xl p-4 text-sm text-gray-600">
-                    {message.subtype === 'confirmed' && 'This booking has been confirmed.'}
-                    {message.subtype === 'modified' && 'This booking has been modified.'}
-                    {message.subtype === 'canceled' && 'This booking has been canceled.'}
-                </div>
-            )}
         </div>
     );
 }
@@ -288,19 +277,19 @@ export default function InboxView() {
             onClick={() => setActiveTab(tabKey)}
             className={`text-sm font-medium px-4 py-1 rounded-full transition-colors cursor-pointer
                 ${activeTab === tabKey
-                    ? 'bg-indigo-purple text-white'
+                    ? 'bg-dark-purple text-white'
                     : 'text-gray-600 hover:text-dark-navy'}`}
         >
-            {label}{count !== undefined ? ` ${count}` : ''}
+            {label}{count !== undefined ? <span className="ml-2 bg-white text-dark-purple rounded-full px-1">{count}</span> : ''}
         </button>
     );
 
     const FilterBtn = ({ filterKey, label }) => (
         <button
             onClick={() => setReadFilter(filterKey)}
-            className={`text-sm font-medium px-3 py-1 rounded-full transition-colors cursor-pointer
+            className={`text-sm font-medium px-4 py-1 rounded-full transition-colors cursor-pointer
                 ${readFilter === filterKey
-                    ? 'bg-indigo-purple text-white'
+                    ? 'bg-dark-purple text-white'
                     : 'text-gray-600 hover:text-dark-navy'}`}
         >
             {label}
@@ -308,17 +297,17 @@ export default function InboxView() {
     );
 
     return (
-        <div className="bg-white rounded-[20px] h-full flex flex-col font-all overflow-hidden">
+        <div className="bg-staff-main-comp-bg rounded-[20px] h-full flex flex-col font-all overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-4 px-8 pt-8 pb-3">
                 <h1 className="text-3xl font-bold text-dark-navy">Inbox</h1>
-                <button className="border border-gray-300 rounded-full px-4 py-1 text-sm text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer">
+                <button className="border border-gray-300 rounded-full px-4 py-1 text-sm text-gray-500 hover:bg-staff-main-comp-hover transition-colors cursor-pointer">
                     send a message
                 </button>
             </div>
 
             {/* Tabs + Read filter */}
-            <div className="flex items-center px-8 py-3 gap-2">
+            <div className="flex items-center mx-7 my-2 px-2 py-1 gap-2 border border-gray-300 rounded-full">
                 <div className="flex items-center gap-2 flex-1">
                     <TabBtn tabKey="all" label="ALL" count={messages.length} />
                     <TabBtn tabKey="action" label="Action Required" />
@@ -332,12 +321,12 @@ export default function InboxView() {
             </div>
 
             {/* Hint */}
-            <p className="px-8 pb-1 text-xs text-gray-400">click to see details</p>
+            <p className="px-8 pb-1 text-xs text-gray-600">click to see details</p>
 
             {/* Body: message list + optional detail panel */}
             <div className="flex flex-1 overflow-hidden border-t border-gray-100">
                 {/* Message list */}
-                <div className="flex-1 overflow-y-auto scrollbar">
+                <div className="flex-1 overflow-y-auto scrollbar-purple">
                     {filteredMessages.length === 0 ? (
                         <p className="text-center text-gray-400 mt-12 text-sm">No messages</p>
                     ) : (
@@ -352,14 +341,6 @@ export default function InboxView() {
                         ))
                     )}
                 </div>
-
-                {/* Detail panel — appears when a message is selected */}
-                {selectedMessage && (
-                    <DetailPanel
-                        message={selectedMessage}
-                        onClose={() => setSelectedMessage(null)}
-                    />
-                )}
             </div>
         </div>
     );

@@ -53,7 +53,7 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange }
                         </button>
                         <button
                             onClick={() => onViewChange('list')}
-                            className={`cursor-pointer hover:underline
+                            className={`cursor-pointer hover:underline w-[93px]
                                 ${currentView === 'list' ? 'underline' : 'hover:font-semibold'}`}
                         >
                             List
@@ -61,22 +61,21 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange }
                     </div>
                     <button
                         onClick={() => onViewChange('inbox')}
-                        className={`cursor-pointer hover:underline
+                        className={`cursor-pointer hover:underline w-[110px]
                             ${currentView === 'inbox' ? 'underline font-semibold' : 'hover:font-semibold'}`}
                     >
                         View Inbox
+                    </button>
+                    <button
+                        onClick={() => handleSignOut()}
+                        className="cursor-pointer hover:underline hover:font-semibold w-[93px]"
+                    >
+                        Sign Out
                     </button>
                 </div>
             :
                 <></>
             }
-            <button
-                onClick={() => handleSignOut()}
-                className={`cursor-pointer hover:underline hover:font-semibold
-                    ${userType === 'Staff' ? 'text-light-purple' : 'text-dark-navy'} text-xl`}
-            >
-                Sign Out
-            </button>
         </div>
     );
 };

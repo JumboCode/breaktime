@@ -120,7 +120,7 @@ export default function HomePage() {
                         />
                     </div>
 
-                    <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' ? '' : 'bg-cal-bg text-cal-font'}`}>
+                    <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
                         {currentView === 'inbox' ? (
                             <InboxView />
                         ) : (
@@ -129,7 +129,7 @@ export default function HomePage() {
                                     <img src={CalendarCorner} className="absolute bottom-0 m-[-30px]"/>
                                     <img src={CalendarCorner} className="absolute top-0 right-0 m-[-30px] rotate-180"/>
                                 </div>
-                                <div className="bg-cal-bg p-[50px] main-cal-wrapper">
+                                <div className="bg-staff-main-comp-bg p-[50px] main-cal-wrapper">
                                     {/* MainCalendar receives bookings and controlled date from HomePage */}
                                     <MainCalendar bookings={bookings} date={calendarDate} onNavigate={setCalendarDate} view={calendarView} onView={setCalendarView} />
                                 </div>

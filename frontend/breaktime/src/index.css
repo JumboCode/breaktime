@@ -11,13 +11,15 @@
   --color-dark-purple: #5E54B5;
   --color-light-grey: #F0F7F2;
   --color-bright-purple: #B27DED;
-  --color-cal-bg: #F0F7F2;
+  --color-staff-main-comp-bg: #F0F7F2;
+  --color-staff-main-comp-hover: #E5EDE7;
   --color-cal-font: #262445;
   --color-cal-orange-bar: #FFB680;
   --color-cal-blue-bar: #7DDCFB;
   --color-cal-green-bar: #C8E887;
   --color-cal-pink-bar: #F2A6E0;
   --color-cal-cur-date: #A96EFF;
+  --color-dot-red: #ef4444;
   --font-all: 'Poppins', sans-serif;
 }
 
