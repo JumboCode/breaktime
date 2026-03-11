@@ -117,7 +117,12 @@ function NoteBadge({ note }) {
     );
 }
 
-function MessageItem({ msg, isSelected, onClick }) {
+function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
+    const stopAndToggle = (e) => {
+        e.stopPropagation();
+        onToggleRead(msg.id);
+    };
+
     return (
         <div
             onClick={onClick}
@@ -145,33 +150,34 @@ function MessageItem({ msg, isSelected, onClick }) {
                 <p className="text-sm text-gray-500 mt-1">
                     {msg.bookingId ? `Booking ${msg.bookingId}` : msg.source}
                 </p>
+            </div>
 
-                {/* Inline action controls — visual only (no backend yet) */}
+            {/* Right column: timestamp on top, action buttons below — all right-aligned */}
+            <div className="flex flex-col items-end flex-shrink-0 gap-2">
+                <span className="text-sm text-gray-400 whitespace-nowrap">{msg.timeAgo}</span>
+
                 {msg.subtype === 'extra_time' && (
-                    <div className="flex items-center gap-4 mt-2">
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer">Approve</button>
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer">Reject</button>
-                        <button className="text-sm underline text-gray-400 ml-auto cursor-pointer">Mark as read</button>
-                    </div>
-                )}
-                {(msg.subtype === 'note' || msg.subtype === 'general_inquiry') && (
-                    <div className="flex items-center mt-2">
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer">Send a message</button>
-                        <button className="text-sm underline text-gray-400 ml-auto cursor-pointer">Mark as read</button>
-                    </div>
-                )}
-                {msg.type === 'update' && (
-                    <div className="flex items-center mt-2">
-                        <button className="text-sm underline text-gray-400 ml-auto cursor-pointer">
+                    <div className="flex items-center gap-3">
+                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Approve</button>
+                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Reject</button>
+                        <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
                             {msg.isRead ? 'Mark as unread' : 'Mark as read'}
                         </button>
                     </div>
                 )}
-            </div>
-
-            {/* Timestamp */}
-            <div className="text-sm text-gray-400 flex-shrink-0 mt-1">
-                {msg.timeAgo}
+                {(msg.subtype === 'note' || msg.subtype === 'general_inquiry') && (
+                    <div className="flex items-center gap-3">
+                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Send a message</button>
+                        <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
+                            {msg.isRead ? 'Mark as unread' : 'Mark as read'}
+                        </button>
+                    </div>
+                )}
+                {msg.type === 'update' && (
+                    <button className="text-sm underline text-gray-400 cursor-pointer" onClick={stopAndToggle}>
+                        {msg.isRead ? 'Mark as unread' : 'Mark as read'}
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -253,8 +259,15 @@ export default function InboxView() {
     const [activeTab, setActiveTab] = useState('all');
     const [readFilter, setReadFilter] = useState('all');
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [messages, setMessages] = useState(DUMMY_MESSAGES);
 
-    const filteredMessages = DUMMY_MESSAGES.filter(msg => {
+    const toggleRead = (id) => {
+        setMessages(prev => prev.map(m => m.id === id ? { ...m, isRead: !m.isRead } : m));
+        // Keep the detail panel in sync if this message is currently selected
+        setSelectedMessage(prev => prev?.id === id ? { ...prev, isRead: !prev.isRead } : prev);
+    };
+
+    const filteredMessages = messages.filter(msg => {
         const tabMatch =
             activeTab === 'all' ||
             (activeTab === 'action' && msg.type === 'action') ||
@@ -307,7 +320,7 @@ export default function InboxView() {
             {/* Tabs + Read filter */}
             <div className="flex items-center px-8 py-3 gap-2">
                 <div className="flex items-center gap-2 flex-1">
-                    <TabBtn tabKey="all" label="ALL" count={DUMMY_MESSAGES.length} />
+                    <TabBtn tabKey="all" label="ALL" count={messages.length} />
                     <TabBtn tabKey="action" label="Action Required" />
                     <TabBtn tabKey="update" label="Updates" />
                 </div>
@@ -334,6 +347,7 @@ export default function InboxView() {
                                 msg={msg}
                                 isSelected={selectedMessage?.id === msg.id}
                                 onClick={() => handleMessageClick(msg)}
+                                onToggleRead={toggleRead}
                             />
                         ))
                     )}
