@@ -53,7 +53,7 @@ const bookings = [
     duration: { day: 'thursday', startTime: '10:00', endTime: '11:00' },
     activity: [
       ['update', 'confirmed', null, '2024-10-15T10:00:00'],
-      ['action', 'time',  '+30 minutes', '2024-10-15T12:45:00'],
+      ['action', 'time',  '+30 minutes', '2024-10-15T12:45:00', "I'm so sorry I forgot about my detergent so I had to run home to get them"],
     ],
   },
   {

@@ -1,65 +1,44 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+
+// ─── Shared styles ───────────────────────────────────────────────────────────
+
+const FONT = "'Poppins', sans-serif";
+
+const dashedLine = (color, extra = {}) => ({
+  borderLeft: `2px dashed ${color}`,
+  opacity: 0.65,
+  ...extra,
+});
 
 // ─── Activity config ────────────────────────────────────────────────────────
 
+const UPDATE_BASE = {
+  pillColor: "#ABA6E3",
+  pillTextColor: "#fff",
+  circleColor: "#ABA6E3",
+  circleBorder: "#F0F7F2",
+  icon: <CheckIcon />,
+};
+
+const ACTION_BASE = {
+  pillColor: "#FF480B",
+  pillTextColor: "#fff",
+  circleColor: "#FF480B",
+  circleBorder: "#FFF0EA",
+  icon: <ExclamationIcon />,
+};
+
 const UPDATE_ACTIVITY_CONFIG = {
-  confirmed: {
-    label: "Booking Confirmed",
-    pillColor: "#ABA6E3",
-    pillTextColor: "#fff",
-    circleColor: "#ABA6E3",
-    circleBorder: "#F0F7F2",
-    icon: <CheckIcon />,
-    timestampPrefix: "Requested on",
-  },
-  modified: {
-    label: "Booking Modified",
-    pillColor: "#ABA6E3",
-    pillTextColor: "#fff",
-    circleColor: "#ABA6E3",
-    circleBorder: "#F0F7F2",
-    icon: <CheckIcon />,
-    timestampPrefix: "Modified on",
-  },
-  canceled: {
-    label: "Booking Canceled",
-    pillColor: "#ABA6E3",
-    pillTextColor: "#fff",
-    circleColor: "#ABA6E3",
-    circleBorder: "#F0F7F2",
-    icon: <CheckIcon />,
-    timestampPrefix: "Modified on",
-  },
+  confirmed: { ...UPDATE_BASE, label: "Booking Confirmed", timestampPrefix: "Requested on" },
+  modified:  { ...UPDATE_BASE, label: "Booking Modified",  timestampPrefix: "Modified on" },
+  canceled:  { ...UPDATE_BASE, label: "Booking Canceled",  timestampPrefix: "Modified on" },
 };
 
 const ACTION_ACTIVITY_CONFIG = {
-  time: {
-    label: "Requested Extra Time",
-    pillColor: "#FF480B",
-    pillTextColor: "#fff",
-    circleColor: "#FF480B",
-    circleBorder: "#FFF0EA",
-    icon: <ExclamationIcon />,
-    timestampPrefix: "Requested on",
-  },
-  note: {
-    label: "Left A Specific Note",
-    pillColor: "#FF480B",
-    pillTextColor: "#fff",
-    circleColor: "#FF480B",
-    circleBorder: "#FFF0EA",
-    icon: <ExclamationIcon />,
-    timestampPrefix: "Left on",
-  },
-  message: {
-    label: "Sent A General Inquiry",
-    pillColor: "#FF480B",
-    pillTextColor: "#fff",
-    circleColor: "#FF480B",
-    circleBorder: "#FFF0EA",
-    icon: <ExclamationIcon />,
-    timestampPrefix: "Sent on",
-  },
+  time:    { ...ACTION_BASE, label: "Requested Extra Time",    timestampPrefix: "Requested on" },
+  note:    { ...ACTION_BASE, label: "Left A Specific Note",    timestampPrefix: "Left on" },
+  message: { ...ACTION_BASE, label: "Sent A General Inquiry",  timestampPrefix: "Sent on" },
 };
 
 function getActivityConfig(activityType, activityKind) {
@@ -117,7 +96,6 @@ function ActivityCircle({ config }) {
   );
 }
 
-/** White outlined circle – same 40×40 footprint, sits below action cards */
 function EmptyCircle() {
   return (
     <div
@@ -136,15 +114,13 @@ function EmptyCircle() {
 function DottedConnector({ color = "#ABA6E3", height = 48 }) {
   return (
     <div
-      style={{
+      style={dashedLine(color, {
         width: 0,
         height,
-        borderLeft: `2px dashed ${color}`,
-        marginLeft: 19, // (40px circle / 2) - 1px border = centers perfectly
+        marginLeft: 19,
         marginTop: 8,
         marginBottom: 8,
-        opacity: 0.65,
-      }}
+      })}
     />
   );
 }
@@ -161,9 +137,9 @@ function PillBadge({ label, bgColor, textColor, width }) {
         borderRadius: 999,
         padding: "0 14px",
         height: 32,
-        width: width ? width : undefined,
+        width: width || undefined,
         fontSize: 13,
-        fontFamily: "'Poppins', sans-serif",
+        fontFamily: FONT,
         fontWeight: 600,
         letterSpacing: "0.01em",
         whiteSpace: "nowrap",
@@ -174,146 +150,12 @@ function PillBadge({ label, bgColor, textColor, width }) {
   );
 }
 
-// ─── UpdateActivity ───────────────────────────────────────────────────────────
-// Fix #1: alignItems "center" on the row so circle vertically aligns with pill
-// Fix #2 & #3: DottedConnector always renders (even on last item, shorter)
-
-function UpdateActivity({ config, timestamp, isLast }) {
+function Timestamp({ prefix, value, style }) {
+  if (!value) return null;
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      {/* Circle + pill on the same y-axis */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <ActivityCircle config={config} />
-        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} width={247} />
-      </div>
-
-      {/* Dotted line + timestamp in same row; paddingLeft = gap(12) + pill-offset so text sits under pill */}
-      <div style={{ display: "flex", alignItems: "flex-start" }}>
-        <DottedConnector color={config.circleColor} height={isLast ? 28 : 48} />
-        {timestamp && (
-          <span
-            style={{
-              fontSize: 12,
-              color: "#9CA3AF",
-              fontFamily: "'Poppins', sans-serif",
-              paddingLeft: 33,
-              paddingTop: 6,
-            }}
-          >
-            {config.timestampPrefix} {timestamp}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── ActionActivity ───────────────────────────────────────────────────────────
-// Fix #4a: FF480B color  
-// Fix #4b: ExclamationIcon with B9FF00 fill  
-// Fix #4c: circle aligns with pill via alignItems "center"  
-// Fix #4d: buttons full width  
-// Fix #4e & #4f: white EmptyCircle below card for all action types  
-// Fix #4g: dotted line from exclamation circle → card → white circle  
-
-function ActionActivity({ config, activity, timestamp, isLast }) {
-  const [activityKind, activityValue] = activity;
-  const isTime = activityKind === "time";
-
-  return (
-    /*
-      Single two-column layout for the entire component:
-      LEFT  col (width 40): circle → unbroken dashed line → empty circle → optional tail
-      RIGHT col (flex 1):   pill → timestamp → card → buttons
-      This guarantees one continuous line with zero segments.
-    */
-    <div style={{ display: "flex", gap: 12 }}>
-
-      {/* ── LEFT: circles + one unbroken dashed line ── */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 40, flexShrink: 0 }}>
-        <ActivityCircle config={config} />
-        {/* Single stretchy dashed border — no separate DottedConnector segments */}
-        <div style={{
-          flex: 1,
-          borderLeft: `2px dashed ${config.circleColor}`,
-          opacity: 0.65,
-          marginTop: 8,
-          marginBottom: 8,
-          minHeight: 24,
-        }} />
-        <EmptyCircle />
-        {!isLast && (
-          <div style={{
-            height: 24,
-            borderLeft: `2px dashed ${config.circleColor}`,
-            opacity: 0.65,
-          }} />
-        )}
-      </div>
-
-      {/* ── RIGHT: all text content ── */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, paddingTop: 8 }}>
-        {/* Pill on same y as circle (paddingTop: 8 offsets to center with 40px circle) */}
-        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} />
-
-        {/* Timestamp — same style as UpdateActivity */}
-        {timestamp && (
-          <span style={{
-            fontSize: 12,
-            color: "#9CA3AF",
-            fontFamily: "'Poppins', sans-serif",
-            marginTop: 4,
-            marginBottom: 12,
-          }}>
-            {config.timestampPrefix ?? "Sent on"} {timestamp}
-          </span>
-        )}
-
-        {/* Note / value card */}
-        <div style={{
-          border: "1px solid #E5E7EB",
-          borderRadius: 8,
-          border: "1.5px solid #FF480B",
-          padding: "10px 12px",
-          background: "#FAFAFA",
-          fontSize: 13,
-          fontFamily: "'Poppins', sans-serif",
-          color: "#374151",
-          marginBottom: 8,
-        }}>
-          {isTime ? (
-            <>
-              <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
-                <span style={{ color: "#6B7280", minWidth: 80 }}>Requested:</span>
-                <span style={{ color: "#FF480B", fontWeight: 600 }}>{activityValue}</span>
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <span style={{ color: "#6B7280", minWidth: 80 }}>Note:</span>
-                <span style={{ fontStyle: "italic", color: "#4B5563" }}>—</span>
-              </div>
-            </>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <span style={{ color: "#6B7280", minWidth: 44 }}>Note:</span>
-              <span style={{ fontStyle: "italic", color: "#4B5563" }}>"{activityValue}"</span>
-            </div>
-          )}
-        </div>
-
-        {/* Full-width action buttons */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          {isTime ? (
-            <>
-              <button style={{ ...actionBtnStyle("#FF480B", "#fff"), flex: 1 }}>Approve</button>
-              <button style={{ ...actionBtnStyle("transparent", "#FF480B", "#FF480B"), flex: 1 }}>Reject</button>
-            </>
-          ) : (
-            <button style={{ ...actionBtnStyle("#FF480B", "#fff"), flex: 1 }}>Send A Message</button>
-          )}
-        </div>
-      </div>
-
-    </div>
+    <span style={{ fontSize: 12, color: "#9CA3AF", fontFamily: FONT, ...style }}>
+      {prefix} {value}
+    </span>
   );
 }
 
@@ -323,12 +165,157 @@ function actionBtnStyle(bg, color, borderColor) {
     color,
     border: `1.5px solid ${borderColor ?? bg}`,
     borderRadius: 999,
-    padding: "8px 18px",
+    padding: "10px 18px",
+    height: 40,
     fontSize: 13,
-    fontFamily: "'Poppins', sans-serif",
+    fontFamily: FONT,
     fontWeight: 600,
     cursor: "pointer",
   };
+}
+
+// ─── UpdateActivity ───────────────────────────────────────────────────────────
+
+function UpdateActivity({ config, timestamp, isLast }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <ActivityCircle config={config} />
+        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} width={247} />
+      </div>
+
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <DottedConnector color={config.circleColor} height={isLast ? 28 : 48} />
+        <Timestamp prefix={config.timestampPrefix} value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Resolution config (shown after approve / reject) ────────────────────────
+
+const RESOLUTION_CONFIG = {
+  approved: {
+    ...UPDATE_BASE,
+    label: "Approved :)",
+    timestampPrefix: "Approved on",
+  },
+  rejected: {
+    ...UPDATE_BASE,
+    label: "Rejected:(",
+    timestampPrefix: "Rejected on",
+  },
+  messaged: {
+    ...UPDATE_BASE,
+    label: "Message Sent",
+    timestampPrefix: "Sent on",
+  },
+};
+
+// ─── ActionActivity ───────────────────────────────────────────────────────────
+
+function ActionActivity({ config, activity, timestamp, isLast, note }) {
+  const [activityKind, activityValue] = activity;
+  const isTime = activityKind === "time";
+  const [resolution, setResolution] = useState(null); // "approved" | "rejected" | "messaged" | null
+  const resConfig = resolution ? RESOLUTION_CONFIG[resolution] : null;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+
+      {/* ── Row 1: top circle + pill ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <ActivityCircle config={config} />
+        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} />
+      </div>
+
+      {/* ── Dashed connector + timestamp ── */}
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <DottedConnector color="#ABA6E3" height={32} />
+        <Timestamp prefix={config.timestampPrefix ?? "Sent on"} value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
+      </div>
+
+      {/* ── Dashed connector + card ── */}
+      <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 40, flexShrink: 0 }}>
+          <div style={dashedLine("#ABA6E3", { flex: 1, minHeight: 24 })} />
+        </div>
+        <div style={{
+          flex: 1,
+          borderRadius: 14,
+          border: "1.5px solid rgba(255, 72, 11, 0.30)",
+          padding: "14px 16px",
+          background: "#FFFAF8",
+          fontSize: 14,
+          fontWeight: 400,
+          fontFamily: FONT,
+          color: "#374151",
+        }}>
+          {isTime ? (
+            <>
+              <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                <span style={{ color: "#6B7280", minWidth: 95, flexShrink: 0 }}>Requested:</span>
+                <span style={{ color: "#FF480B", fontWeight: 600 }}>{activityValue}</span>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ color: "#6B7280", minWidth: 95, flexShrink: 0 }}>Note:</span>
+                <span style={{ color: "#FF480B" }}>
+                  {note ? `\u201C${note}\u201D` : "\u2014"}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div style={{ display: "flex", gap: 12 }}>
+              <span style={{ color: "#6B7280", minWidth: 95, flexShrink: 0 }}>Note:</span>
+              <span style={{ color: "#FF480B" }}>{`\u201C${activityValue}\u201D`}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Row 2: bottom circle + buttons/resolution — SAME line ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
+        {resolution ? (
+          <ActivityCircle config={resConfig} />
+        ) : (
+          <EmptyCircle />
+        )}
+        <div style={{ flex: 1 }}>
+          {resolution ? (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <PillBadge label={resConfig.label} bgColor={resConfig.pillColor} textColor={resConfig.pillTextColor} />
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 8 }}>
+              {isTime ? (
+                <>
+                  <button onClick={() => setResolution("approved")} style={{ ...actionBtnStyle("#FF480B", "#fff"), flex: 1 }}>Approve</button>
+                  <button onClick={() => setResolution("rejected")} style={{ ...actionBtnStyle("transparent", "#FF480B", "#FF480B"), flex: 1 }}>Reject</button>
+                </>
+              ) : (
+                <button onClick={() => setResolution("messaged")} style={{ ...actionBtnStyle("#FF480B", "#fff"), flex: 1 }}>Send A Message</button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─��� Resolution timestamp (below the circle+pill row) ── */}
+      {resolution && (
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <DottedConnector color="#ABA6E3" height={28} />
+          <Timestamp prefix={resConfig.timestampPrefix} value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
+        </div>
+      )}
+
+      {/* ── Tail connector to next activity ── */}
+      {!isLast && !resolution && (
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <DottedConnector color="#ABA6E3" height={28} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── BookingActivityFeed ──────────────────────────────────────────────────────
@@ -354,6 +341,7 @@ function BookingActivityFeed({ activities, booking }) {
             activity={[activityKind, activityValue]}
             timestamp={ts}
             isLast={isLast}
+            note={act[4] ?? null}
           />
         );
       })}
@@ -361,15 +349,21 @@ function BookingActivityFeed({ activities, booking }) {
   );
 }
 
+function ordinal(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 function formatTimestamp(ts) {
   if (!ts) return null;
   try {
     const d = new Date(ts);
-    return (
-      d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }) +
-      ", " +
-      d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-    );
+    const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
+    const month = d.toLocaleDateString("en-US", { month: "short" });
+    const day = ordinal(d.getDate());
+    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    return `${weekday}, ${month} ${day}, ${time}`;
   } catch {
     return String(ts);
   }
@@ -430,7 +424,7 @@ export default function InboxBookingSlideOut({ isOpen, onClose, booking }) {
           zIndex: 50,
           display: "flex",
           flexDirection: "column",
-          fontFamily: "'Poppins', sans-serif",
+          fontFamily: FONT,
         }}
       >
         <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
