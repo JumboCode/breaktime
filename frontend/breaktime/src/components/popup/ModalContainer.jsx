@@ -88,6 +88,7 @@ const ModalContainer = ({ bookings, setBookings }) => {
      status: booking.status || "pending",
    };
 
+
    try {
      // Map frontend form data to backend expected format
      // Frontend: { client, service, date, startTime, endTime }
@@ -95,11 +96,12 @@ const ModalContainer = ({ bookings, setBookings }) => {
      const requestData = {
        userID: booking.client || "YA_1", // Use client name as userID
        serviceID: booking.service || "services",
-       duration: [{
+       duration: {
          day: getDayFromDate(booking.date), // Convert "2026-02-03" to "monday"
          startTime: booking.startTime || booking.time || "09:00",
          endTime: booking.endTime || "10:00"
-       }],
+       },
+       timestamp: booking.date,
        clientName: booking.client // Also store as clientName for display
      };
 
@@ -149,11 +151,12 @@ const ModalContainer = ({ bookings, setBookings }) => {
      const requestData = {
        bookingID: updatedBooking.id || updatedBooking.bookingID,
        status: updatedBooking.status || 'pending',
-       duration: [{
+       timestamp: updatedBooking.date,
+       duration: {
          day: getDayFromDate(updatedBooking.date),
          startTime: updatedBooking.startTime || updatedBooking.time || "09:00",
          endTime: updatedBooking.endTime || "10:00"
-       }],
+       },
        clientName: updatedBooking.client, // Update client display name
        serviceID: updatedBooking.service  // Update service type
      };

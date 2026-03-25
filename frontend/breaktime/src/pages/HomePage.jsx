@@ -56,32 +56,6 @@ export default function HomePage() {
                 const response = await apiCall('/booking/all', 'GET', null, null);
 
                 if (response.bookings) {
-                    /**
-                     * getDateFromDay - Converts a day name to an actual date
-                     *
-                     * The backend stores "monday", "tuesday", etc.
-                     * The frontend forms need "2026-02-03" format.
-                     *
-                     * This finds the next occurrence of that day from today.
-                     * Example: If today is Sunday and day is "tuesday", returns next Tuesday's date.
-                     *
-                     * @param {string} dayName - Day name like "monday", "tuesday", etc.
-                     * @returns {string} Date in YYYY-MM-DD format
-                     */
-                    const getDateFromDay = (dayName) => {
-                        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-                        const today = new Date();
-                        const targetDay = days.indexOf(dayName?.toLowerCase());
-                        if (targetDay === -1) return '';
-
-                        const currentDay = today.getDay();
-                        let diff = targetDay - currentDay;
-                        if (diff < 0) diff += 7; // If day already passed this week, get next week's
-
-                        const targetDate = new Date(today);
-                        targetDate.setDate(today.getDate() + diff);
-                        return targetDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-                    };
 
                     /**
                      * Map backend booking format to frontend format
@@ -110,11 +84,10 @@ export default function HomePage() {
                         id: b.bookingID,                         // Map bookingID → id
                         client: b.clientName || b.userID,        // Use clientName, fallback to userID
                         service: b.serviceID,                    // Map serviceID → service
-                        // Extract date/time from duration array if available
-                        ...(b.duration && b.duration[0] ? {
-                            date: getDateFromDay(b.duration[0].day),  // Convert day name to date
-                            startTime: b.duration[0].startTime,
-                            endTime: b.duration[0].endTime,
+                        date: b.timestamp,
+                        ...(b.duration ? {
+                            startTime: b.duration.startTime,
+                            endTime: b.duration.endTime,
                         } : {})
                     }));
                     setBookings(mappedBookings);
