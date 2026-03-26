@@ -24,7 +24,7 @@ export default defineConfig({
     },
 
     // https://vite-pwa-org.netlify.app/guide/pwa-minimal-requirements#web-app-manifest
-    manifest: {
+    manifest: {
         "name": "Breaktime",
         "short_name": "Breaktime",
         "theme_color": "#acbaff",
@@ -41,7 +41,7 @@ export default defineConfig({
                 "type": "image/png"
             },
             {
-                "src": "pwa-192x192",
+                "src": "pwa-192x192.png",
                 "sizes": "192x192",
                 "type": "image/png"
             },
@@ -49,6 +49,12 @@ export default defineConfig({
                 "src": "pwa-512x512.png",
                 "sizes": "512x512",
                 "type": "image/png"
+            },
+            {
+                "src": "maskable-icon-512x512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
             }
         ]
     },
