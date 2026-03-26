@@ -367,7 +367,7 @@ router.get('/all', async (req, res) => {
 
         // Get all bookings, sorted by timestamp (descending)
         const bookings = await collection
-            .find({})
+            .find({ status: { $ne: 'canceled' } })
             .sort({ timestamp: -1 })
             .toArray();
 

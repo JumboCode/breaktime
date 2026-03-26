@@ -201,7 +201,7 @@ const ModalContainer = ({ bookings, setBookings }) => {
    const bookingID = modalState.data?.id || modalState.data?.bookingID;
 
    try {
-     await apiCall('/booking/delete', 'DELETE', { bookingID }, null);
+     await apiCall('/booking/edit', 'PUT', { 'bookingID':bookingID, 'status': 'canceled' }, null);
    } catch (err) {
      console.warn('API unavailable, using local state only:', err);
    }
