@@ -24,24 +24,34 @@ export default defineConfig({
     },
 
     // https://vite-pwa-org.netlify.app/guide/pwa-minimal-requirements#web-app-manifest
-    manifest: { 
-      name: 'Breaktime',
-      short_name: 'Breaktime',
-      description: 'Breaktime',
-      theme_color: '#ffffff',
-      icons: [
-        {
-          src: '/favicon.svg',
-          size: '192x192',
-          type: 'image/png' 
-        },
-        {
-          src: '/favicon.svg',
-          size: '512x512',
-          type: 'image/png' 
-        }
-      ],
-    },
+    manifest: {
+        "name": "Breaktime",
+        "short_name": "Breaktime",
+        "theme_color": "#acbaff",
+        "background_color": "#262446",
+        "display": "standalone",
+        "orientation": "portrait",
+        "scope": "/",
+        "start_url": "/",
+        "description": "Schedule your next visit to Breaktime",
+        "icons": [
+            {
+                "src": "pwa-64x64.png",
+                "sizes": "64x64",
+                "type": "image/png"
+            },
+            {
+                "src": "pwa-192x192",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "pwa-512x512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    },
 
     workbox: {
       globPatterns: ['**/*.{js,css,html,svg,png,ico}'],

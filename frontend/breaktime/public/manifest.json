@@ -1,0 +1,28 @@
+{
+  "name": "Breaktime",
+  "short_name": "Breaktime",
+  "theme_color": "#acbaff",
+  "background_color": "#262446",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "description": "Schedule your next visit to Breaktime",
+  "icons": [
+    {
+      "src": "pwa-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "pwa-192x192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
