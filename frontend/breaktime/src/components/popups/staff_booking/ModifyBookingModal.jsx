@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Trash2, Edit } from "lucide-react";
-import ServiceGraphics from "../../assets/popup-icons/Service_Graphics.png";
+import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 
 // Services
 const SERVICE_OPTIONS = [

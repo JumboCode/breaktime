@@ -1,5 +1,5 @@
 import { useState } from "react";
-import LandingPagePopup from "./popup/LandingPagePopup";
+import LandingPagePopup from "/src/components/popups/ya_booking/LandingPagePopup";
 import { createPortal } from "react-dom";
 
 const CarouselItem = ({ service }) => {

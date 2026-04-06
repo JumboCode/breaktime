@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
+import logo from "/src/assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
 
 // DeleteConfirmationModal component displays a modal for confirming the deletion of a booking
 const DeleteConfirmationModal = ({ onClose, onConfirm }) => (

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Edit, Trash2, ChevronLeft } from "lucide-react";
-import ServiceGraphics from "../../assets/popup-icons/Service_Graphics.png";
+import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 import { useState } from "react";
 
 // Import your modal components

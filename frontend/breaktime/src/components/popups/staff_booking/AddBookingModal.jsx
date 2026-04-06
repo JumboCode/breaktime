@@ -11,7 +11,7 @@ import {
  Send,
 } from "lucide-react";
 import FormInput from "./FormInput";
-import ServiceGraphics from "../../assets/popup-icons/Service_Graphics.png";
+import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 import ServiceSelection from "./ServiceSelection";
 import { ChevronLeft } from 'lucide-react';
 
