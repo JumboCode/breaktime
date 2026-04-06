@@ -10,8 +10,8 @@ export default function BottomSheet({ service, defaultTab = 'book', onSuccess })
     const activeTabStyle = " bg-[#b37ded] rounded-full font-medium text-white px-[3px]";
 
     return (
-        <div className="px-[15px] py-[20px] rounded-t-4xl bg-[#ebebec] 
-                        absolute bottom-0 left-0 right-0 top-[35vh] h-fit">
+        <div className={"px-[15px] py-[20px] rounded-t-4xl bg-[#ebebec" +
+                        "absolute bottom-0 left-0 right-0 top-[35vh]" + (activeTab === 'book' ? "h-fit" : "")}>
             <p className="text-dark-navy font-semibold text-[8vw]">
                 {service.name}
             </p>
