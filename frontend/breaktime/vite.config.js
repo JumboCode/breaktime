@@ -5,30 +5,25 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    resolve: {
-        alias: {
-        '/src': path.resolve(__dirname, './src'),
-        },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
-    server: {
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:3001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
-  plugins: [react(), tailwindcss(), VitePWA({
-    registerType: 'autoUpdate',
-    injectRegister: false,
+  },
+  plugins: [react(), tailwindcss(), VitePWA({
+    registerType: 'autoUpdate',
+    injectRegister: false,
 
-    pwaAssets: {
-      disabled: false,
-      config: true,
-    },
+    pwaAssets: {
+      disabled: false,
+      config: true,
+    },
 
-    // https://vite-pwa-org.netlify.app/guide/pwa-minimal-requirements#web-app-manifest
+    // https://vite-pwa-org.netlify.app/guide/pwa-minimal-requirements#web-app-manifest
     manifest: {
         "name": "Breaktime",
         "short_name": "Breaktime",
@@ -64,17 +59,17 @@ export default defineConfig({
         ]
     },
 
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-      cleanupOutdatedCaches: true,
-      clientsClaim: true,
-    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      cleanupOutdatedCaches: true,
+      clientsClaim: true,
+    },
 
-    devOptions: {
-      enabled: true,
-      navigateFallback: 'index.html',
-      suppressWarnings: true,
-      type: 'module',
-    },
-  })],
+    devOptions: {
+      enabled: true,
+      navigateFallback: 'index.html',
+      suppressWarnings: true,
+      type: 'module',
+    },
+  })],
 })
