@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSignIn, useUser, useSession } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { ERROR_MESSAGES } from "../utils/errorMessages";
+import { ERROR_MESSAGES } from "/src/utils/errorMessages";
 
+const isMobile = () => {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
+};
 
 export default function StaffSignin() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -11,30 +13,26 @@ export default function StaffSignin() {
   const { session } = useSession();
   let navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
+  const mobile = isMobile();
 
-  // Initialize state to store form data
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   
-  // auto sign in if already logged in
   useEffect(() => {
       if (isLoaded && isSignedIn && user) {
-      const permissionLevel = Number(user.publicMetadata?.permission ?? 0);
-      console.log("Permission Level:", permissionLevel);
-
-      if (permissionLevel === 2) {
+          const permissionLevel = Number(user.publicMetadata?.permission ?? 0);
+          if (permissionLevel === 2) {
               navigate('/home');
           } else {
               setErrorMessage(ERROR_MESSAGES[422]);
               setFormData({username: "", password: ""});
-              session?.end(); // revokes session server-side without navigating
+              session?.end();
           }
       }
   }, [isLoaded, isSignedIn, user, navigate]);
 
-  // Handle input changes and update state
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({
@@ -46,36 +44,28 @@ export default function StaffSignin() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!isLoaded) return;
-
     try {
         const result = await signIn.create({
             identifier: formData.username, 
             password: formData.password
         });
-
         if (result.status === "complete") {
           await setActive({ session: result.createdSessionId });
-            
         } else {
             console.log(result);
         }
     } catch (error) {
-        setErrorMessage(ERROR_MESSAGES[error.status] 
-                || ERROR_MESSAGES[500]);
+        setErrorMessage(ERROR_MESSAGES[error.status] || ERROR_MESSAGES[500]);
         setFormData({ username: "", password: "" });
-        if (setActive) {
-          setActive({ session: null});
-        }
+        if (setActive) setActive({ session: null });
     }
-    console.log("Form submitted:", formData);
   };
 
   return (
-    <div className="max-w-[354px]">
+    <div className={mobile ? 'w-full' : 'max-w-[354px]'}>
       <form onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <div className="w-7/10">
-            <label htmlFor="staffUsername"></label>
+          <div className={mobile ? 'w-full' : 'w-7/10'}>
             <input
               type="text"
               id="staffUsername"
@@ -87,8 +77,7 @@ export default function StaffSignin() {
               required
             />
           </div>
-          <div className="w-7/10">
-            <label htmlFor="staffPassword"></label>
+          <div className={mobile ? 'w-full' : 'w-7/10'}>
             <input
               type="password"
               id="staffPassword"
@@ -102,20 +91,20 @@ export default function StaffSignin() {
           </div>
         </div>
 
-        <div className="text-light-purple mt-5 mb-5">
+        <div className={`text-light-purple mt-5 mb-5 ${mobile ? 'text-[3.5vw]' : ''}`}>
           Log in to manage bookings and assist members
         </div>
 
         <div className="text-dark-navy">
           <button
             type="submit"
-            className="uppercase bg-lime-500 text-xl rounded-[18px] font-semibold w-[260px] h-12"
+            className={`uppercase bg-lime-500 rounded-[18px] font-semibold
+              ${mobile ? 'text-[4vw] w-full h-[12vw]' : 'text-xl w-[260px] h-12'}`}
           >
-            
-              Log In
+            Log In
           </button>
         </div>
-        <div className="text-red mt-2"> 
+        <div className={`text-red mt-2 ${mobile ? 'text-[3.5vw]' : ''}`}> 
             {errorMessage}
         </div>
       </form>

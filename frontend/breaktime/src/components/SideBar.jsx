@@ -2,14 +2,15 @@ import { useState } from "react";
 import Calendar from "./Calendar";
 import Notifications from "./Notifications";
 import NextBookings from "./NextBookings";
-import { useModal } from "./popup/useModal";
+import { useModal } from "./popups/staff_booking/useModal";
+import { useUser } from "@clerk/clerk-react";
 
 const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick }) => {
     const [notificationData, setNotificationData] = useState({
         numNotifications: 0 // Get notification data from notifications tab??
     });
     const { openModal } = useModal();
-
+    const { user } = useUser();
     const isSidebarOpen = true;
 
 
@@ -17,7 +18,7 @@ const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick }) => {
         <div>
             {userType === 'Staff' ?
                 <div className="flex flex-col h-[calc(100vh-120px)] w-[350px]">
-                    <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, Labubu!</h1>
+                    <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, {user.firstName}!</h1>
                     <div className="flex flex-col gap-6 h-full">
                         <div className="h-fit border-2 border-dark-purple rounded-3xl p-4"><Calendar bookings={bookings} onViewAllClick={onViewAllClick} onDayClick={onDayClick}/></div>
                         <div className="h-6/20 border-2 border-dark-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType}/></div>
@@ -32,7 +33,7 @@ const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick }) => {
                 </div>
             :
                 <div className="flex flex-col h-[calc(100vh-120px)] w-[350px]"> 
-                    <h1 className="text-dark-navy text-[42px] mb-8 leading-12">Welcome Back, Labubu!</h1>
+                    <h1 className="text-dark-navy text-[42px] mb-8 leading-12">Welcome Back, {user.username.toUpperCase()}!</h1>
                     <div className="flex flex-col gap-6 h-full">
                         <div className="h-6/20 border-2 border-bright-purple rounded-3xl p-4 overflow-hidden"><NextBookings/></div>
                         <div className="h-6/20 border-2 border-bright-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType}/></div>

@@ -6,7 +6,7 @@ import ModifyBookingModal from "./ModifyBookingModal";
 import ViewBookingModal from "./ViewBookingModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import SendNoteModal from "./SendNoteModal";
-import { apiCall } from "../../utils/general";
+import { apiCall } from "/src/utils/general";
 
 /**
  * getDayFromDate - Converts a date string to a day name

@@ -1,10 +1,10 @@
-import LandingPagePopup from "../components/popup/LandingPagePopup";
-import React from "react";
+import BookingPage from "./mobile/BookingPageMobile";
+import ShowerCarouselImage from "/src/assets/carousel/ShowerCarouselImage.png";
 
 export default function TestPage() {
   return (
     <div>
-      <LandingPagePopup />
+      <BookingPage service={ {name:"Shower", imageImport: ShowerCarouselImage}}/>
     </div>
   );
 }

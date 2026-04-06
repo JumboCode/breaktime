@@ -4,7 +4,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
-import { useModal } from './popup/useModal';
+import { useModal } from '/src/components/popups/staff_booking/useModal.js';
 
 // Initialize moment as the date localizer for react-big-calendar
 const localizer = momentLocalizer(moment);

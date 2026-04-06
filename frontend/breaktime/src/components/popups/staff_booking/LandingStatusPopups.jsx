@@ -1,5 +1,4 @@
-import React from "react";;
-import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
+import logo from "/src/assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
 
 
 export const FailurePopup = ({ onClose }) => (

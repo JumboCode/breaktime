@@ -1,11 +1,11 @@
-import NavBar from "../components/NavBar";
-import SideBar from "../components/SideBar";
-import MainCalendar from "../components/MainCalendar";
-import CalendarCorner from "../assets/maincal/CalendarCorner.svg";
+import NavBar from "/src/components/NavBar";
+import SideBar from "/src/components/SideBar";
+import MainCalendar from "/src/components/MainCalendar";
+import CalendarCorner from "/src/assets/maincal/CalendarCorner.svg";
 import { useState, useEffect } from "react";
-import ModalProvider from "../components/popup/ModalProvider";
-import ModalContainer from "../components/popup/ModalContainer";
-import { apiCall } from "../utils/general";
+import ModalProvider from "/src/components/popups/staff_booking/ModalProvider";
+import ModalContainer from "/src/components/popups/staff_booking/ModalContainer";
+import { apiCall } from "/src/utils/general";
 
 /**
  * HomePage - Main landing page for staff members

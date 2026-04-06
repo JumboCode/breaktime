@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import logo from "../../assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
+import logo from "/src/assets/logos-icons/Icon_Heart/Breaktime_Icon_PalePurple.png";
 
 const SendNoteModal = ({ onClose, onSend }) => {
   // State to manage the content of the note
