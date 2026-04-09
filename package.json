@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Breaktime booking application",
   "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend/breaktime && npm install",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd backend && npm run dev",
     "frontend": "cd frontend/breaktime && npm run dev",

@@ -71,6 +71,10 @@ export default function AppointmentCard({ appointment }) {
     const timeUntil = getTimeUntil(service_date, start_time);
     const past = isPast(service_date, start_time) || status === 'canceled';
 
+    const openServiceDetails = () => {
+        console.log("Opening service details for:", appointment.service_name);
+    };
+
     return (
         <div className={`relative rounded-4xl px-[4vw] py-[3vw] flex items-center gap-[3vw] overflow-hidden
             ${past ? 'bg-light-purple-subtle' : 'bg-bright-purple'}`}>
@@ -96,6 +100,12 @@ export default function AppointmentCard({ appointment }) {
                     <ExtraTimeBtn bookingID={appointment.bookingID} />
                 )}
             </div>
+
+            {/* More button */}
+            <button
+                className="border border-lime-500 text-lime-500 text-[3.5vw] px-[3vw] py-[2vw] rounded-full relative z-10"
+                onClick={openServiceDetails}> More
+            </button>
         </div>
     );
 }
