@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^5.60.0",
     "@clerk/nextjs": "^6.37.5",
     "@tailwindcss/vite": "^4.1.14",
+    "breaktime": "file:../..",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.553.0",
     "motion": "^12.23.24",
