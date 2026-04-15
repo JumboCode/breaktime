@@ -66,14 +66,10 @@ function ExtraTimeBtn({ bookingID }) {
 
 ExtraTimeBtn.propTypes = { bookingID: PropTypes.string };
 
-export default function AppointmentCard({ appointment }) {
+export default function AppointmentCard({ appointment, onOpen }) {
     const { service_name, service_icon, service_date, start_time, status } = appointment;
     const timeUntil = getTimeUntil(service_date, start_time);
     const past = isPast(service_date, start_time) || status === 'canceled';
-
-    const openServiceDetails = () => {
-        console.log("Opening service details for:", appointment.service_name);
-    };
 
     return (
         <div className={`relative rounded-4xl px-[4vw] py-[3vw] flex items-center gap-[3vw] overflow-hidden
@@ -81,7 +77,7 @@ export default function AppointmentCard({ appointment }) {
 
             {/* Faded overlay for past appointments */}
             {past && (
-                <div className="absolute inset-0 bg-white/30 rounded-2xl" />
+                <div className="absolute inset-0 bg-white/30 rounded-2xl pointer-events-none" />
             )}
 
             {/* Service icon */}
@@ -104,7 +100,7 @@ export default function AppointmentCard({ appointment }) {
             {/* More button */}
             <button
                 className="border border-lime-500 text-lime-500 text-[3.5vw] px-[3vw] py-[2vw] rounded-full relative z-10"
-                onClick={openServiceDetails}> More
+                onClick={onOpen}> More
             </button>
         </div>
     );
@@ -121,4 +117,5 @@ AppointmentCard.propTypes = {
         isActive: PropTypes.bool,
         hasTimeRequest: PropTypes.bool,
     }).isRequired,
+    onOpen: PropTypes.func,
 };

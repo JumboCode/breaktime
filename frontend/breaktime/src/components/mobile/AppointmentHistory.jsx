@@ -1,4 +1,5 @@
 import AppointmentCard from "./AppointmentCard";
+import PropTypes from "prop-types";
 import ShowerIcon from '/src/assets/popup-icons/ShowerGreen.png';
 import LaundryIcon from '/src/assets/popup-icons/LaundryGreen.png';
 import MarketIcon from '/src/assets/popup-icons/MarketGreen.png';
@@ -15,7 +16,7 @@ const getServiceIcon = (serviceName) => {
     return null;
 };
 
-export default function AppointmentHistory() {
+export default function AppointmentHistory({ onSelectBooking }) {
     const [filter, setFilter] = useState('all');
     const [bookings, setBookings] = useState([]);
     const { user, isLoaded } = useUser();
@@ -97,6 +98,7 @@ export default function AppointmentHistory() {
                                 isActive,
                                 hasTimeRequest: Array.isArray(booking.activity) && booking.activity.some(a => a[0] === 'time'),
                             }}
+                            onOpen={() => onSelectBooking?.(booking)}
                         />
                         );
                     })
@@ -105,3 +107,7 @@ export default function AppointmentHistory() {
         </div>
     );
 }
+
+AppointmentHistory.propTypes = {
+    onSelectBooking: PropTypes.func,
+};
