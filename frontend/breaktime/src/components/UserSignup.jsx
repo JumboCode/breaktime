@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCall } from "/src/utils/general";
+import { validateInput, handleNameKeyDown, handleAgeKeyDown, 
+    handleZoneKeyDown } from '../utils/errorMessages';
 
 const isMobile = () => {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
@@ -39,8 +41,9 @@ function UserSignup() {
             race: formData.ethnicity,
             zone: formData.zone,
         };
-        if (!body.firstName || !body.lastName || !body.password || !body.age || !body.gender || !body.race || !body.zone) {
-            setError('Please fill out all fields.');
+        const validationError = validateInput(body, true);
+        if (validationError) {
+            setError(validationError);
             return;
         }
         (async () => {
@@ -64,29 +67,29 @@ function UserSignup() {
                         <div>
                             <input type="text" id="firstName" name="firstName"
                                 autoComplete="firstname" placeholder="First Name"
-                                value={formData.firstName} onChange={handleChange} required />
+                                value={formData.firstName} onChange={handleChange} onKeyDown={handleNameKeyDown}required />
                         </div>
                         <div>
                             <input type="text" id="lastName" name="lastName"
                                 autoComplete="lastName" placeholder="Last Name"
-                                value={formData.lastName} onChange={handleChange} required />
+                                value={formData.lastName} onChange={handleChange} onKeyDown={handleNameKeyDown}required />
                         </div>
                     </div>
                     <div className="flex space-x-4">
                         <div>
                             <input type="number" id="age" name="age"
                                 autoComplete="age" placeholder="Age"
-                                value={formData.age} onChange={handleChange} required />
+                                value={formData.age} onChange={handleChange} onKeyDown={handleAgeKeyDown} required />
                         </div>
                         <div className={mobile ? 'w-full' : 'w-7/10'}>
                             <input type="text" id="gender" name="gender"
                                 autoComplete="gender" placeholder="Gender"
-                                value={formData.gender} onChange={handleChange} required />
+                                value={formData.gender} onChange={handleChange} onKeyDown={handleNameKeyDown} required />
                         </div>
                         <div className={mobile ? 'w-full' : 'w-7/10'}>
                             <input type="text" id="ethnicity" name="ethnicity"
                                 autoComplete="ethnicity" placeholder="Ethnicity"
-                                value={formData.ethnicity} onChange={handleChange} required />
+                                value={formData.ethnicity} onChange={handleChange} onKeyDown={handleNameKeyDown} required />
                         </div>
                     </div>
                     <div className="flex space-x-4 mt-3">
@@ -99,7 +102,7 @@ function UserSignup() {
                     <div className={mobile ? 'w-full' : 'w-7/10'}>
                         <input type="text" id="zone" name="zone"
                             autoComplete="zone" placeholder="City/Neighborhood"
-                            value={formData.zone} onChange={handleChange} required />
+                            value={formData.zone} onChange={handleChange} onKeyDown={handleZoneKeyDown} required />
                     </div>
                 </div>
 
