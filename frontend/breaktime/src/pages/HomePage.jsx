@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import ModalProvider from "/src/components/popups/staff_booking/ModalProvider";
 import ModalContainer from "/src/components/popups/staff_booking/ModalContainer";
 import { apiCall } from "/src/utils/general";
+import { useUser } from "@clerk/clerk-react";
 
 /**
  * HomePage - Main landing page for staff members
@@ -27,6 +28,7 @@ export default function HomePage() {
     const [bookings, setBookings] = useState([]);
     const [calendarDate, setCalendarDate] = useState(new Date());
     const [calendarView, setCalendarView] = useState('month');
+    const { user } = useUser();
 
     const handleDayClick = (date) => {
         setCalendarDate(date);
@@ -110,7 +112,11 @@ export default function HomePage() {
             <div className="bg-indigo-purple h-screen w-screen overflow-hidden">
                 <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} currentView={currentView} onViewChange={setCurrentView} />
                 <div className="flex p-[30px] pt-[10px] gap-[30px]">
-                    <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
+                    <div className="block lg:hidden">
+                        <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, {user?.firstName}!</h1>
+                    </div>
+
+                    <div className={`hidden ${isSidebarOpen ? 'lg:block' : ''}`} >
                         <SideBar
                             userType={userType}
                             bookings={bookings}

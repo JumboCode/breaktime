@@ -3,9 +3,24 @@
     flex-direction: column;
 }
 
+@media (min-width: 1024px) {
+    .main-cal-wrapper > div,
+    .main-cal-wrapper > div > div {
+        height: 100% !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    .main-cal-wrapper > div,
+    .main-cal-wrapper > div > div {
+        height: 700px !important;
+    }
+}
+
 span.rbc-btn-group.actions-group {
     display: flex !important;
     flex-direction: column;
+    align-items: center;
 }
 
 .rbc-toolbar .rbc-toolbar-label {
