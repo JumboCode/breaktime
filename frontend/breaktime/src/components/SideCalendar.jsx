@@ -130,6 +130,7 @@ const SideCalendar = ({ bookings = [], onViewAllClick, onDayClick }) => {
       </div>
 
       <Calendar
+        className="side-cal-calendar"
         activeStartDate={activeStartDate}
         onActiveStartDateChange={({ activeStartDate: d }) => setActiveStartDate(d)}
         tileContent={tileContent}
