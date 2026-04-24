@@ -3,8 +3,7 @@ import Breaktime_Secondary_Logo_MidnightBlue from "/src/assets/logos-icons/Logo_
 import { useState } from "react";
 import { useClerk } from '@clerk/clerk-react';
 
-const NavBar = ({ isSidebarOpen, onToggle, userType }) => {
-    const [viewType, setViewType] = useState('Calendar');
+const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange }) => {
     const { signOut } = useClerk();
 
     const toggleSidebar = () => {
@@ -42,36 +41,41 @@ const NavBar = ({ isSidebarOpen, onToggle, userType }) => {
             </div>
 
             {userType === 'Staff' ?
-                <div className="flex items-center text-light-purple text-xl gap-[20px]">
-                    <div className="font-semibold">View bookings:</div>
+                <div className="flex items-end text-light-purple text-xl gap-[20px]">
+                    <div className="font-semibold">View Bookings:</div>
                     <div className="flex gap-[20px] select-none">
                         <button
-                            onClick={() => setViewType('Calendar')}
+                            onClick={() => onViewChange('calendar')}
                             className={`cursor-pointer hover:underline w-[93px]
-                                ${viewType === 'Calendar' ? 'underline' : 'hover:font-semibold'}`}
+                                ${currentView === 'calendar' ? 'underline' : 'hover:font-semibold'}`}
                         >
                             Calendar
                         </button>
                         <button
-                            onClick={() => setViewType('List')}
-                            className={`cursor-pointer hover:underline
-                                ${viewType === 'List' ? 'underline' : 'hover:font-semibold'}`}
+                            onClick={() => onViewChange('list')}
+                            className={`cursor-pointer hover:underline w-[93px]
+                                ${currentView === 'list' ? 'underline' : 'hover:font-semibold'}`}
                         >
                             List
                         </button>
                     </div>
+                    <button
+                        onClick={() => onViewChange('inbox')}
+                        className={`cursor-pointer hover:underline w-[110px]
+                            ${currentView === 'inbox' ? 'underline font-semibold' : 'hover:font-semibold'}`}
+                    >
+                        View Inbox
+                    </button>
+                    <button
+                        onClick={() => handleSignOut()}
+                        className="cursor-pointer hover:underline hover:font-semibold w-[93px]"
+                    >
+                        Sign Out
+                    </button>
                 </div>
             :
                 <></>
             }
-
-            <button
-                onClick={() => handleSignOut()}
-                className={`cursor-pointer hover:underline hover:font-semibold
-                    ${userType === 'Staff' ? 'text-light-purple' : 'text-dark-navy'} text-xl`}
-            >
-                Sign Out
-            </button>
         </div>
     );
 };

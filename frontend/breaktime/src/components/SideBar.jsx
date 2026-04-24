@@ -5,7 +5,7 @@ import NextBookings from "./NextBookings";
 import { useModal } from "./popups/staff_booking/useModal";
 import { useUser } from "@clerk/clerk-react";
 
-const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick }) => {
+const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick, onOpenInbox }) => {
     const [notificationData, setNotificationData] = useState({
         numNotifications: 0 // Get notification data from notifications tab??
     });
@@ -21,7 +21,7 @@ const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick }) => {
                     <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, {user.firstName}!</h1>
                     <div className="flex flex-col gap-6 h-full">
                         <div className="h-fit border-2 border-dark-purple rounded-3xl p-4"><Calendar bookings={bookings} onViewAllClick={onViewAllClick} onDayClick={onDayClick}/></div>
-                        <div className="h-6/20 border-2 border-dark-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType}/></div>
+                        <div className="h-6/20 border-2 border-dark-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType} onOpenInbox={onOpenInbox}/></div>
                         <div className="text-light-purple-subtle absolute bottom-0 mb-6">
                             Contact Us:
                             <br />
