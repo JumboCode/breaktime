@@ -3,7 +3,6 @@ const router = express.Router();
 const mongodbPromise = require('../utils/mongodb');
 const { servicesSchema } = require('../schemas/service');
 const { getBookingsValidate } = require('../schemas/booking');
-const { clerkClient } = require('@clerk/backend'); 
 
 /* * POST /create  :
  *      summary: Create a new service in booking extensions collection
@@ -14,8 +13,6 @@ const { clerkClient } = require('@clerk/backend');
  *              json:
  *                schema:
  *                  properties:
- *                    title:
- *                     type: string
  *                    id:
  *                     type: string
  *                    rules:
@@ -36,7 +33,6 @@ const { clerkClient } = require('@clerk/backend');
  *                        endTime:
  *                          type: string    
  *                  required:
- *                   - title
  *                   - id
  *                   - rules
  *                   - description
@@ -61,11 +57,10 @@ router.post('/create', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { title, id, rules, description, 
+                const { id, rules, description, 
                     serviceDurationInterval, availability } = req.body;
 
                 const newService = {
-                        title,
                         id,
                         rules,
                         description,
@@ -97,8 +92,6 @@ router.post('/create', async (req, res) => {
  *              json:
  *                schema:
  *                  properties:
- *                    title:
- *                     type: string
  *                    id:
  *                     type: string
  *                    rules:
@@ -119,7 +112,6 @@ router.post('/create', async (req, res) => {
  *                        endTime:
  *                          type: string    
  *                  required:
- *                   - title
  *                   - id
  *                   - rules
  *                   - description
@@ -144,11 +136,10 @@ router.put('/update', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { title, id, rules, description, 
+                const { id, rules, description, 
                     serviceDurationInterval, availability } = req.body;
 
                 const updatedService = {
-                        title,
                         id,
                         rules,
                         description,
@@ -187,8 +178,6 @@ router.put('/update', async (req, res) => {
  *              json:
  *                schema:
  *                  properties:
- *                    title:
- *                     type: string
  *                    id:
  *                     type: string
  *                    rules:
@@ -209,7 +198,6 @@ router.put('/update', async (req, res) => {
  *                        endTime:
  *                          type: string    
  *                  required:
- *                   - title
  *                   - id
  *                   - rules
  *                   - description
@@ -346,6 +334,124 @@ router.get('/AllBookingsForService', async (req, res) => {
             'message': 'Error connecting to MongoDB: ',
             error
         });
+    }
+});
+
+router.post('/getService', async (req, res) => {
+    const { serviceID } = req.body;
+
+    if (!serviceID) {
+        res.status(400).send('serviceID is not provided');
+    } else {
+        try {
+            const client = await mongodbPromise;
+            const database = client.db('services');
+            const service_collection = database.collection('services');
+
+            const service_response = await service_collection.findOne({ id: serviceID });
+
+            if (!service_response) {
+                res.status(404).send(`${serviceID} has no services associated with it`);
+                return;
+            }
+
+            res.status(200).send(service_response);
+            
+        } catch (error) {
+            res.status(500).send({
+                'message': 'Error connecting to MongoDB: ',
+                error
+            });
+        }
+    }
+});
+
+router.post('/getTimeslots', async (req, res) => {
+    const { serviceID, date } = req.body;
+    
+    const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
+
+    if (!serviceID || !isValidDate(date)) {
+        res.status(400).send('Input provided is invalid');
+    } else {
+        try {
+            const client = await mongodbPromise;
+            const database = client.db('services');
+            const booking_collection = database.collection('bookings');
+            const service_collection = database.collection('services');
+
+            const service_response = await service_collection.findOne({ id: serviceID });
+
+            if (!service_response) {
+                res.status(404).send(`${serviceID} has no services associated with it`);
+                return;
+            }
+            
+            const bookings_response = await booking_collection.find({ 
+                serviceID: serviceID,
+                timestamp: { $regex: `^${date}` }
+            }).toArray();
+
+            // Get the day of the week from the date
+            const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }).toLowerCase();
+
+            // Find availability for that day
+            const dayAvailability = service_response.availability.find(a => a.day === dayOfWeek);
+
+            if (!dayAvailability) {
+                res.status(200).send([]);
+                return;
+            }
+
+            const timeToMinutes = (time) => {
+                const [hours, mins] = time.split(':').map(Number);
+                return hours * 60 + mins;
+            };
+
+            // Generate all possible timeslots based on serviceDurationInterval
+            const generateTimeslots = (startTime, endTime, interval) => {
+                const slots = [];
+                let [currentHour, currentMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+
+                while (currentHour * 60 + currentMin + interval <= endHour * 60 + endMin) {
+                    const slotStart = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+                    currentMin += interval;
+                    currentHour += Math.floor(currentMin / 60);
+                    currentMin = currentMin % 60;
+                    const slotEnd = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+                    slots.push({ startTime: slotStart, endTime: slotEnd });
+                }
+
+                return slots;
+            };
+
+            // Check if a slot overlaps with any existing booking
+            const isSlotAvailable = (slot) => {
+                const slotStart = timeToMinutes(slot.startTime);
+                const slotEnd = timeToMinutes(slot.endTime);
+
+                return !bookings_response.some(booking => {
+                    const bookingStart = timeToMinutes(booking.duration.startTime);
+                    const bookingEnd = timeToMinutes(booking.duration.endTime); // 15 min grace period
+
+                    return slotStart < bookingEnd && slotEnd > bookingStart;
+                });
+            };
+
+            const allSlots = generateTimeslots(dayAvailability.startTime, 
+                                               dayAvailability.endTime, 
+                                               service_response.serviceDurationInterval);
+            const availableSlots = allSlots.filter(isSlotAvailable);
+
+            res.status(200).send(availableSlots);
+            
+        } catch (error) {
+            res.status(500).send({
+                'message': 'Error connecting to MongoDB: ',
+                error
+            });
+        }
     }
 });
 

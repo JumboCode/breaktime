@@ -1,7 +1,6 @@
 const Joi = require('joi');
 
 const servicesSchema = Joi.object({
-   title: Joi.string().required(),
    id: Joi.string().required(),
    rules: Joi.string().required(),
    description: Joi.string().required(),

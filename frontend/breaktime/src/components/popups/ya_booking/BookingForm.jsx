@@ -20,14 +20,42 @@ export default function BookingForm({ service, onSuccess }) {
     const [userInfoOpen, setUserInfoOpen] = useState(false);
     const [showPopup, setShowPopup] = useState(null);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [timeSlots, setTimeSlots] = useState([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [serviceData, setServiceData] = useState(null);
 
     const { user, isLoaded, isSignedIn } = useUser();
 
+    useEffect(() => {
+        apiCall('/service/getService', 'POST', { serviceID: service.name.toLowerCase() })
+            .then(data => setServiceData(data))
+            .catch(() => console.error('Failed to fetch service data'));
+    }, [service.name]);
+    
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (!selectedDate) {
+            setTimeSlots([]);
+            return;
+        }
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        setLoadingSlots(true);
+        setSelectedTime('');
+        apiCall('/service/getTimeslots', 'POST', { serviceID: service.name.toLowerCase(), date: dateStr })
+            .then(slots => {
+                setTimeSlots(slots.map(s => formatTo12Hour(s.startTime)));
+            })
+            .catch(() => setTimeSlots([]))
+            .finally(() => setLoadingSlots(false));
+    }, [selectedDate, service.name]);
 
     const mobile = isMobile();
     const calendarNaturalWidth = 400;
@@ -56,7 +84,13 @@ export default function BookingForm({ service, onSuccess }) {
         chevronSize: 20,
     };
 
-    const timeSlots = ["9:00 AM", "9:30 AM", "10:00 AM"];
+    const formatTo12Hour = (time24) => {
+        let [h, m] = time24.split(':').map(Number);
+        const period = h >= 12 ? 'PM' : 'AM';
+        if (h > 12) h -= 12;
+        if (h === 0) h = 12;
+        return `${h}:${String(m).padStart(2, '0')} ${period}`;
+    };
 
     const handleDateChange = (date) => {
         if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
@@ -68,13 +102,13 @@ export default function BookingForm({ service, onSuccess }) {
         }
     };
 
-    const calculateTimes = (timeSlot, extraTime) => {
+    const calculateTimes = (timeSlot, extraTime, duration) => {
         const [time, period] = timeSlot.split(' ');
         let [hours, minutes] = time.split(':').map(Number);
         if (period === 'PM' && hours !== 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
         const startTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-        let totalMinutes = minutes + 30;
+        let totalMinutes = minutes + duration;
         if (extraTime === '+30 minutes') totalMinutes += 30;
         hours += Math.floor(totalMinutes / 60);
         const endMinutes = totalMinutes % 60;
@@ -99,11 +133,11 @@ export default function BookingForm({ service, onSuccess }) {
 
     const handleConfirm = async () => {
         if (!isLoaded || !isSignedIn || !user) return;
-        const { startTime, endTime } = calculateTimes(selectedTime, extraTime);
+        const { startTime, endTime } = calculateTimes(selectedTime, extraTime,  serviceData?.serviceDurationInterval || 30);
         try {
             await apiCall('/booking/create', 'POST', {
                 userID: user.username,
-                serviceID: service?.name || "Service",
+                serviceID: service?.name?.toLowerCase() || "service",
                 duration: { day: getDayFromDate(selectedDate), startTime, endTime },
                 clientName: clientName.trim(),
                 timestamp: selectedDate.toISOString().split('T')[0],
@@ -221,16 +255,26 @@ export default function BookingForm({ service, onSuccess }) {
             <div className="flex flex-col gap-[2vw]">
                 <span className={s.label}>Time</span>
                 {selectedDate ? (
-                    <div className="flex gap-[2vw] flex-wrap">
-                        {timeSlots.map((slot) => (
-                            <button key={slot} type="button"
-                                onClick={() => setSelectedTime(slot)}
-                                className={`${s.timeButton} ${selectedTime === slot ? 'opacity-100' : 'opacity-40'}`}
-                            >
-                                {slot}
-                            </button>
-                        ))}
-                    </div>
+                    loadingSlots ? (
+                        <div className={`opacity-70 ${mobile ? 'text-[3.5vw]' : 'text-[16px]'}`}>
+                            Loading available times...
+                        </div>
+                    ) : timeSlots.length === 0 ? (
+                        <div className={`opacity-70 ${mobile ? 'text-[3.5vw]' : 'text-[16px]'}`}>
+                            No available times for this date
+                        </div>
+                    ) : (
+                        <div className="flex gap-[1vw] flex-wrap">
+                            {timeSlots.map((slot) => (
+                                <button key={slot} type="button"
+                                    onClick={() => setSelectedTime(slot)}
+                                    className={`${s.timeButton} ${selectedTime === slot ? 'opacity-100' : 'opacity-40'}`}
+                                >
+                                    {slot}
+                                </button>
+                            ))}
+                        </div>
+                    )
                 ) : (
                     <div className={`opacity-70 ${mobile ? 'text-[3.5vw]' : 'text-[16px]'}`}>
                         Select a day to see available time slots
