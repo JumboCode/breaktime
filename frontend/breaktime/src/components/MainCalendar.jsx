@@ -205,6 +205,7 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
   return (
     <div>
       <Calendar
+        className="main-bookings-calendar"
         localizer={localizer}
         events={events}
         startAccessor="start"
