@@ -16,7 +16,15 @@ const getServiceImage = (serviceName) => {
     return StoreCarouselImage;
 };
 
+const getIsActive = (booking) => {
+    const now = new Date();
+    const bookingDateTime = new Date(`${booking.timestamp}T${booking.duration?.startTime}`);
+    const hasPassed = bookingDateTime < now;
+    return (booking.status === 'pending' || booking.status === 'confirmed') && !hasPassed;
+};
+
 export default function AppointmentDetailsPage({ booking, onClose }) {
+    const [currentBooking, setCurrentBooking] = useState(booking);
     const [activeTab, setActiveTab] = useState('details');
     const [isEditing, setIsEditing] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -27,16 +35,22 @@ export default function AppointmentDetailsPage({ booking, onClose }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const handleEditSuccess = (updatedFields) => {
+        setCurrentBooking(prev => ({ ...prev, ...updatedFields }));
+        setIsEditing(false);
+    };
+
     const chevronSize = windowWidth * 0.06;
-    const serviceImage = getServiceImage(booking.serviceID);
+    const serviceImage = getServiceImage(currentBooking.serviceID);
+    const isActive = getIsActive(currentBooking);
 
     const tabButtonStyle = "flex-1 py-[5px] text-[4vw] text-gray-400 rounded-full transition-all duration-200";
     const activeTabStyle = " bg-[#b37ded] font-medium text-white";
 
     return (
-        <div className="bg-light-grey min-h-screen w-screen overflow-x-hidden">
-            {/* Header image */}
-            <div className="relative w-full h-[35vh]">
+        <div className="w-screen overflow-x-hidden">
+            {/* Header image — extra height so rounded card fully overlaps */}
+            <div className="relative w-full h-[38vh]">
                 <img
                     src={serviceImage}
                     className="absolute inset-0 w-full h-full object-cover"
@@ -54,10 +68,10 @@ export default function AppointmentDetailsPage({ booking, onClose }) {
                 </button>
             </div>
 
-            {/* Content card */}
-            <div className="px-[20px] pt-[20px] pb-[10vw] rounded-t-4xl bg-[#ebebeb] -mt-4 relative">
+            {/* Content card — -mt-8 ensures rounded corners fully cover the image edge */}
+            <div className="px-[20px] pt-[20px] rounded-t-4xl bg-[#ebebeb] -mt-8 relative">
                 {/* Service name */}
-                <p className="text-dark-navy font-semibold text-[8vw]">{booking.serviceID}</p>
+                <p className="text-dark-navy font-semibold text-[8vw]">{currentBooking.serviceID}</p>
 
                 {/* User info */}
                 <div className="flex items-center gap-[2vw] mt-[1.5vw] flex-wrap">
@@ -65,10 +79,10 @@ export default function AppointmentDetailsPage({ booking, onClose }) {
                         YA USER
                     </span>
                     <span className="text-dark-navy text-[3.5vw]">
-                        {booking.clientName}
+                        {currentBooking.clientName}
                     </span>
                     <span className="text-gray-400 text-[3.5vw]">
-                        Booking Number #{booking.id || booking._id || '------'}
+                        Booking Number #{currentBooking.bookingID || currentBooking.id || currentBooking._id || '------'}
                     </span>
                 </div>
 
@@ -94,18 +108,26 @@ export default function AppointmentDetailsPage({ booking, onClose }) {
                 <div className="mt-[4vw]">
                     {isEditing ? (
                         <EditBookingContent
-                            booking={booking}
+                            booking={currentBooking}
                             onCancel={() => setIsEditing(false)}
+                            onSuccess={handleEditSuccess}
                         />
                     ) : activeTab === 'details' ? (
                         <BookingDetailsContent
-                            booking={booking}
+                            booking={currentBooking}
+                            isActive={isActive}
                             onEdit={() => setIsEditing(true)}
+                            onCancel={onClose}
                         />
                     ) : (
-                        <BookingActivityContent booking={booking} />
+                        <BookingActivityContent booking={currentBooking} />
                     )}
                 </div>
+
+                {/* Footer */}
+                <p className="text-center text-gray-400 text-[3vw] tracking-widest mt-[6vw] pb-[5vw]">
+                    ENJOY YOUR SERVICE
+                </p>
             </div>
         </div>
     );

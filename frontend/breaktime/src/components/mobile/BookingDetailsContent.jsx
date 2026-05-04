@@ -1,4 +1,7 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
+import { apiCall } from '/src/utils/general.js';
+import { ConfirmationPopup, FailurePopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -21,10 +24,24 @@ const formatTime = (timeStr) => {
     return `${hour}:${String(m).padStart(2, '0')} ${period}`;
 };
 
-export default function BookingDetailsContent({ booking, onEdit }) {
+export default function BookingDetailsContent({ booking, isActive, onEdit, onCancel }) {
+    const [showPopup, setShowPopup] = useState(null);
+
     const date = formatDate(booking.timestamp || booking.service_date);
     const startTime = formatTime(booking.duration?.startTime || booking.start_time);
     const endTime = formatTime(booking.duration?.endTime);
+
+    const handleConfirmCancel = async () => {
+        const bookingID = booking.bookingID || booking.id;
+        try {
+            await apiCall('/booking/delete', 'DELETE', { bookingID }, null);
+            setShowPopup(null);
+            onCancel();
+        } catch (error) {
+            console.error('Error deleting booking:', error);
+            setShowPopup('failure');
+        }
+    };
 
     return (
         <div className="flex flex-col gap-[4vw]">
@@ -52,26 +69,45 @@ export default function BookingDetailsContent({ booking, onEdit }) {
                 </div>
             </div>
 
-            <p className="text-[3.5vw] text-gray-400">
-                Need a different time?{' '}
-                <button onClick={onEdit} className="text-dark-navy underline">
-                    Edit booking
-                </button>
-            </p>
+            {isActive && (
+                <>
+                    <p className="text-[3.5vw] text-gray-400">
+                        Need a different time?{' '}
+                        <button onClick={onEdit} className="text-dark-navy underline">
+                            Edit booking
+                        </button>
+                    </p>
 
-            <div className="flex gap-[3vw] mt-[2vw]">
-                <button className="flex-1 py-[3vw] border border-[#B27DED] text-[#B27DED] text-[4vw] rounded-2xl">
-                    cancel booking
-                </button>
-                <button className="flex-1 py-[3vw] bg-[#B27DED] text-white text-[4vw] rounded-2xl">
-                    send a note
-                </button>
-            </div>
+                    <div className="flex gap-[3vw]">
+                        <button
+                            onClick={() => setShowPopup('confirm')}
+                            className="flex-1 py-[3vw] border border-[#B27DED] text-[#B27DED] text-[4vw] rounded-2xl"
+                        >
+                            Cancel Booking
+                        </button>
+                        <button className="flex-1 py-[3vw] bg-[#B27DED] text-white text-[4vw] rounded-2xl">
+                            Send a Note
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {showPopup === 'confirm' && (
+                <ConfirmationPopup
+                    onClose={() => setShowPopup(null)}
+                    onConfirm={handleConfirmCancel}
+                />
+            )}
+            {showPopup === 'failure' && (
+                <FailurePopup onClose={() => setShowPopup(null)} />
+            )}
         </div>
     );
 }
 
 BookingDetailsContent.propTypes = {
     booking: PropTypes.object.isRequired,
+    isActive: PropTypes.bool.isRequired,
     onEdit: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
 };

@@ -238,7 +238,7 @@ router.put('/edit', async (req, res) => {
             });
         }
 
-        const timestamp = new Date().toLocaleString('en-US', {
+        const activityTimestamp = new Date().toLocaleString('en-US', {
             weekday: 'long',
             month: 'short',
             day: 'numeric',
@@ -246,7 +246,7 @@ router.put('/edit', async (req, res) => {
             minute: '2-digit',
             hour12: true
         });
-        
+
         // Build the update object dynamically
         const updateFields = {
             activity: []
@@ -277,7 +277,6 @@ router.put('/edit', async (req, res) => {
 
         // Validate and add duration if provided
         if (duration !== undefined) {
-            // Use Joi to validate duration structure
             const Joi = require('joi');
             const durationSchema = Joi.object({
                     day: Joi.string().valid('sunday', 'monday', 'tuesday', 'wednesday',
@@ -295,6 +294,11 @@ router.put('/edit', async (req, res) => {
                 });
             }
             updateFields.duration = duration;
+        }
+
+        // Add timestamp (booking date) if provided
+        if (newTimestamp !== undefined) {
+            updateFields.timestamp = newTimestamp;
         }
 
         // Add clientName if provided
@@ -465,6 +469,48 @@ router.put('/edit', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error updating booking',
+            error: error.message
+        });
+    }
+});
+
+// DELETE /delete - Remove a booking from the database
+router.delete('/delete', async (req, res) => {
+    try {
+        const { bookingID } = req.body;
+
+        if (!bookingID) {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                error: 'bookingID is required'
+            });
+        }
+
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const bookingsCollection = database.collection('bookings');
+
+        const result = await bookingsCollection.deleteOne({ bookingID });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Booking not found',
+                error: `No booking found with bookingID: ${bookingID}`
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Booking deleted successfully'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting booking',
             error: error.message
         });
     }

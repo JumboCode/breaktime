@@ -3,6 +3,8 @@ import Calendar from 'react-calendar';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { apiCall } from '/src/utils/general.js';
+import { FailurePopup, SuccessPopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
 
 const calendarStyles = `
     .react-calendar__tile--active {
@@ -64,9 +66,29 @@ const calendarStyles = `
 
 const timeSlots = ["9:00 AM", "9:30 AM", "10:00 AM"];
 
-export default function EditBookingContent({ booking, onCancel }) {
+const getDayFromDate = (date) => {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return days[date.getDay()];
+};
+
+const calculateTimes = (timeSlot) => {
+    const [time, period] = timeSlot.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    const startTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    const totalMinutes = minutes + 30;
+    hours += Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
+    const endTime = `${String(hours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+    return { startTime, endTime };
+};
+
+export default function EditBookingContent({ booking, onCancel, onSuccess }) {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState('');
+    const [showPopup, setShowPopup] = useState(null);
+    const [pendingUpdate, setPendingUpdate] = useState(null);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -74,6 +96,11 @@ export default function EditBookingContent({ booking, onCancel }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    // Only allow dates strictly after today
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
 
     const calendarNaturalWidth = 400;
     const calendarNaturalHeight = 420;
@@ -86,6 +113,32 @@ export default function EditBookingContent({ booking, onCancel }) {
         } else {
             setSelectedDate(date);
             setSelectedTime('');
+        }
+    };
+
+    const handleUpdate = async () => {
+        if (!selectedDate || !selectedTime) {
+            setShowPopup('failure');
+            return;
+        }
+
+        const { startTime, endTime } = calculateTimes(selectedTime);
+        const bookingID = booking.bookingID || booking.id;
+
+        const newTimestamp = selectedDate.toISOString().split('T')[0];
+        const newDuration = { day: getDayFromDate(selectedDate), startTime, endTime };
+
+        try {
+            await apiCall('/booking/edit', 'PUT', {
+                bookingID,
+                timestamp: newTimestamp,
+                duration: newDuration,
+            }, null);
+            setPendingUpdate({ timestamp: newTimestamp, duration: newDuration });
+            setShowPopup('success');
+        } catch (error) {
+            console.error('Error updating booking:', error);
+            setShowPopup('failure');
         }
     };
 
@@ -113,7 +166,7 @@ export default function EditBookingContent({ booking, onCancel }) {
                         className="border-none [&&]:!bg-transparent [&&]:!border-0"
                         onChange={handleDateChange}
                         value={selectedDate}
-                        minDate={new Date()}
+                        minDate={tomorrow}
                         nextLabel={<ChevronRight strokeWidth={6} color="#B27DED" />}
                         prevLabel={<ChevronLeft strokeWidth={6} color="#B27DED" />}
                         next2Label={null}
@@ -151,12 +204,22 @@ export default function EditBookingContent({ booking, onCancel }) {
                     onClick={onCancel}
                     className="flex-1 py-[3vw] border border-[#B27DED] text-[#B27DED] text-[4vw] rounded-2xl"
                 >
-                    cancel
+                    Cancel
                 </button>
-                <button className="flex-1 py-[3vw] bg-[#B27DED] text-white text-[4vw] rounded-2xl">
-                    update
+                <button
+                    onClick={handleUpdate}
+                    className="flex-1 py-[3vw] bg-[#B27DED] text-white text-[4vw] rounded-2xl"
+                >
+                    Update
                 </button>
             </div>
+
+            {showPopup === 'failure' && (
+                <FailurePopup onClose={() => setShowPopup(null)} />
+            )}
+            {showPopup === 'success' && (
+                <SuccessPopup onClose={() => { setShowPopup(null); onSuccess(pendingUpdate); }} />
+            )}
         </div>
     );
 }
@@ -164,4 +227,5 @@ export default function EditBookingContent({ booking, onCancel }) {
 EditBookingContent.propTypes = {
     booking: PropTypes.object.isRequired,
     onCancel: PropTypes.func.isRequired,
+    onSuccess: PropTypes.func.isRequired,
 };
