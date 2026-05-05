@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { apiCall } from "/src/utils/general";
+import { validateInput, handleNameKeyDown, handleEmailKeyDown, 
+    handleUsernameKeyDown } from '../utils/errorMessages';
 
 const isMobile = () => {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
@@ -28,15 +30,15 @@ function StaffSignup() {
         event.preventDefault();
         setError('');
         setSuccess('');
-        const { firstName, lastName, email, username, password } = formData;
-        if (!firstName || !lastName || !email || !username || !password) {
-            setError('Please fill out all fields.');
+        const validationError = validateInput(formData, false);
+        if (validationError) {
+            setError(validationError);
             return;
         }
         (async () => {
             try {
-                const body = { firstName, lastName, email, username, password };
-                const res = await apiCall('/staff/create', 'POST', body, null);
+                const res = await apiCall('/staff/create', 'POST',
+                    formData, null);
                 setSuccess(res.message || 'Account created successfully');
                 setFormData({ firstName: "", lastName: "", email: "", username: "", password: "" });
                 navigate('/');
@@ -55,23 +57,23 @@ function StaffSignup() {
                         <div>
                             <input type="text" id="firstName" name="firstName"
                                 autoComplete="firstname" placeholder="First Name"
-                                value={formData.firstName} onChange={handleChange} required />
+                                value={formData.firstName} onChange={handleChange} onKeyDown={handleNameKeyDown}required />
                         </div>
                         <div>
                             <input type="text" id="lastName" name="lastName"
                                 autoComplete="lastName" placeholder="Last Name"
-                                value={formData.lastName} onChange={handleChange} required />
+                                value={formData.lastName} onChange={handleChange} onKeyDown={handleNameKeyDown}required />
                         </div>
                     </div>
                     <div>
                         <input type="email" id="email" name="email"
                             autoComplete="email" placeholder="Email"
-                            value={formData.email} onChange={handleChange} required />
+                            value={formData.email} onChange={handleChange} onKeyDown={handleEmailKeyDown} required />
                     </div>
                     <div className={mobile ? 'w-full' : 'w-7/10'}>
                         <input type="text" id="username" name="username"
                             autoComplete="username" placeholder="Username"
-                            value={formData.username} onChange={handleChange} required />
+                            value={formData.username} onChange={handleChange}  onKeyDown={handleUsernameKeyDown} required />
                     </div>
                     <div className={mobile ? 'w-full' : 'w-7/10'}>
                         <input type="password" id="password" name="password"
