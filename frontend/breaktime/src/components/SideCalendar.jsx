@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import 'react-calendar/dist/Calendar.css';
 import '../sidecalendar.css';
+import { toDateStr } from '/src/utils/general.js';
 
 /**
  * SideCalendar - Sidebar calendar widget for the staff landing page
@@ -47,7 +48,7 @@ const SideCalendar = ({ bookings = [], onViewAllClick, onDayClick }) => {
         const diff = targetDay - today.getDay();
         const eventDate = new Date(today);
         eventDate.setDate(today.getDate() + diff);
-        dateStr = eventDate.toISOString().split('T')[0];
+        dateStr = toDateStr(eventDate);
       }
 
       if (!dateStr) return;
@@ -66,14 +67,6 @@ const SideCalendar = ({ bookings = [], onViewAllClick, onDayClick }) => {
 
     return { bookedDates: booked, pendingDates: pending };
   }, [bookings]);
-
-  /** Formats a Date to YYYY-MM-DD without timezone offset issues */
-  const toDateStr = (date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
 
   /**
    * tileContent – renders indicator dots inside each calendar tile

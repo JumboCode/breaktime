@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { apiCall } from '/src/utils/general.js';
+import { apiCall, toDateStr, toDayName, toDisplayTime } from '/src/utils/general.js';
 import { useUser } from '@clerk/clerk-react';
 import { FailurePopup, ConfirmationPopup, SuccessPopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
 
@@ -43,15 +43,12 @@ export default function BookingForm({ service, onSuccess }) {
             setTimeSlots([]);
             return;
         }
-        const year = selectedDate.getFullYear();
-        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedDate.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
+        const dateStr = toDateStr(selectedDate);
         setLoadingSlots(true);
         setSelectedTime('');
         apiCall('/service/getTimeslots', 'POST', { serviceID: service.name.toLowerCase(), date: dateStr })
             .then(slots => {
-                setTimeSlots(slots.map(s => formatTo12Hour(s.startTime)));
+                setTimeSlots(slots.map(s => toDisplayTime(s.startTime)));
             })
             .catch(() => setTimeSlots([]))
             .finally(() => setLoadingSlots(false));
@@ -84,14 +81,6 @@ export default function BookingForm({ service, onSuccess }) {
         chevronSize: 20,
     };
 
-    const formatTo12Hour = (time24) => {
-        let [h, m] = time24.split(':').map(Number);
-        const period = h >= 12 ? 'PM' : 'AM';
-        if (h > 12) h -= 12;
-        if (h === 0) h = 12;
-        return `${h}:${String(m).padStart(2, '0')} ${period}`;
-    };
-
     const handleDateChange = (date) => {
         if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
             setSelectedDate(null);
@@ -116,13 +105,6 @@ export default function BookingForm({ service, onSuccess }) {
         return { startTime, endTime };
     };
 
-    const getDayFromDate = (dateString) => {
-        if (!dateString) return 'monday';
-        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        const date = new Date(dateString);
-        return days[date.getDay()] || 'monday';
-    };
-
     const handleSubmit = () => {
         if (!selectedDate || !selectedTime || !clientName) {
             setShowPopup('failure');
@@ -134,13 +116,14 @@ export default function BookingForm({ service, onSuccess }) {
     const handleConfirm = async () => {
         if (!isLoaded || !isSignedIn || !user) return;
         const { startTime, endTime } = calculateTimes(selectedTime, extraTime,  serviceData?.serviceDurationInterval || 30);
+        const dateStr = toDateStr(selectedDate);
         try {
             await apiCall('/booking/create', 'POST', {
                 userID: user.username,
                 serviceID: service?.name?.toLowerCase() || "service",
-                duration: { day: getDayFromDate(selectedDate), startTime, endTime },
+                duration: { day: toDayName(dateStr), startTime, endTime },
                 clientName: clientName.trim(),
-                timestamp: selectedDate.toISOString().split('T')[0],
+                timestamp: dateStr,
             }, null);
             setShowPopup('success');
         } catch (error) {

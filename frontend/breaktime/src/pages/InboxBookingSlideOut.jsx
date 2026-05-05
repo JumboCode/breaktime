@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { toDisplayTimestamp } from "/src/utils/general.js";
 
 // ─── Shared styles ───────────────────────────────────────────────────────────
 
@@ -329,7 +330,7 @@ function BookingActivityFeed({ activities, booking }) {
         const [activityType, activityKind, activityValue, timestamp] = act;
         const config = getActivityConfig(activityType, activityKind);
         const isLast = i === activities.length - 1;
-        const ts = formatTimestamp(timestamp ?? booking.timestamp);
+        const ts = toDisplayTimestamp(timestamp ?? booking.timestamp);
 
         if (activityType === "update") {
           return <UpdateActivity key={i} config={config} timestamp={ts} isLast={isLast} />;
@@ -347,26 +348,6 @@ function BookingActivityFeed({ activities, booking }) {
       })}
     </div>
   );
-}
-
-function ordinal(n) {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
-
-function formatTimestamp(ts) {
-  if (!ts) return null;
-  try {
-    const d = new Date(ts);
-    const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
-    const month = d.toLocaleDateString("en-US", { month: "short" });
-    const day = ordinal(d.getDate());
-    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-    return `${weekday}, ${month} ${day}, ${time}`;
-  } catch {
-    return String(ts);
-  }
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────

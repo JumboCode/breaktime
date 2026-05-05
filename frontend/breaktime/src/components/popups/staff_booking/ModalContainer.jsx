@@ -6,28 +6,7 @@ import ModifyBookingModal from "./ModifyBookingModal";
 import ViewBookingModal from "./ViewBookingModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import SendNoteModal from "./SendNoteModal";
-import { apiCall } from "/src/utils/general";
-
-/**
- * getDayFromDate - Converts a date string to a day name
- *
- * The backend stores bookings with day names ("monday", "tuesday", etc.)
- * but the frontend form uses date strings ("2026-02-03").
- * This converts the date to a day name for the API call.
- *
- * @param {string} dateString - Date in YYYY-MM-DD format (e.g., "2026-02-03")
- * @returns {string} Day name in lowercase (e.g., "monday")
- *
- * Example: "2026-02-03" (a Monday) → "monday"
- */
-const getDayFromDate = (dateString) => {
-  if (!dateString) return 'monday';
-  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  // Split the YYYY-MM-DD string to avoid UTC parsing shifting the day
-  const [year, month, day] = dateString.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
-  return days[date.getDay()] || 'monday';
-};
+import { apiCall, toDayName } from "/src/utils/general";
 
 /**
  * ModalContainer - Central component for managing all booking-related modals
@@ -100,8 +79,7 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
        userID: booking.client || "YA_1", // Use client name as userID
        serviceID: booking.service || "services",
        duration: {
-         day: getDayFromDate(booking.date), // Convert "2026-02-03" to "monday"
-         date: booking.date,                // Store actual date for accurate display
+         day: toDayName(booking.date),
          startTime: booking.startTime || booking.time || "09:00",
          endTime: booking.endTime || "10:00"
        },
@@ -161,8 +139,7 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
        status: updatedBooking.status || 'pending',
        timestamp: updatedBooking.date,
        duration: {
-         day: getDayFromDate(updatedBooking.date),
-         date: updatedBooking.date,
+         day: toDayName(updatedBooking.date),
          startTime: updatedBooking.startTime || updatedBooking.time || "09:00",
          endTime: updatedBooking.endTime || "10:00"
        },

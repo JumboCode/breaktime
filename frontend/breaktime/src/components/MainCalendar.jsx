@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
 import { useModal } from '/src/components/popups/staff_booking/useModal.js';
+import { toDateStr } from '/src/utils/general.js';
 
 // Initialize moment as the date localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
@@ -218,8 +219,7 @@ const MyCalendar = ({ bookings = [], onDateChange, onViewChange }) => {
    * @param {Object} slotInfo - Contains start/end dates of the selected slot
    */
   const handleSelectSlot = (slotInfo) => {
-    // Convert the selected date to YYYY-MM-DD format for the form
-    const selectedDate = slotInfo.start.toISOString().split('T')[0];
+    const selectedDate = toDateStr(slotInfo.start);
     openModal("add", { date: selectedDate });
   };
 

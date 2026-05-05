@@ -140,7 +140,9 @@ router.put('/edit', async (req, res) => {
         const database = client.db('services');
         const bookingsCollection = database.collection('bookings');
 
-        const { bookingID, status, duration, clientName, serviceID } = req.body;
+        const {
+            bookingID, status, duration, clientName, serviceID, timestamp: bookingDate
+        } = req.body;
 
         // Validate required field
         if (!bookingID) {
@@ -152,12 +154,12 @@ router.put('/edit', async (req, res) => {
         }
 
         // Check that at least one field to update is provided
-        if (!status && !duration && !clientName && !serviceID) {
+        if (!status && !duration && !clientName && !serviceID && !bookingDate) {
             return res.status(400).json({
                 success: false,
                 message: 'Validation error',
-                error: 'At least one field (status, duration, clientName,'
-                     + ' or serviceID) must be provided for update'
+                error: 'At least one field (status, duration, clientName, serviceID,'
+                     + ' or timestamp) must be provided for update'
             });
         }
 
@@ -197,14 +199,12 @@ router.put('/edit', async (req, res) => {
         if (duration !== undefined) {
             // Use Joi to validate duration structure
             const Joi = require('joi');
-            const durationSchema = Joi.array().items(
-                Joi.object({
+            const durationSchema = Joi.object({
                     day: Joi.string().valid('sunday', 'monday', 'tuesday', 'wednesday',
                                             'thursday', 'friday', 'saturday').required(),
                     startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(),
                     endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()
-                }).required()
-            ).required();
+                }).required();
 
             const { error } = durationSchema.validate(duration);
             if (error) {
@@ -225,6 +225,18 @@ router.put('/edit', async (req, res) => {
         // Add serviceID if provided
         if (serviceID !== undefined) {
             updateFields.serviceID = serviceID;
+        }
+
+        // Validate and add timestamp (booking date) if provided
+        if (bookingDate !== undefined) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(bookingDate)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation error',
+                    error: 'timestamp must be in YYYY-MM-DD format'
+                });
+            }
+            updateFields.timestamp = bookingDate;
         }
 
         // Find and update the booking

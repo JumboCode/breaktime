@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Edit, Trash2, ChevronLeft } from "lucide-react";
 import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 import { useState } from "react";
+import { toDisplayDate } from "/src/utils/general.js";
 
 // Import your modal components
 import SendNoteModal from "./SendNoteModal";
@@ -20,16 +21,6 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
 
   // State for which popup/modal to display
   const [showSendNotePopup, setShowSendNotePopup] = useState(false);
-
-  // Handler functions
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "long",
-      day: "numeric",
-      weekday: "long",
-    }).format(date);
-  };
 
   // Trigger the centralized delete flow
   const handleDeleteClick = () => {
@@ -135,7 +126,7 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
                         rounded-2xl px-3 py-2 mb-2 
                         text-[#262445] 
                         font-medium">
-          {formatDate(booking.date)}
+          {toDisplayDate(booking.date)}
         </div>
 
         {/* Booking time range */}
