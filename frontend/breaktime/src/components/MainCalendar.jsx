@@ -1,10 +1,11 @@
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../customcalendar.css';
 import { useModal } from '/src/components/popups/staff_booking/useModal.js';
+import { toDateStr } from '/src/utils/general.js';
 
 // Initialize moment as the date localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
@@ -37,27 +38,30 @@ const bookingToEvent = (booking) => {
     endDate = new Date(year, month - 1, day, endHour, endMin);
 
   } else if (booking.duration && booking.duration.length > 0) {
-    // CASE 2: Backend format - has duration array with day name (e.g., "monday")
-    // We need to calculate the actual date from the day name
+    // CASE 2: Backend format - has duration array
     const duration = booking.duration[0];
-    const today = new Date();
-
-    // Map day names to day numbers (0 = Sunday, 1 = Monday, etc.)
-    const dayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
-    const targetDay = dayMap[duration.day] || 0;
-    const currentDay = today.getDay();
-    const diff = targetDay - currentDay;
-
-    // Calculate the date for this day of the week
-    const eventDate = new Date(today);
-    eventDate.setDate(today.getDate() + diff);
 
     // Parse the time strings
     const [startHour, startMin] = duration.startTime.split(':').map(Number);
     const [endHour, endMin] = duration.endTime.split(':').map(Number);
 
-    startDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), startHour, startMin);
-    endDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), endHour, endMin);
+    if (duration.date) {
+      // Has actual date string (YYYY-MM-DD) — use it directly
+      const [year, month, day] = duration.date.split('-').map(Number);
+      startDate = new Date(year, month - 1, day, startHour, startMin);
+      endDate = new Date(year, month - 1, day, endHour, endMin);
+    } else {
+      // Fallback: only has day name, estimate relative to current week
+      const dayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+      const today = new Date();
+      const targetDay = dayMap[duration.day] || 0;
+      const diff = targetDay - today.getDay();
+      const eventDate = new Date(today);
+      eventDate.setDate(today.getDate() + diff);
+
+      startDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), startHour, startMin);
+      endDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), endHour, endMin);
+    }
 
   } else {
     // CASE 3: Fallback - no valid date info, use current time
@@ -158,15 +162,36 @@ const CustomEvent = ({ event }) => {
  * - Click "add new" button → opens Add Booking modal
  *
  * @param {Array} bookings - Array of booking objects to display
+ * @param {Function} onDateChange - Callback when calendar date changes (month navigation)
+ * @param {Function} onViewChange - Callback when calendar view changes (month/week toggle)
  */
-const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp, view: viewProp, onView: onViewProp }) => {
-  const [internalDate, setInternalDate] = useState(new Date());
-  const date = dateProp ?? internalDate;
-  const setDate = onNavigateProp ?? setInternalDate;
-  const [internalView, setInternalView] = useState('month');
-  const view = viewProp ?? internalView;
-  const setView = onViewProp ?? setInternalView;
+const MyCalendar = ({ bookings = [], onDateChange, onViewChange }) => {
+  const [date, setDate] = useState(new Date());
+  const [view, setView] = useState('month');
   const { openModal } = useModal(); // Hook to control modal state
+
+  /**
+   * handleNavigate - Called when user navigates to a different date
+   * Updates local date state and notifies parent to refetch bookings
+   * for the new month/year via the /monthlyBookings endpoint.
+   *
+   * @param {Date} newDate - The date navigated to
+   */
+  const handleNavigate = useCallback((newDate) => {
+    setDate(newDate);
+    if (onDateChange) onDateChange(newDate);
+  }, [onDateChange]);
+
+  /**
+   * handleViewChange - Called when user switches between month/week views
+   * Updates local view state and notifies parent to refetch bookings.
+   *
+   * @param {string} newView - The new view ("month" or "week")
+   */
+  const handleViewChange = useCallback((newView) => {
+    setView(newView);
+    if (onViewChange) onViewChange(newView);
+  }, [onViewChange]);
 
   /**
    * handleAddNew - Called when "add new" button is clicked
@@ -194,8 +219,7 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
    * @param {Object} slotInfo - Contains start/end dates of the selected slot
    */
   const handleSelectSlot = (slotInfo) => {
-    // Convert the selected date to YYYY-MM-DD format for the form
-    const selectedDate = slotInfo.start.toISOString().split('T')[0];
+    const selectedDate = toDateStr(slotInfo.start);
     openModal("add", { date: selectedDate });
   };
 
@@ -212,9 +236,9 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
         endAccessor="end"
         style={{ height: 500 }}
         date={date}
-        onNavigate={setDate}
+        onNavigate={handleNavigate}
         view={view}
-        onView={setView}
+        onView={handleViewChange}
         selectable                        // Enable clicking on empty slots
         onSelectEvent={handleSelectEvent} // Handler for clicking on events
         onSelectSlot={handleSelectSlot}   // Handler for clicking on empty slots
@@ -229,10 +253,8 @@ const MyCalendar = ({ bookings = [], date: dateProp, onNavigate: onNavigateProp,
 
 MyCalendar.propTypes = {
   bookings: PropTypes.array,
-  date: PropTypes.instanceOf(Date),
-  onNavigate: PropTypes.func,
-  view: PropTypes.string,
-  onView: PropTypes.func,
+  onDateChange: PropTypes.func,
+  onViewChange: PropTypes.func,
 };
 
 export default MyCalendar;
