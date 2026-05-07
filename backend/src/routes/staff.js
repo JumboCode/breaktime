@@ -70,6 +70,9 @@ router.post('/create', async (req, res) => {
                 const clerkUser = {
                         username: username,
                         password: password,
+                        firstName: firstName,
+                        lastName: lastName,
+                        emailAddress: [email],
                         publicMetadata: {
                                 permission: '0'
                         }
