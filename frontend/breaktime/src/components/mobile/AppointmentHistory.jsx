@@ -46,7 +46,7 @@ export default function AppointmentHistory() {
         return bookings.filter((booking) => {
             const bookingDateTime = new Date(`${booking.timestamp}T${booking.duration?.startTime}`);
             const hasPassed = bookingDateTime < now;
-            const isActive = (booking.status === 'pending' || booking.status === 'confirmed') && !hasPassed;
+            const isActive = booking.status === 'confirmed' && !hasPassed;
             const isPast = booking.status === 'canceled' || hasPassed;
 
             if (filter === 'all') return true;

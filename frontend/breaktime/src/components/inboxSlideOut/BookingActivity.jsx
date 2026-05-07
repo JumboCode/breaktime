@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { toDisplayTimestamp } from "/src/utils/general.js";
 
 // ─── Shared styles ───────────────────────────────────────────────────────────
@@ -31,15 +30,15 @@ const ACTION_BASE = {
 };
 
 const UPDATE_ACTIVITY_CONFIG = {
-  confirmed: { ...UPDATE_BASE, label: "Booking Confirmed", timestampPrefix: "Requested on" },
-  modified:  { ...UPDATE_BASE, label: "Booking Modified",  timestampPrefix: "Modified on" },
-  canceled:  { ...UPDATE_BASE, label: "Booking Canceled",  timestampPrefix: "Modified on" },
+  confirmed: { ...UPDATE_BASE, label: "Booking Created" },
+  modified:  { ...UPDATE_BASE, label: "Booking Modified" },
+  canceled:  { ...UPDATE_BASE, label: "Booking Canceled" },
 };
 
 const ACTION_ACTIVITY_CONFIG = {
-  time:    { ...ACTION_BASE, label: "Requested Extra Time",    timestampPrefix: "Requested on" },
-  note:    { ...ACTION_BASE, label: "Left A Specific Note",    timestampPrefix: "Left on" },
-  message: { ...ACTION_BASE, label: "Sent A General Inquiry",  timestampPrefix: "Sent on" },
+  time:    { ...ACTION_BASE, label: "Requested Extra Time" },
+  note:    { ...ACTION_BASE, label: "Left A Specific Note" },
+  message: { ...ACTION_BASE, label: "Sent A General Inquiry" },
 };
 
 function getActivityConfig(activityType, activityKind) {
@@ -186,8 +185,8 @@ function UpdateActivity({ config, timestamp, isLast }) {
       </div>
 
       <div style={{ display: "flex", alignItems: "flex-start" }}>
-        <DottedConnector color={config.circleColor} height={isLast ? 28 : 48} />
-        <Timestamp prefix={config.timestampPrefix} value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
+        {!isLast && <DottedConnector color={config.circleColor} height={48} />}
+        <Timestamp prefix="" value={timestamp} style={{ paddingLeft: isLast ? 52 : 33, paddingTop: 6 }} />
       </div>
     </div>
   );
@@ -233,7 +232,7 @@ function ActionActivity({ config, activity, timestamp, isLast, note }) {
       {/* ── Dashed connector + timestamp ── */}
       <div style={{ display: "flex", alignItems: "flex-start" }}>
         <DottedConnector color="#ABA6E3" height={32} />
-        <Timestamp prefix={config.timestampPrefix ?? "Sent on"} value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
+        <Timestamp prefix="" value={timestamp} style={{ paddingLeft: 33, paddingTop: 6 }} />
       </div>
 
       {/* ── Dashed connector + card ── */}
@@ -321,8 +320,10 @@ function ActionActivity({ config, activity, timestamp, isLast, note }) {
 
 // ─── BookingActivityFeed ──────────────────────────────────────────────────────
 
-function BookingActivityFeed({ activities, booking }) {
-  if (!activities || activities.length === 0) return null;
+export default function BookingActivityFeed({ activities, booking }) {
+  if (!activities || activities.length === 0) return (
+    <p style={{ textAlign: "center", color: "#9CA3AF", fontFamily: FONT, marginTop: 48, fontSize: 14 }}>No Activity Found</p>
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -330,16 +331,17 @@ function BookingActivityFeed({ activities, booking }) {
         const [activityType, activityKind, activityValue, timestamp] = act;
         const config = getActivityConfig(activityType, activityKind);
         const isLast = i === activities.length - 1;
-        const ts = toDisplayTimestamp(timestamp ?? booking.timestamp);
+        const ts = timestamp ?? toDisplayTimestamp(booking.timestamp);
 
         if (activityType === "update") {
           return <UpdateActivity key={i} config={config} timestamp={ts} isLast={isLast} />;
         }
+        const resolvedValue = activityKind === 'note' ? (booking.notes || activityValue) : activityValue;
         return (
           <ActionActivity
             key={i}
             config={config}
-            activity={[activityKind, activityValue]}
+            activity={[activityKind, resolvedValue]}
             timestamp={ts}
             isLast={isLast}
             note={act[4] ?? null}
@@ -347,71 +349,5 @@ function BookingActivityFeed({ activities, booking }) {
         );
       })}
     </div>
-  );
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-export default function InboxBookingSlideOut({ isOpen, onClose, booking }) {
-  if (!booking) return null;
-
-  const activities = booking.activity ?? [
-    [
-      booking.activityType === "action" ? "action" : "update",
-      booking.activityType === "action" ? "note" : (booking.status ?? "confirmed"),
-      booking.activityMessage ?? "",
-      booking.timestamp,
-    ],
-  ];
-
-  return (
-    <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');`}</style>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.18)",
-              backdropFilter: "blur(4px)",
-              WebkitBackdropFilter: "blur(4px)",
-              zIndex: 40,
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      <motion.aside
-        initial={{ x: "100%" }}
-        animate={{ x: isOpen ? 0 : "100%" }}
-        transition={{ type: "spring", stiffness: 280, damping: 32 }}
-        style={{
-          position: "fixed",
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: "100%",
-          maxWidth: 440,
-          background: "#fff",
-          boxShadow: "-8px 0 40px rgba(0,0,0,0.10)",
-          zIndex: 50,
-          display: "flex",
-          flexDirection: "column",
-          fontFamily: FONT,
-        }}
-      >
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
-          <BookingActivityFeed activities={activities} booking={booking} />
-        </div>
-      </motion.aside>
-    </>
   );
 }

@@ -84,7 +84,8 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
          endTime: booking.endTime || "10:00"
        },
        timestamp: booking.date,
-       clientName: booking.client // Also store as clientName for display
+       clientName: booking.client, // Also store as clientName for display
+       notes: booking.notes || ''
      };
 
      const response = await apiCall('/booking/create', 'POST', requestData, null);
@@ -136,15 +137,14 @@ const ModalContainer = ({ bookings, setBookings, onBookingChange }) => {
      // Map frontend form data to backend expected format
      const requestData = {
        bookingID: updatedBooking.id || updatedBooking.bookingID,
-       status: updatedBooking.status || 'pending',
        timestamp: updatedBooking.date,
        duration: {
          day: toDayName(updatedBooking.date),
          startTime: updatedBooking.startTime || updatedBooking.time || "09:00",
          endTime: updatedBooking.endTime || "10:00"
        },
-       clientName: updatedBooking.client, // Update client display name
-       serviceID: updatedBooking.service  // Update service type
+       clientName: updatedBooking.client,
+       serviceID: updatedBooking.service
      };
 
      await apiCall('/booking/edit', 'PUT', requestData, null);

@@ -33,10 +33,10 @@ const { bookingSchema, bookingCreationSchema } = require('../schemas/booking');
 router.post('/create', async (req, res) => {
     try {
 
-        const { inputError } = bookingCreationSchema.validate(req.body);
+        const { error: inputError } = bookingCreationSchema.validate(req.body);
 
         if (inputError) {
-            return res.status(400).send(error.details[0].message);
+            return res.status(400).send(inputError.details[0].message);
         }
         
         // Get MongoDB client and connect to services database
@@ -74,12 +74,15 @@ router.post('/create', async (req, res) => {
             userID: req.body.userID,
             serviceID: req.body.serviceID,
             bookingID,
-            status: 'pending',
+            status: 'confirmed',
             timestamp: req.body.timestamp,
             duration: req.body.duration,
             clientName: req.body.clientName || '',
-            activity: [['created', `Created on ${ date }.`],
-                        ['pending', `Pending on ${ date }.`]]
+            notes: req.body.notes || '',
+            activity: [
+                ['created', `Created on ${ date }`],
+                ...(req.body.notes ? [['note', `Left on ${ date }.`]] : [])
+            ]
         };
 
         // Validate the complete booking data against Joi schema
@@ -141,7 +144,7 @@ router.put('/edit', async (req, res) => {
         const bookingsCollection = database.collection('bookings');
 
         const {
-            bookingID, status, duration, clientName, serviceID, timestamp: bookingDate
+            bookingID, status, duration, clientName, serviceID, timestamp: bookingDate, notes
         } = req.body;
 
         // Validate required field
@@ -154,12 +157,12 @@ router.put('/edit', async (req, res) => {
         }
 
         // Check that at least one field to update is provided
-        if (!status && !duration && !clientName && !serviceID && !bookingDate) {
+        if (!status && !duration && !clientName && !serviceID && !bookingDate && notes === undefined) {
             return res.status(400).json({
                 success: false,
                 message: 'Validation error',
                 error: 'At least one field (status, duration, clientName, serviceID,'
-                     + ' or timestamp) must be provided for update'
+                     + ' timestamp, or notes) must be provided for update'
             });
         }
 
@@ -179,7 +182,7 @@ router.put('/edit', async (req, res) => {
 
         // Validate and add status if provided
         if (status !== undefined) {
-            const validStatuses = ['pending', 'confirmed', 'canceled'];
+            const validStatuses = ['confirmed', 'canceled'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({
                     success: false,
@@ -187,9 +190,10 @@ router.put('/edit', async (req, res) => {
                     error: `status must be one of: ${validStatuses.join(', ')}`
                 });
             }
+            const activityType = status === 'canceled' ? 'canceled' : 'modified';
             const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1);
 
-            updateFields.activity.push([status, `${capitalizedStatus} on ${timestamp}`]);
+            updateFields.activity.push([activityType, `${capitalizedStatus} on ${timestamp}`]);
             updateFields.status = status;
         } else {
             updateFields.activity.push(['modified', `Modified on ${timestamp}.`]);
@@ -225,6 +229,12 @@ router.put('/edit', async (req, res) => {
         // Add serviceID if provided
         if (serviceID !== undefined) {
             updateFields.serviceID = serviceID;
+        }
+
+        // Add notes if provided
+        if (notes !== undefined) {
+            updateFields.notes = notes;
+            if (notes) updateFields.activity.push(['note', `Left on ${timestamp}.`]);
         }
 
         // Validate and add timestamp (booking date) if provided
@@ -336,6 +346,39 @@ router.post('/userbookinghistory', async (req, res) => {
         console.log(error);
         res.status(500).send({
             'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+/**
+ * GET /getByBookingID - Get a single booking by bookingID
+ * Query param: bookingID (string)
+ */
+router.get('/getByBookingID', async (req, res) => {
+    try {
+        const { bookingID } = req.query;
+
+        if (!bookingID) {
+            return res.status(400).json({ message: 'bookingID is required' });
+        }
+
+        const client = await mongodbPromise;
+        const database = client.db('services');
+        const collection = database.collection('bookings');
+
+        const booking = await collection.findOne({ bookingID });
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        return res.status(200).json({ booking });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB',
             error
         });
     }

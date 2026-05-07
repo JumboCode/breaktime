@@ -124,6 +124,7 @@ export default function BookingForm({ service, onSuccess }) {
                 duration: { day: toDayName(dateStr), startTime, endTime },
                 clientName: clientName.trim(),
                 timestamp: dateStr,
+                notes: note,
             }, null);
             setShowPopup('success');
         } catch (error) {

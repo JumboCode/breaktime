@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiCall } from "../utils/general";
+import InboxBookingSlideOut from "./inboxSlideOut/InboxSlideOut";
 
 // Filled medium-purple circle with white checkmark — used for update messages
 const UpdateIcon = () => (
@@ -51,7 +52,7 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
             </div>
 
             <div className="flex-1 min-w-0">
-                <span className="font-bold text-dark-navy text-base">{msg.title}</span>
+                <span className={`${msg.isRead ? 'font-normal' : 'font-bold'} text-dark-navy text-base`}>{msg.title}</span>
                 <p className="text-sm text-gray-500 mt-1">
                     {msg.bookingID ? `Booking #${msg.bookingID}` : 'General Inquery'}
                 </p>
@@ -67,10 +68,21 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
     );
 }
 
+function mapActivities(activities = []) {
+    return activities.map(([type, description]) => {
+        if (type === 'canceled') return ['update', 'canceled', description, description];
+        if (type === 'modified')  return ['update', 'modified',  description, description];
+        if (type === 'time')      return ['action', 'time',      description, description];
+        if (type === 'note')      return ['action', 'note',      description, description];
+        return ['update', 'confirmed', description, description];
+    });
+}
+
 export default function InboxView({ messages = [], setMessages }) {
     const [activeTab, setActiveTab] = useState('all');
     const [readFilter, setReadFilter] = useState('all');
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [slideOutBooking, setSlideOutBooking] = useState(null);
 
     const toggleRead = (id) => {
         const msg = messages.find(m => m._id === id);
@@ -96,7 +108,15 @@ export default function InboxView({ messages = [], setMessages }) {
     });
 
     const handleMessageClick = (msg) => {
-        setSelectedMessage(prev => prev?._id === msg._id ? null : msg);
+        if (!msg.isRead) toggleRead(msg._id);
+
+        if (msg.bookingID) {
+            apiCall(`/booking/getByBookingID?bookingID=${msg.bookingID}`, 'GET', null, null)
+                .then(data => setSlideOutBooking({ ...data.booking, activity: mapActivities(data.booking.activity) }))
+                .catch(err => { console.error('Failed to fetch booking:', err); setSlideOutBooking({ activity: [] }); });
+        } else {
+            setSlideOutBooking({ timestamp: msg.timestamp, activity: [['action', 'message', msg.message, null]] });
+        }
     };
 
     const TabBtn = ({ tabKey, label, count }) => (
@@ -169,6 +189,12 @@ export default function InboxView({ messages = [], setMessages }) {
                     )}
                 </div>
             </div>
+
+            <InboxBookingSlideOut
+                isOpen={!!slideOutBooking}
+                onClose={() => setSlideOutBooking(null)}
+                booking={slideOutBooking}
+            />
         </div>
     );
 }

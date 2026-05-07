@@ -32,7 +32,7 @@ const bookingSchema = Joi.object({
    userID: Joi.string().required(),
    serviceID: Joi.string().required(),
    bookingID: Joi.string().required(),
-   status: Joi.string().valid('pending', 'confirmed', 'canceled').default('pending').required(),
+   status: Joi.string().valid('confirmed', 'canceled').default('confirmed').required(),
    timestamp: Joi.string().required(),
    duration: Joi.object({
       day: Joi.string()
@@ -50,8 +50,7 @@ const bookingSchema = Joi.object({
    clientName: Joi.string().allow('').optional(), 
    activity: Joi.array().items(
       Joi.array().ordered(
-         Joi.string().valid('created', 'pending', 'confirmed', 'canceled', 
-                            'modified', 'time', 'note'),
+         Joi.string().valid('created', 'canceled', 'modified', 'time', 'note'),
          Joi.string()
       ).length(2)
    ).min(1).required(),
@@ -76,7 +75,8 @@ const bookingCreationSchema = Joi.object({
    serviceID: bookingSchema.extract('serviceID'),
    duration: bookingSchema.extract('duration'),
    clientName: bookingSchema.extract('clientName'),
-   timestamp: bookingSchema.extract('timestamp')
+   timestamp: bookingSchema.extract('timestamp'),
+   notes: bookingSchema.extract('notes')
 });
 
 module.exports = { bookingSchema, getBookingsValidate, bookingCreationSchema };
