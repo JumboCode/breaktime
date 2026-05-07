@@ -286,31 +286,6 @@ router.put('/edit', async (req, res) => {
     }
 });
 
-/**
- * input that /create
- * userID
- * serviceID
- * duration
- * 
- * input that /edit requires
- * bookingID
- * status
- * AND OR
- * duration
- * 
- * input that /delete requires
- * bookingID
- * 
- * I think from a security point of view, we need someway to authenticate users who try to /edit or /delete.
- * this could be done using JWT's, confirming that only admins are executing these functions
- */
-
-//questions
-/**
- * what is an example input?
- * 
- */
-
 /* * POST /userbookinghistory :
  *      summary: Get booking history for a specific user
  *

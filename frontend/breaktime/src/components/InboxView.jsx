@@ -1,142 +1,5 @@
 import { useState } from "react";
-
-const DUMMY_MESSAGES = [
-    {
-        id: 1,
-        type: 'update',
-        subtype: 'confirmed',
-        title: 'Booking Confirmed',
-        service: 'Shower Service',
-        bookingId: '#123456',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        detailDate: 'Requested on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 2,
-        type: 'update',
-        subtype: 'confirmed',
-        title: 'Booking Confirmed',
-        service: 'Laundry Service',
-        bookingId: '#123456',
-        timeAgo: '4 hours ago',
-        isRead: true,
-        detailDate: 'Requested on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 3,
-        type: 'action',
-        subtype: 'extra_time',
-        title: 'Requested Extra Time',
-        bookingId: '#123456',
-        timeAgo: '4 hours ago',
-        requestedTime: '+30 min',
-        isRead: false,
-        note: "I'm so sorry I forgot about my detergent so I had to run home to get them",
-        detailDate: 'Requested on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 4,
-        type: 'action',
-        subtype: 'note',
-        title: 'Left A Note',
-        bookingId: '#123456',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "I'm wondering if I can have two extra chairs for my shower booking because I'm sad",
-        detailDate: 'Left on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 5,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 6,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 7,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 8,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 9,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 10,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 11,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-    {
-        id: 12,
-        type: 'action',
-        subtype: 'general_inquiry',
-        title: 'Send A Message',
-        source: 'General Inquiry',
-        timeAgo: '4 hours ago',
-        isRead: false,
-        note: "How can I sign up for weekly job training?",
-        detailDate: 'Sent on Monday, Oct 15th, 12:45 PM',
-    },
-];
-
-const SERVICE_BADGE_COLOR = 'bg-[#7DDCFB] text-black';
+import { apiCall } from "../utils/general";
 
 // Filled medium-purple circle with white checkmark — used for update messages
 const UpdateIcon = () => (
@@ -154,35 +17,28 @@ const ActionIcon = () => (
     </div>
 );
 
-function ServiceBadge({ service }) {
-    return (
-        <span className={`${SERVICE_BADGE_COLOR} text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap`}>
-            {service}
-        </span>
-    );
-}
+function getTimeAgo(timestamp) {
+    const then = new Date(timestamp);
+    if (isNaN(then.getTime())) return timestamp;
 
-function ExtraTimeBadge({ time }) {
-    return (
-        <span className="bg-light-purple text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
-            {time}
-        </span>
-    );
-}
+    const now = new Date();
+    const diffMs = now - then;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-function NoteBadge({ note }) {
-    const truncated = note.length > 38 ? note.slice(0, 38) + '...' : note;
-    return (
-        <span className="bg-light-purple text-white text-xs px-3 py-1 rounded-full max-w-[260px] truncate inline-block">
-            {truncated}
-        </span>
-    );
+    if (diffHours < 24) {
+        return diffHours === 0 ? 'Just now' : `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
+    } else if (diffDays <= 3) {
+        return `${diffDays} Day${diffDays === 1 ? '' : 's'} Ago`;
+    } else {
+        return timestamp;
+    }
 }
 
 function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
     const stopAndToggle = (e) => {
         e.stopPropagation();
-        onToggleRead(msg.id);
+        onToggleRead(msg._id);
     };
 
     return (
@@ -190,77 +46,48 @@ function MessageItem({ msg, isSelected, onClick, onToggleRead }) {
             onClick={onClick}
             className="flex items-start gap-4 px-8 py-4 mx-8 my-4 shadow-sm shadow-light-purple rounded-2xl cursor-pointer transition-colors hover:bg-staff-main-comp-hover"
         >
-            {/* Conditional icon based on message type */}
             <div className="mt-1 flex-shrink-0">
-                {msg.type === 'update' ? <UpdateIcon /> : <ActionIcon />}
+                {msg.type === 'UPDATE' ? <UpdateIcon /> : <ActionIcon />}
             </div>
 
-            {/* Main content */}
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-dark-navy text-base">{msg.title}</span>
-                    {msg.service && <ServiceBadge service={msg.service} />}
-                    {msg.subtype === 'extra_time' && msg.requestedTime && (
-                        <ExtraTimeBadge time={msg.requestedTime} />
-                    )}
-                    {(msg.subtype === 'note' || msg.subtype === 'general_inquiry') && msg.note && (
-                        <NoteBadge note={msg.note} />
-                    )}
-                </div>
-
+                <span className="font-bold text-dark-navy text-base">{msg.title}</span>
                 <p className="text-sm text-gray-500 mt-1">
-                    {msg.bookingId ? `Booking ${msg.bookingId}` : msg.source}
+                    {msg.bookingID ? `Booking #${msg.bookingID}` : 'General Inquery'}
                 </p>
             </div>
 
-            {/* Right column: timestamp on top, action buttons below — all right-aligned */}
             <div className="flex flex-col items-end flex-shrink-0 gap-2">
-                <span className="text-sm text-gray-400 whitespace-nowrap">{msg.timeAgo}</span>
-
-                {msg.subtype === 'extra_time' && (
-                    <div className="flex items-center gap-3">
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Approve</button>
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Reject</button>
-                        <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
-                            {msg.isRead ? 'Mark as unread' : 'Mark as read'}
-                        </button>
-                    </div>
-                )}
-                {(msg.subtype === 'note' || msg.subtype === 'general_inquiry') && (
-                    <div className="flex items-center gap-3">
-                        <button className="text-sm underline text-dark-navy font-medium cursor-pointer" onClick={e => e.stopPropagation()}>Send a message</button>
-                        <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
-                            {msg.isRead ? 'Mark as unread' : 'Mark as read'}
-                        </button>
-                    </div>
-                )}
-                {msg.type === 'update' && (
-                    <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
-                        {msg.isRead ? 'Mark as unread' : 'Mark as read'}
-                    </button>
-                )}
+                <span className="text-sm text-gray-400 whitespace-nowrap">{getTimeAgo(msg.timestamp)}</span>
+                <button className="text-sm underline text-dark-navy cursor-pointer" onClick={stopAndToggle}>
+                    {msg.isRead ? 'Mark as unread' : 'Mark as read'}
+                </button>
             </div>
         </div>
     );
 }
 
-export default function InboxView() {
+export default function InboxView({ messages = [], setMessages }) {
     const [activeTab, setActiveTab] = useState('all');
     const [readFilter, setReadFilter] = useState('all');
     const [selectedMessage, setSelectedMessage] = useState(null);
-    const [messages, setMessages] = useState(DUMMY_MESSAGES);
 
     const toggleRead = (id) => {
-        setMessages(prev => prev.map(m => m.id === id ? { ...m, isRead: !m.isRead } : m));
-        // Keep the detail panel in sync if this message is currently selected
-        setSelectedMessage(prev => prev?.id === id ? { ...prev, isRead: !prev.isRead } : prev);
+        const msg = messages.find(m => m._id === id);
+        const newIsRead = !msg.isRead;
+
+        setMessages(prev => prev.map(m => m._id === id ? { ...m, isRead: newIsRead } : m));
+        setSelectedMessage(prev => prev?._id === id ? { ...prev, isRead: newIsRead } : prev);
+
+        apiCall('/notification/markRead', 'PATCH', { _id: id, isRead: newIsRead }, null)
+            .catch(err => console.error('Failed to update read status:', err));
     };
 
     const filteredMessages = messages.filter(msg => {
         const tabMatch =
             activeTab === 'all' ||
-            (activeTab === 'action' && msg.type === 'action') ||
-            (activeTab === 'update' && msg.type === 'update');
+            (activeTab === 'action' && msg.type === 'ALERT') ||
+            (activeTab === 'update' && msg.type === 'UPDATE');
         const readMatch =
             readFilter === 'all' ||
             (readFilter === 'read' && msg.isRead) ||
@@ -269,7 +96,7 @@ export default function InboxView() {
     });
 
     const handleMessageClick = (msg) => {
-        setSelectedMessage(prev => prev?.id === msg.id ? null : msg);
+        setSelectedMessage(prev => prev?._id === msg._id ? null : msg);
     };
 
     const TabBtn = ({ tabKey, label, count }) => (
@@ -309,7 +136,7 @@ export default function InboxView() {
             {/* Tabs + Read filter */}
             <div className="flex items-center mx-7 my-2 px-2 py-1 gap-2 border border-gray-300 rounded-full">
                 <div className="flex items-center gap-2 flex-1">
-                    <TabBtn tabKey="all" label="ALL" count={messages.length} />
+                    <TabBtn tabKey="all" label="ALL" count={messages.filter(m => !m.isRead).length} />
                     <TabBtn tabKey="action" label="Action Required" />
                     <TabBtn tabKey="update" label="Updates" />
                 </div>
@@ -332,9 +159,9 @@ export default function InboxView() {
                     ) : (
                         filteredMessages.map(msg => (
                             <MessageItem
-                                key={msg.id}
+                                key={msg._id}
                                 msg={msg}
-                                isSelected={selectedMessage?.id === msg.id}
+                                isSelected={selectedMessage?._id === msg._id}
                                 onClick={() => handleMessageClick(msg)}
                                 onToggleRead={toggleRead}
                             />

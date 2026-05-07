@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import InboxBookingSlideOut from './InboxBookingSlideOut';
+import InboxBookingSlideOut from '../components/InboxBookingSlideOut';
 
 // ── Dummy bookings covering every activity variant ──────────────────────────
 
