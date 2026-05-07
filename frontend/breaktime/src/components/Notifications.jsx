@@ -17,7 +17,7 @@ function getTimeAgo(timestamp) {
 }
 
 const Notifications = ({ userType, onOpenInbox, unreadCount = 0, notifications = [], onDismiss }) => {
-    const visible = notifications.filter(n => !n.wasNotified);
+    const visible = notifications.filter(n => !n.wasNotified && !n.isRead);
 
     // Colors that change based on Staff view vs YA view
     const notificationTextColor = userType === "Staff" ? "text-white" : "text-dark-navy";

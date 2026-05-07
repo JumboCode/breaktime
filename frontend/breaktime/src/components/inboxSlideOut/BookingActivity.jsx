@@ -36,9 +36,8 @@ const UPDATE_ACTIVITY_CONFIG = {
 };
 
 const ACTION_ACTIVITY_CONFIG = {
-  time:    { ...ACTION_BASE, label: "Requested Extra Time" },
-  note:    { ...ACTION_BASE, label: "Left A Specific Note" },
-  message: { ...ACTION_BASE, label: "Sent A General Inquiry" },
+  time: { ...ACTION_BASE, label: "Requested Extra Time" },
+  note: { ...ACTION_BASE, label: "Left A Specific Note" },
 };
 
 function getActivityConfig(activityType, activityKind) {

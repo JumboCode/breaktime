@@ -75,6 +75,23 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                         Sign Out
                     </button>
                 </div>
+            : userType === 'YA' ?
+                <div className="flex items-end text-dark-navy text-xl gap-[20px]">
+                    <button
+                        onClick={() => onViewChange('services')}
+                        className={`cursor-pointer hover:underline w-[93px]
+                            ${currentView === 'services' ? 'underline font-semibold' : 'hover:font-semibold'}`}
+                    >
+                        Services
+                    </button>
+                    <button
+                        onClick={() => onViewChange('inbox')}
+                        className={`cursor-pointer hover:underline w-[110px]
+                            ${currentView === 'inbox' ? 'underline font-semibold' : 'hover:font-semibold'}`}
+                    >
+                        View Inbox
+                    </button>
+                </div>
             :
                 <></>
             }

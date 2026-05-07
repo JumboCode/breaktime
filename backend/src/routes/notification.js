@@ -56,10 +56,12 @@ router.post('/create', async (req, res) => {
         } else {
                 const { senderID,
                         receiverID,
-                        bookingID, 
-                        type, 
-                        title, 
-                        message 
+                        bookingID,
+                        conversationID,
+                        senderName,
+                        type,
+                        title,
+                        message
                 } = req.body;
 
                 if (type === 'UPDATE' && !bookingID) {
@@ -82,6 +84,8 @@ router.post('/create', async (req, res) => {
                         senderID,
                         receiverID,
                         ...(bookingID ? { bookingID } : {}),
+                        ...(conversationID ? { conversationID } : {}),
+                        ...(senderName ? { senderName } : {}),
                         type,
                         isRead: false,
                         wasNotified: false,
@@ -92,8 +96,16 @@ router.post('/create', async (req, res) => {
 
                 const document = await collection.insertOne(newNotif);
 
+                // For new MESSAGE threads (no conversationID supplied), set conversationID = _id
+                if (type === 'MESSAGE' && !conversationID) {
+                    await collection.updateOne(
+                        { _id: document.insertedId },
+                        { $set: { conversationID: document.insertedId.toString() } }
+                    );
+                }
+
                 return res.status(200).json(
-                    { message: 'Notification created successfully', _id: document.insertedId }
+                    { message: 'Notification created successfully', _id: document.insertedId, conversationID: conversationID || document.insertedId.toString() }
                 );
         }
 
@@ -133,13 +145,18 @@ router.post('/getInbox', async (req, res) => {
         const database = client.db('notifications');
         const collection = database.collection('notifications');
 
-        const { userID } = req.body;
+        const { userID, role } = req.body;
 
         if (!userID) {
             return res.status(400).json({ message: 'userID is required' });
         }
 
-        const notifications = await collection.find({ receiverID: userID })
+        // Staff see their personal notifications AND the shared staff-inbox messages
+        const query = role === 'staff'
+            ? { $or: [{ receiverID: userID }, { receiverID: 'staff-inbox' }] }
+            : { receiverID: userID };
+
+        const notifications = await collection.find(query)
             .sort({ _id: -1 })
             .toArray();
 
@@ -151,6 +168,51 @@ router.post('/getInbox', async (req, res) => {
             'message': 'Error connecting to MongoDB: ',
             error
         });
+    }
+});
+
+/* * POST /getConversation :
+ *      summary: Returns all messages belonging to a conversation thread.
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                  schema:
+ *                      properties:
+ *                          conversationID:
+ *                              type: String
+ *                      required:
+ *                          - conversationID
+ *      responses:
+ *          200:
+ *              description: Array of notifications in the conversation, sorted oldest first.
+ *          400:
+ *              description: Missing conversationID.
+ *          500:
+ *              description: Error connecting to MongoDB.
+ */
+router.post('/getConversation', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('notifications');
+        const collection = database.collection('notifications');
+
+        const { conversationID } = req.body;
+
+        if (!conversationID) {
+            return res.status(400).json({ message: 'conversationID is required' });
+        }
+
+        const messages = await collection.find({ conversationID })
+            .sort({ _id: 1 })
+            .toArray();
+
+        return res.status(200).json({ messages });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Error connecting to MongoDB: ', error });
     }
 });
 

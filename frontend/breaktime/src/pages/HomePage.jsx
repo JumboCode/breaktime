@@ -99,7 +99,7 @@ export default function HomePage() {
     useEffect(() => {
         if (!isLoaded || !user) return;
         const fetchNotifications = () => {
-            apiCall('/notification/getInbox', 'POST', { userID: user.username }, null)
+            apiCall('/notification/getInbox', 'POST', { userID: user.username, role: 'staff' }, null)
                 .then(data => setNotifications(data.notifications ?? []))
                 .catch(() => {});
         };

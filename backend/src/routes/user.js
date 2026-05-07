@@ -111,6 +111,43 @@ router.post('/create', async (req, res) => {
     }
 });
 
+/* * GET /getAll :
+ *      summary: Returns all approved YA users (permission level 1).
+ *
+ *      responses:
+ *        200:
+ *          description: Array of { id, username } objects for all YA users.
+ *        500:
+ *          description: Error fetching from Clerk.
+ */
+router.get('/getAll', async (req, res) => {
+    try {
+        let allUsers = [];
+        let offset = 0;
+        const limit = 100;
+
+        // Page through Clerk's user list to collect all YA users
+        while (true) {
+            const result = await clerkClient.users.getUserList({ limit, offset });
+            const page = Array.isArray(result) ? result : (result?.data || []);
+            if (page.length === 0) break;
+
+            const yaUsers = page
+                .filter(u => u.username?.startsWith('ya_') && u.publicMetadata?.permission === '1')
+                .map(u => ({ id: u.id, username: u.username }));
+
+            allUsers = allUsers.concat(yaUsers);
+            if (page.length < limit) break;
+            offset += limit;
+        }
+
+        return res.status(200).json({ users: allUsers });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Error fetching users from Clerk: ', error });
+    }
+});
+
 // Generate a username, append string so it works with Clerk
 // Example: YA_12345678
 function username_generation() {

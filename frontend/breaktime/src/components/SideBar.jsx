@@ -33,7 +33,7 @@ const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick, onOpenIn
                     <h1 className="text-dark-navy text-[42px] mb-8 leading-12">Welcome Back, {user.username.toUpperCase()}!</h1>
                     <div className="flex flex-col gap-6 h-full">
                         <div className="h-6/20 border-2 border-bright-purple rounded-3xl p-4 overflow-hidden"><NextBookings/></div>
-                        <div className="h-6/20 border-2 border-bright-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType}/></div>
+                        <div className="h-6/20 border-2 border-bright-purple rounded-3xl p-4 overflow-hidden"><Notifications userType={userType} onOpenInbox={onOpenInbox} unreadCount={unreadCount} notifications={notifications} onDismiss={onDismiss}/></div>
                         <div className="text-dark-navy absolute bottom-0 mb-6">
                             Contact Us:
                             <br />

@@ -1,12 +1,16 @@
+import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "motion/react";
 import BookingActivityFeed from "./BookingActivity";
+import MessageThread from "./MessageThread";
 
 const FONT = "'Poppins', sans-serif";
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function InboxBookingSlideOut({ isOpen, onClose, booking }) {
+export default function InboxBookingSlideOut({ isOpen, onClose, booking, onReplySuccess }) {
   if (!booking) return null;
+
+  const isMessage = booking.isMessage === true;
 
   const activities = booking.activity ?? [
     [
@@ -61,10 +65,47 @@ export default function InboxBookingSlideOut({ isOpen, onClose, booking }) {
           fontFamily: FONT,
         }}
       >
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
-          <BookingActivityFeed activities={activities} booking={booking} />
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "#9CA3AF",
+            fontSize: 20,
+            lineHeight: 1,
+            zIndex: 1,
+          }}
+        >
+          ×
+        </button>
+
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px", display: "flex", flexDirection: "column" }}>
+          {isMessage ? (
+            <MessageThread notification={booking} onReplySuccess={onReplySuccess} />
+          ) : (
+            <BookingActivityFeed activities={activities} booking={booking} />
+          )}
         </div>
       </motion.aside>
     </>
   );
 }
+
+InboxBookingSlideOut.propTypes = {
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
+  booking: PropTypes.shape({
+    isMessage: PropTypes.bool,
+    activity: PropTypes.array,
+    activityType: PropTypes.string,
+    activityMessage: PropTypes.string,
+    status: PropTypes.string,
+    timestamp: PropTypes.string,
+  }),
+  onReplySuccess: PropTypes.func,
+};
