@@ -65,11 +65,8 @@ router.post('/create', async (req, res) => {
                 // Set req body to individual fields
                 const { firstName, lastName, password, age, gender, race, zone } = req.body;
 
-                // Generate user ID using 8 digit random num
-                let username = username_generation();
-                while (await collection.findOne({ username })) {
-                        username = username_generation();
-                }
+                // Generate username: [first letter][first 5 of last name][2-digit suffix]
+                let username = await username_generation(collection, firstName, lastName);
                 
                 const newUser = {
                         firstName, 
@@ -97,8 +94,8 @@ router.post('/create', async (req, res) => {
 
                 // Await clerk return, return success
                 const user = await clerkClient.users.createUser(clerkUser);
-                return res.status(200).json({ 
-                        message: 'User created successfully', _id: document.insertedId, user 
+                return res.status(200).json({
+                        message: 'User created successfully', username, _id: document.insertedId, user
                 });
         }
 
@@ -148,11 +145,56 @@ router.get('/getAll', async (req, res) => {
     }
 });
 
-// Generate a username, append string so it works with Clerk
-// Example: YA_12345678
-function username_generation() {
-        rand = Math.floor(Math.random() * 100000000);
-        return 'ya_' + String(rand).padStart(8, '0');
+/* * GET /getAll :
+ *      summary: Returns all approved YA users (permission level 1).
+ *
+ *      responses:
+ *        200:
+ *          description: Array of { id, username } objects for all YA users.
+ *        500:
+ *          description: Error fetching from Clerk.
+ */
+router.get('/getAll', async (req, res) => {
+    try {
+        let allUsers = [];
+        let offset = 0;
+        const limit = 100;
+
+        // Page through Clerk's user list to collect all YA users
+        while (true) {
+            const result = await clerkClient.users.getUserList({ limit, offset });
+            const page = Array.isArray(result) ? result : (result?.data || []);
+            if (page.length === 0) break;
+
+            const yaUsers = page
+                .filter(u => u.username?.startsWith('ya_') && u.publicMetadata?.permission === '1')
+                .map(u => ({ id: u.id, username: u.username, firstName: u.firstName || "", lastName: u.lastName || "" }));
+
+            allUsers = allUsers.concat(yaUsers);
+            if (page.length < limit) break;
+            offset += limit;
+        }
+
+        return res.status(200).json({ users: allUsers });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Error fetching users from Clerk: ', error });
+    }
+});
+
+// Generate username: [first letter of first name][first 5 of last name][2-digit suffix]
+// Example: Luis Suarez → lsuare00, next lsuare01, etc.
+async function username_generation(collection, firstName, lastName) {
+        const base = firstName[0].toLowerCase() + lastName.substring(0, 5).toLowerCase();
+        const existing = await collection.countDocuments({ username: { $regex: `^${base}\\d{2}$` } });
+        let num = existing;
+        let username = base + String(num).padStart(2, '0');
+        while (await collection.findOne({ username })) {
+                num++;
+                if (num > 99) throw new Error('Username limit reached for this name combination');
+                username = base + String(num).padStart(2, '0');
+        }
+        return username;
 }
 
 // Export this module so it's available to other users
