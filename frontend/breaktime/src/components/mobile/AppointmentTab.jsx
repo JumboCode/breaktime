@@ -2,7 +2,7 @@ import AppointmentHistory from "./AppointmentHistory";
 
 export default function AppointmentTab() {
     return (
-        <div>
+        <div className="font-all">
             <div className="w-fit h-fit ml-[30px] mt-[23px] flex flex-col text-[14vw] font-extralight">
                 <span className="-my-4">View</span>
                 <span className="-my-4">Your</span>

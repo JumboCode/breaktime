@@ -134,7 +134,7 @@ router.get('/getAll', async (req, res) => {
 
             const yaUsers = page
                 .filter(u => u.username?.startsWith('ya_') && u.publicMetadata?.permission === '1')
-                .map(u => ({ id: u.id, username: u.username }));
+                .map(u => ({ id: u.id, username: u.username, firstName: u.firstName || "", lastName: u.lastName || "" }));
 
             allUsers = allUsers.concat(yaUsers);
             if (page.length < limit) break;

@@ -83,6 +83,21 @@ router.post('/create', async (req, res) => {
         const database = client.db('services');
         const bookingsCollection = database.collection('bookings');
 
+        // Prevent duplicate bookings: one per user per service per day
+        const duplicate = await bookingsCollection.findOne({
+            userID: req.body.userID,
+            serviceID: req.body.serviceID,
+            timestamp: req.body.timestamp,
+            status: 'confirmed',
+        });
+
+        if (duplicate) {
+            return res.status(409).json({
+                success: false,
+                message: 'You already have a booking for this service on this date.',
+            });
+        }
+
         const generateBookingID = () => {
             return Array.from({ length: 5 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
             .charAt(Math.floor(Math.random() * 36))).join('');

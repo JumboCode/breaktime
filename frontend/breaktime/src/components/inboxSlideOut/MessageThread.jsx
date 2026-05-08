@@ -4,27 +4,32 @@ import { apiCall } from "/src/utils/general";
 
 const FONT = "'Poppins', sans-serif";
 
+const getSize = (desktopPx, mobileVw) => {
+  if (typeof window === "undefined" || window.innerWidth >= 440) return desktopPx;
+  return Math.round(window.innerWidth * mobileVw);
+};
+
 function MessageBubble({ msg, currentUserID }) {
     const isMine = msg.senderID === currentUserID;
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: getSize(20, 0.055) }}>
             {/* Sender + timestamp header */}
             <div style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: getSize(8, 0.02),
                 justifyContent: isMine ? "flex-end" : "flex-start",
             }}>
                 <span style={{
-                    fontSize: 13,
+                    fontSize: getSize(13, 0.038),
                     fontWeight: 600,
                     color: isMine ? "#ABA6E3" : "#FF480B",
                     fontFamily: FONT,
                 }}>
                     {isMine ? "You" : (msg.senderName || msg.senderID)}
                 </span>
-                <span style={{ fontSize: 11, color: "#9CA3AF", fontFamily: FONT }}>
+                <span style={{ fontSize: getSize(11, 0.030), color: "#9CA3AF", fontFamily: FONT }}>
                     {msg.timestamp}
                 </span>
             </div>
@@ -32,7 +37,7 @@ function MessageBubble({ msg, currentUserID }) {
             {/* Subject line — only shown on first message (no conversationID originally set) */}
             {msg.title && msg.title !== msg.message && (
                 <div style={{
-                    fontSize: 13,
+                    fontSize: getSize(13, 0.038),
                     fontWeight: 700,
                     color: "#374151",
                     fontFamily: FONT,
@@ -46,11 +51,11 @@ function MessageBubble({ msg, currentUserID }) {
 
             {/* Message body card */}
             <div style={{
-                borderRadius: 14,
+                borderRadius: getSize(14, 0.04),
                 border: `1.5px solid ${isMine ? "rgba(171,166,227,0.4)" : "rgba(255,72,11,0.25)"}`,
-                padding: "12px 16px",
+                padding: `${getSize(12, 0.035)}px ${getSize(16, 0.045)}px`,
                 background: isMine ? "#F5F4FF" : "#FFFAF8",
-                fontSize: 14,
+                fontSize: getSize(14, 0.04),
                 fontFamily: FONT,
                 color: "#374151",
                 lineHeight: 1.6,
@@ -159,10 +164,10 @@ export default function MessageThread({ notification, onReplySuccess }) {
         <div style={{ display: "flex", flexDirection: "column", height: "100%", fontFamily: FONT }}>
             {/* Subject header */}
             <div style={{ paddingBottom: 16, borderBottom: "1px solid #F3F4F6", marginBottom: 16 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "#262445", margin: 0 }}>
+                <h3 style={{ fontSize: getSize(16, 0.045), fontWeight: 700, color: "#262445", margin: 0 }}>
                     {messages[0]?.title || "Message Thread"}
                 </h3>
-                <p style={{ fontSize: 12, color: "#9CA3AF", margin: "4px 0 0" }}>
+                <p style={{ fontSize: getSize(12, 0.032), color: "#9CA3AF", margin: "4px 0 0" }}>
                     {messages.length} message{messages.length !== 1 ? "s" : ""}
                 </p>
             </div>
@@ -193,11 +198,11 @@ export default function MessageThread({ notification, onReplySuccess }) {
                     placeholder="Write a reply…"
                     style={{
                         resize: "none",
-                        height: 88,
-                        borderRadius: 14,
+                        height: getSize(88, 0.22),
+                        borderRadius: getSize(14, 0.04),
                         border: "1.5px solid rgba(171,166,227,0.5)",
-                        padding: "10px 14px",
-                        fontSize: 14,
+                        padding: `${getSize(10, 0.025)}px ${getSize(14, 0.04)}px`,
+                        fontSize: getSize(14, 0.04),
                         fontFamily: FONT,
                         color: "#374151",
                         outline: "none",
@@ -212,8 +217,8 @@ export default function MessageThread({ notification, onReplySuccess }) {
                         color: "#fff",
                         border: "none",
                         borderRadius: 999,
-                        padding: "10px 24px",
-                        fontSize: 13,
+                        padding: `${getSize(10, 0.025)}px ${getSize(24, 0.065)}px`,
+                        fontSize: getSize(13, 0.038),
                         fontWeight: 600,
                         fontFamily: FONT,
                         cursor: !replyText.trim() || sending ? "not-allowed" : "pointer",

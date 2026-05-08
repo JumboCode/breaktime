@@ -1,14 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { apiCall } from "/src/utils/general.js";
 import PropTypes from "prop-types";
 import { Trash2, Edit } from "lucide-react";
 import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 
-// Services
-const SERVICE_OPTIONS = [
-  { value: "services", label: "Shower Services" },
-  { value: "laundry", label: "Laundry" },
-  { value: "meeting", label: "Meeting" },
-];
+const toTitleCase = (s) => s.replace(/\b\w/g, c => c.toUpperCase());
 
 const ModifyBookingModal = ({
   booking,
@@ -17,10 +13,21 @@ const ModifyBookingModal = ({
   onClose,
   onUpdate,
 }) => {
+  const [serviceOptions, setServiceOptions] = useState([]);
+
+  useEffect(() => {
+    apiCall('/service/getAllServices', 'GET', null, null)
+      .then(services => {
+        const opts = services.map(s => ({ value: s.id, label: toTitleCase(s.id) }));
+        setServiceOptions(opts);
+      })
+      .catch(() => {});
+  }, []);
+
   // State to manage form data
   const [formData, setFormData] = useState({
     client: booking.client || "",
-    service: booking.service || SERVICE_OPTIONS[0].value,
+    service: booking.service || "",
     date: booking.date || "",
     startTime: booking.startTime || "",
     endTime: booking.endTime || "",
@@ -94,7 +101,7 @@ const ModifyBookingModal = ({
                 setFormData((f) => ({ ...f, service: e.target.value }))
               }
             >
-              {SERVICE_OPTIONS.map((opt) => (
+              {serviceOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>

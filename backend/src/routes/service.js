@@ -57,13 +57,11 @@ router.post('/create', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { id, rules, description, 
-                    serviceDurationInterval, availability } = req.body;
+                const { id, rules, serviceDurationInterval, availability } = req.body;
 
                 const newService = {
                         id,
                         rules,
-                        description,
                         serviceDurationInterval,
                         availability
                 };
@@ -136,13 +134,11 @@ router.put('/update', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { id, rules, description, 
-                    serviceDurationInterval, availability } = req.body;
+                const { id, rules, serviceDurationInterval, availability } = req.body;
 
                 const updatedService = {
                         id,
                         rules,
-                        description,
                         serviceDurationInterval,
                         availability
                 };
@@ -452,6 +448,16 @@ router.post('/getTimeslots', async (req, res) => {
                 error
             });
         }
+    }
+});
+
+router.get('/getAllServices', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const services = await client.db('services').collection('services').find({}).toArray();
+        res.status(200).json(services);
+    } catch (error) {
+        res.status(500).send({ message: 'Error connecting to MongoDB: ', error });
     }
 });
 

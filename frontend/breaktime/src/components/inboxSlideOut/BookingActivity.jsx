@@ -6,6 +6,13 @@ import SendMessageModal from "/src/components/popups/messaging/SendMessageModal.
 
 const FONT = "'Poppins', sans-serif";
 
+// Returns the original desktop px value unchanged on desktop (>= 1025px),
+// and a vw-proportional value on mobile.
+const getSize = (desktopPx, mobileVw) => {
+  if (typeof window === "undefined" || window.innerWidth >= 440) return desktopPx;
+  return Math.round(window.innerWidth * mobileVw);
+};
+
 const dashedLine = (color, extra = {}) => ({
   borderLeft: `2px dashed ${color}`,
   opacity: 0.65,
@@ -48,16 +55,18 @@ function getActivityConfig(activityType, activityKind) {
 }
 
 function CheckIcon() {
+  const size = getSize(18, 0.045);
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width={size} height={size} viewBox="0 0 18 18" fill="none">
       <path d="M3.5 9.5L7 13L14.5 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function ExclamationIcon() {
+  const size = getSize(18, 0.045);
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width={size} height={size} viewBox="0 0 18 18" fill="none">
       <rect x="7.5" y="3.5" width="3" height="7.5" rx="1.5" fill="#B9FF00" />
       <circle cx="9" cy="14" r="1.5" fill="#B9FF00" />
     </svg>
@@ -65,11 +74,12 @@ function ExclamationIcon() {
 }
 
 function ActivityCircle({ config }) {
+  const size = getSize(40, 0.11);
   return (
     <div
       style={{
-        width: 40,
-        height: 40,
+        width: size,
+        height: size,
         borderRadius: "50%",
         backgroundColor: config.circleColor,
         border: `3px solid ${config.circleBorder}`,
@@ -85,11 +95,12 @@ function ActivityCircle({ config }) {
 }
 
 function EmptyCircle() {
+  const size = getSize(40, 0.11);
   return (
     <div
       style={{
-        width: 40,
-        height: 40,
+        width: size,
+        height: size,
         borderRadius: "50%",
         backgroundColor: "#fff",
         border: "2px solid #D1D5DB",
@@ -100,20 +111,25 @@ function EmptyCircle() {
 }
 
 function DottedConnector({ color = "#ABA6E3", height = 48 }) {
+  const marginLeft = getSize(19, 0.05);
+  const connectorHeight = getSize(height, height / 390);
   return (
     <div
       style={dashedLine(color, {
         width: 0,
-        height,
-        marginLeft: 19,
-        marginTop: 8,
-        marginBottom: 8,
+        height: connectorHeight,
+        marginLeft,
+        marginTop: getSize(8, 0.02),
+        marginBottom: getSize(8, 0.02),
       })}
     />
   );
 }
 
 function PillBadge({ label, bgColor, textColor, width }) {
+  const pillHeight = getSize(32, 0.085);
+  const fontSize = getSize(13, 0.038);
+  const paddingH = getSize(14, 0.04);
   return (
     <span
       style={{
@@ -123,10 +139,10 @@ function PillBadge({ label, bgColor, textColor, width }) {
         backgroundColor: bgColor,
         color: textColor,
         borderRadius: 999,
-        padding: "0 14px",
-        height: 32,
+        padding: `0 ${paddingH}px`,
+        height: pillHeight,
         width: width || undefined,
-        fontSize: 13,
+        fontSize,
         fontFamily: FONT,
         fontWeight: 600,
         letterSpacing: "0.01em",
@@ -140,22 +156,27 @@ function PillBadge({ label, bgColor, textColor, width }) {
 
 function Timestamp({ prefix, value, style }) {
   if (!value) return null;
+  const fontSize = getSize(12, 0.032);
   return (
-    <span style={{ fontSize: 12, color: "#9CA3AF", fontFamily: FONT, ...style }}>
+    <span style={{ fontSize, color: "#9CA3AF", fontFamily: FONT, ...style }}>
       {prefix} {value}
     </span>
   );
 }
 
 function actionBtnStyle(bg, color, borderColor) {
+  const height = getSize(40, 0.10);
+  const fontSize = getSize(13, 0.038);
+  const padV = getSize(10, 0.025);
+  const padH = getSize(18, 0.045);
   return {
     background: bg,
     color,
     border: `1.5px solid ${borderColor ?? bg}`,
     borderRadius: 999,
-    padding: "10px 18px",
-    height: 40,
-    fontSize: 13,
+    padding: `${padV}px ${padH}px`,
+    height,
+    fontSize,
     fontFamily: FONT,
     fontWeight: 600,
     cursor: "pointer",
@@ -167,7 +188,7 @@ function UpdateActivity({ config, timestamp, isLast }) {
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <ActivityCircle config={config} />
-        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} width={247} />
+        <PillBadge label={config.label} bgColor={config.pillColor} textColor={config.pillTextColor} width={getSize(247, 0.63)} />
       </div>
 
       <div style={{ display: "flex", alignItems: "flex-start" }}>
@@ -256,11 +277,11 @@ function ActionActivity({ config, activity, timestamp, isLast, note, userRole = 
         </div>
         <div style={{
           flex: 1,
-          borderRadius: 14,
+          borderRadius: getSize(14, 0.04),
           border: "1.5px solid rgba(255, 72, 11, 0.30)",
-          padding: "14px 16px",
+          padding: `${getSize(14, 0.04)}px ${getSize(16, 0.045)}px`,
           background: "#FFFAF8",
-          fontSize: 14,
+          fontSize: getSize(14, 0.04),
           fontWeight: 400,
           fontFamily: FONT,
           color: "#374151",

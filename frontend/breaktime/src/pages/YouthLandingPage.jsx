@@ -6,20 +6,22 @@ import CarouselItem from "../components/YACarouselItem";
 import LaundryCarouselImage from "/src/assets/carousel/LaundryCarouselImage.png";
 import ShowerCarouselImage from "/src/assets/carousel/ShowerCarouselImage.png";
 import StoreCarouselImage from "/src/assets/carousel/StoreCarouselImage.png";
+import DefaultServiceImage from "/src/assets/popup-icons/ServiceImage.png";
 
 import { useState, useCallback, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { apiCall } from "../utils/general";
 import useEmblaCarousel from 'embla-carousel-react';
 
-export default function HomePage() {
-    class ResourceTile {
-        constructor(name, imageImport) {
-            this.name = name;
-            this.imageImport = imageImport;
-        }
-    }
+const SERVICE_IMAGES = {
+    'shower': ShowerCarouselImage,
+    'laundry': LaundryCarouselImage,
+    'store': StoreCarouselImage,
+};
 
+const toTitleCase = (s) => s.replace(/\b\w/g, c => c.toUpperCase());
+
+export default function HomePage() {
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,
         align: 'start',
@@ -32,6 +34,7 @@ export default function HomePage() {
     const [currentView, setCurrentView] = useState('services');
     const [notifications, setNotifications] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [resourceTileList, setResourceTileList] = useState([]);
     const { user, isLoaded } = useUser();
 
     useEffect(() => {
@@ -46,16 +49,16 @@ export default function HomePage() {
         return () => clearInterval(interval);
     }, [isLoaded, user]);
 
-    const resourceTileList = [
-        new ResourceTile("Shower", ShowerCarouselImage),
-        new ResourceTile("Laundry", LaundryCarouselImage),
-        new ResourceTile("Test Store Appointment", StoreCarouselImage),
-        new ResourceTile("Test1 Store Appointment", StoreCarouselImage),
-        new ResourceTile("Test2 Store Appointment", StoreCarouselImage),
-        new ResourceTile("Test3 Store Appointment", StoreCarouselImage),
-        new ResourceTile("Test4 Store Appointment", StoreCarouselImage),
-        new ResourceTile("Test5 Store Appointment", StoreCarouselImage)
-    ];
+    useEffect(() => {
+        apiCall('/service/getAllServices', 'GET', null, null)
+            .then(services => setResourceTileList(
+                services.map(s => ({
+                    name: toTitleCase(s.id),
+                    imageImport: SERVICE_IMAGES[s.id] ?? DefaultServiceImage,
+                }))
+            ))
+            .catch(() => {});
+    }, []);
 
     const filteredResourceTiles = resourceTileList.filter((tile) =>
         tile.name.toLowerCase().includes(searchQuery.toLowerCase())
