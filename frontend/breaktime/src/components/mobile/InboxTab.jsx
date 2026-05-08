@@ -2,6 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { apiCall } from "../../utils/general";
 import InboxBookingSlideOut from "../inboxSlideOut/InboxSlideOut";
+import SendMessageModal from "../popups/messaging/SendMessageModal";
 
 const UpdateIcon = () => (
     <div className="w-[7vw] h-[7vw] rounded-full bg-light-purple flex items-center justify-center shrink-0">
@@ -76,7 +77,10 @@ function MessageItem({ msg, onMore, onToggleRead }) {
     };
 
     return (
-        <div className="flex items-center gap-[3vw] bg-white rounded-4xl px-[4vw] py-[3vw] shadow-sm shadow-light-purple">
+        <div
+            className="flex items-center gap-[3vw] bg-white rounded-4xl px-[4vw] py-[3vw] shadow-sm shadow-light-purple cursor-pointer"
+            onClick={() => onMore(msg)}
+        >
             <div className="shrink-0">
                 {getMessageIcon(msg.type)}
             </div>
@@ -85,22 +89,14 @@ function MessageItem({ msg, onMore, onToggleRead }) {
                 <p className={`text-[4vw] ${msg.isRead ? 'font-normal' : 'font-bold'} text-dark-navy truncate`}>
                     {msg.title}
                 </p>
-                <div className="flex items-center gap-[1.5vw] mt-[0.5vw]">
-                    <span className="text-[3vw] text-gray-400 whitespace-nowrap">{getTimeAgo(msg.timestamp)}</span>
-                    <button
-                        className="text-[3vw] text-gray-500 underline cursor-pointer whitespace-nowrap shrink-0"
-                        onClick={stopAndToggle}
-                    >
-                        {msg.isRead ? 'mark as unread' : 'mark as read'}
-                    </button>
-                </div>
+                <span className="text-[3vw] text-gray-400 whitespace-nowrap">{getTimeAgo(msg.timestamp)}</span>
             </div>
 
             <button
-                onClick={() => onMore(msg)}
-                className="shrink-0 border border-gray-300 rounded-full px-[3vw] py-[1vw] text-[3.5vw] text-gray-600 cursor-pointer"
+                onClick={stopAndToggle}
+                className="shrink-0 border border-gray-300 rounded-full px-[3vw] py-[1vw] text-[3.5vw] text-gray-600 cursor-pointer whitespace-nowrap"
             >
-                More
+                {msg.isRead ? 'mark unread' : 'mark read'}
             </button>
         </div>
     );
@@ -123,6 +119,7 @@ MessageItem.propTypes = {
 export default function MobileInboxView({ messages = [], setMessages, userRole = "ya" }) {
     const [activeTab, setActiveTab] = useState('all');
     const [slideOutBooking, setSlideOutBooking] = useState(null);
+    const [showComposeModal, setShowComposeModal] = useState(false);
 
     const toggleRead = (id) => {
         const msg = messages.find(m => m._id === id);
@@ -179,6 +176,14 @@ export default function MobileInboxView({ messages = [], setMessages, userRole =
                 <span className="text-bright-purple -my-4">Messages</span>
             </div>
 
+            {/* Compose button */}
+            <button
+                onClick={() => setShowComposeModal(true)}
+                className="mt-[3vw] self-start border border-gray-300 rounded-full px-[4vw] py-[1.5vw] text-[3.5vw] text-gray-500 font-all"
+            >
+                send a message
+            </button>
+
             {/* Tabs */}
             <div className="flex items-center gap-[5vw] mt-10 mb-[3vw]">
                 <TabBtn tabKey="all" label="All" />
@@ -209,6 +214,14 @@ export default function MobileInboxView({ messages = [], setMessages, userRole =
                 booking={slideOutBooking}
                 userRole={userRole}
             />
+
+            {showComposeModal && (
+                <SendMessageModal
+                    role={userRole}
+                    onClose={() => setShowComposeModal(false)}
+                    onSent={() => setShowComposeModal(false)}
+                />
+            )}
         </div>
     );
 }

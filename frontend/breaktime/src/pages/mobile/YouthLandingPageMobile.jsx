@@ -16,9 +16,14 @@ export default function YouthLandingPageMobile() {
 
     useEffect(() => {
         if (!user) return;
-        apiCall('/notification/getInbox', 'POST', { userID: user.username }, null)
-            .then(data => setMessages(data.notifications ?? []))
-            .catch(err => console.error('Failed to fetch inbox:', err));
+        const fetchMessages = () => {
+            apiCall('/notification/getInbox', 'POST', { userID: user.username }, null)
+                .then(data => setMessages(data.notifications ?? []))
+                .catch(() => {});
+        };
+        fetchMessages();
+        const interval = setInterval(fetchMessages, 30000);
+        return () => clearInterval(interval);
     }, [user]);
 
     const handleSignOut = async () => {
