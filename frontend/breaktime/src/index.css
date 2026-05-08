@@ -95,7 +95,8 @@
 
 @layer utilities {
   .scrollbar-purple::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
+    height: 8px;
   }
 
   .scrollbar-purple::-webkit-scrollbar-track {

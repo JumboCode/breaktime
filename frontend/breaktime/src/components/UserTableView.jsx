@@ -56,7 +56,7 @@ function ConfirmModal({ confirm, onConfirm, onCancel }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 font-all">
             <div className="bg-staff-main-comp-bg rounded-2xl shadow-xl px-8 py-7 w-[360px] flex flex-col gap-4">
                 <h2 className="text-xl font-bold text-dark-navy">{copy.title}</h2>
-                <p className="text-sm text-gray-600">{copy.body(confirm.username)}</p>
+                <p className="text-sm text-gray-600">{copy.body(confirm.displayName)}</p>
                 <div className="flex gap-3 justify-end pt-1">
                     <button
                         onClick={onCancel}
@@ -129,7 +129,7 @@ export default function UserTableView() {
 
     useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
 
-    const requestConfirm = (action, username) => setConfirm({ action, username });
+    const requestConfirm = (action, username, displayName) => setConfirm({ action, username, displayName: displayName ?? username });
 
     const handleConfirm = async () => {
         const { action, username } = confirm;
@@ -150,7 +150,7 @@ export default function UserTableView() {
         name: '',
         cell: row => (
             <button
-                onClick={e => { e.stopPropagation(); requestConfirm('delete', row.username); }}
+                onClick={e => { e.stopPropagation(); requestConfirm('delete', row.username, `${row.firstName} ${row.lastName}`); }}
                 className="text-gray-400 hover:text-dot-red transition-colors cursor-pointer"
                 title="Delete account"
             >
@@ -231,7 +231,7 @@ export default function UserTableView() {
             {/* Role tabs */}
             <div className="flex items-center mx-7 my-2 px-2 py-1 gap-2 border border-gray-300 rounded-full">
                 <RoleTabBtn tabKey="ya" label="Young Adults" />
-                <RoleTabBtn tabKey="staff" label="Staff / Admin" />
+                <RoleTabBtn tabKey="staff" label="Staff" />
             </div>
 
             {/* Status filter */}
@@ -240,19 +240,20 @@ export default function UserTableView() {
                 <FilterBtn filterKey="action" label="Action Required" count={pendingCount} />
             </div>
 
-            <div className="flex-1 overflow-y-auto scrollbar-purple px-4">
+            <div className="flex-1 overflow-auto scrollbar-purple px-4">
                 {error ? (
                     <p className="text-dot-red text-sm px-2 mt-4">{error}</p>
                 ) : (
-                    <DataTable
-                        columns={roleTab === 'ya' ? yaColumns : staffColumns}
-                        data={displayed}
-                        customStyles={tableStyles}
-                        highlightOnHover
-                        progressPending={loading}
-                        noDataComponent={<p className="text-gray-400 text-sm">No users</p>}
-                        responsive
-                    />
+                    <div className="min-w-max">
+                        <DataTable
+                            columns={roleTab === 'ya' ? yaColumns : staffColumns}
+                            data={displayed}
+                            customStyles={tableStyles}
+                            highlightOnHover
+                            progressPending={loading}
+                            noDataComponent={<p className="text-gray-400 text-sm">No users</p>}
+                        />
+                    </div>
                 )}
             </div>
         </div>
