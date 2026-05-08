@@ -7,7 +7,7 @@ const FONT = "'Poppins', sans-serif";
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function InboxBookingSlideOut({ isOpen, onClose, booking, onReplySuccess }) {
+export default function InboxBookingSlideOut({ isOpen, onClose, booking, onReplySuccess, userRole = 'staff' }) {
   if (!booking) return null;
 
   const isMessage = booking.isMessage === true;
@@ -88,7 +88,7 @@ export default function InboxBookingSlideOut({ isOpen, onClose, booking, onReply
           {isMessage ? (
             <MessageThread notification={booking} onReplySuccess={onReplySuccess} />
           ) : (
-            <BookingActivityFeed activities={activities} booking={booking} />
+            <BookingActivityFeed activities={activities} booking={booking} userRole={userRole} />
           )}
         </div>
       </motion.aside>
@@ -108,4 +108,5 @@ InboxBookingSlideOut.propTypes = {
     timestamp: PropTypes.string,
   }),
   onReplySuccess: PropTypes.func,
+  userRole: PropTypes.string,
 };

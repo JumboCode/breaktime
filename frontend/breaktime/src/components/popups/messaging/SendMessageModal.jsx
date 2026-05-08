@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useUser } from "@clerk/clerk-react";
 import { apiCall } from "/src/utils/general";
 
-export default function SendMessageModal({ role, onClose, onSent }) {
+export default function SendMessageModal({ role, onClose, onSent, receiverID }) {
     const { user } = useUser();
     const [yaUsers, setYaUsers] = useState([]);
-    const [selectedYaUsername, setSelectedYaUsername] = useState("");
+    const [selectedYaUsername, setSelectedYaUsername] = useState(receiverID ?? "");
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
     const [sending, setSending] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (role === "staff") {
+        if (role === "staff" && !receiverID) {
             apiCall("/user/getAll", "GET", null, null)
                 .then(data => setYaUsers(data.users || []))
                 .catch(() => setError("Failed to load YA users."));
         }
-    }, [role]);
+    }, [role, receiverID]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -52,7 +53,7 @@ export default function SendMessageModal({ role, onClose, onSent }) {
 
     return (
         <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60 p-4"
             onClick={onClose}
         >
             <div
@@ -78,17 +79,23 @@ export default function SendMessageModal({ role, onClose, onSent }) {
                     {role === "staff" ? (
                         <div className="flex flex-col gap-1">
                             <label className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">To</label>
-                            <select
-                                className="bg-[#ABB9FF] rounded-2xl px-3 py-2 text-[#273991] font-medium outline-none appearance-none cursor-pointer"
-                                value={selectedYaUsername}
-                                onChange={e => setSelectedYaUsername(e.target.value)}
-                                required
-                            >
-                                <option value="">Select a YA user…</option>
-                                {yaUsers.map(u => (
-                                    <option key={u.id} value={u.username}>{u.username}</option>
-                                ))}
-                            </select>
+                            {receiverID ? (
+                                <div className="bg-light-purple rounded-2xl px-3 py-2 text-[#273991] font-medium opacity-70">
+                                    {receiverID}
+                                </div>
+                            ) : (
+                                <select
+                                    className="bg-light-purple rounded-2xl px-3 py-2 text-[#273991] font-medium outline-none appearance-none cursor-pointer"
+                                    value={selectedYaUsername}
+                                    onChange={e => setSelectedYaUsername(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select a YA user…</option>
+                                    {yaUsers.map(u => (
+                                        <option key={u.id} value={u.username}>{u.username}</option>
+                                    ))}
+                                </select>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col gap-1">
@@ -155,3 +162,10 @@ export default function SendMessageModal({ role, onClose, onSent }) {
         </div>
     );
 }
+
+SendMessageModal.propTypes = {
+    role: PropTypes.string,
+    onClose: PropTypes.func.isRequired,
+    onSent: PropTypes.func,
+    receiverID: PropTypes.string,
+};

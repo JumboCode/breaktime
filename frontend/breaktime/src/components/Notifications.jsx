@@ -12,7 +12,7 @@ function getTimeAgo(timestamp) {
     } else if (diffDays <= 3) {
         return `${diffDays} Day${diffDays === 1 ? '' : 's'} Ago`;
     } else {
-        return timestamp;
+        return then.toLocaleString('en-US', { month: 'short', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true });
     }
 }
 

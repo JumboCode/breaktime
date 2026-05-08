@@ -70,15 +70,7 @@ router.post('/create', async (req, res) => {
                     );
                 }
 
-                const timestamp = new Date().toLocaleString('en-US', {
-                                    weekday: 'long',
-                                    month: 'short',
-                                    day: '2-digit',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
+                const timestamp = new Date().toISOString();
 
                 const newNotif = {
                         senderID,

@@ -43,7 +43,7 @@ function getTimeAgo(timestamp) {
     } else if (diffDays <= 3) {
         return `${diffDays} Day${diffDays === 1 ? '' : 's'} Ago`;
     } else {
-        return timestamp;
+        return then.toLocaleString('en-US', { month: 'short', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: true });
     }
 }
 
@@ -104,12 +104,16 @@ MessageItem.propTypes = {
 };
 
 function mapActivities(activities = []) {
-    return activities.map(([type, description]) => {
-        if (type === 'canceled') return ['update', 'canceled', description, description];
-        if (type === 'modified')  return ['update', 'modified',  description, description];
-        if (type === 'time')      return ['action', 'time',      description, description];
-        if (type === 'note')      return ['action', 'note',      description, description];
-        return ['update', 'confirmed', description, description];
+    return activities.map((act) => {
+        const [type, val, ts] = act;
+        if (type === 'canceled') return ['update', 'canceled',  val, val];
+        if (type === 'modified') return ['update', 'modified',  val, val];
+        if (type === 'messaged') return ['update', 'messaged',  null, val];
+        if (type === 'approved') return ['update', 'approved',  val, val];
+        if (type === 'rejected') return ['update', 'rejected',  val, val];
+        if (type === 'time')     return ['action', 'time',      val, ts ?? val];
+        if (type === 'note')     return ['action', 'note',      val, val];
+        return ['update', 'confirmed', val, val];
     });
 }
 
@@ -198,7 +202,7 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
             <div className="flex items-center mx-7 my-2 px-2 py-1 gap-2 border border-gray-300 rounded-full">
                 <div className="flex items-center gap-2 flex-1">
                     <TabBtn tabKey="all" label="ALL" count={unreadCount} />
-                    <TabBtn tabKey="action" label="Action Required" />
+                    {userRole === 'staff' && <TabBtn tabKey="action" label="Action Required" />}
                     <TabBtn tabKey="update" label="Updates" />
                     <TabBtn tabKey="messages" label="Messages" count={unreadMessageCount || undefined} />
                 </div>
@@ -234,6 +238,7 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
                 isOpen={!!slideOutBooking}
                 onClose={() => setSlideOutBooking(null)}
                 booking={slideOutBooking}
+                userRole={userRole}
             />
 
             {showComposeModal && (
