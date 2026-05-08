@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { apiCall } from '/src/utils/general.js';
 import { FailurePopup, SuccessPopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
 
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
+
 const calendarStyles = `
     .react-calendar__tile--active {
         background: #ABB9FF !important;
@@ -97,14 +99,37 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Only allow dates strictly after today
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    const mobile = isMobile();
+
+    const s = mobile ? {
+        container: "flex flex-col gap-[3vw] font-poppins",
+        heading: "text-[5vw] text-dark-navy font-medium",
+        label: "text-[4vw] text-[#2F2F2F]",
+        pill: "px-[3vw] py-[1vw] rounded-2xl bg-[#D6DFFF] text-[4vw] text-[#262445]",
+        timeButton: "px-[3vw] py-[1.5vw] rounded-3xl text-[3.5vw] cursor-pointer transition-colors bg-[#ABB9FF] text-[#262445]",
+        primaryBtn: "flex-1 py-[3vw] bg-[#B27DED] text-[#F0F7F2] text-[4vw] rounded-2xl",
+        outlineBtn: "flex-1 py-[3vw] border border-[#B27DED] text-[#B27DED] text-[4vw] rounded-2xl",
+        placeholder: "text-[3.5vw] opacity-70",
+        chevronSize: windowWidth * 0.05,
+    } : {
+        container: "flex flex-col gap-4 font-poppins",
+        heading: "text-[22px] text-dark-navy font-medium",
+        label: "text-[22px] text-[#2F2F2F]",
+        pill: "px-4 py-2 rounded-2xl bg-[#D6DFFF] text-[18px] text-[#262445]",
+        timeButton: "px-4 py-2 rounded-3xl text-[16px] cursor-pointer transition-colors bg-[#ABB9FF] text-[#262445]",
+        primaryBtn: "flex-1 py-3 bg-[#B27DED] text-[#F0F7F2] text-[18px] rounded-2xl",
+        outlineBtn: "flex-1 py-3 border border-[#B27DED] text-[#B27DED] text-[18px] rounded-2xl",
+        placeholder: "text-[16px] opacity-70",
+        chevronSize: 20,
+    };
 
     const calendarNaturalWidth = 400;
     const calendarNaturalHeight = 420;
-    const calendarScale = (windowWidth * 0.9) / calendarNaturalWidth;
+    const calendarScale = mobile ? (windowWidth * 0.9) / calendarNaturalWidth : 1;
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
 
     const handleDateChange = (date) => {
         if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
@@ -124,7 +149,6 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
 
         const { startTime, endTime } = calculateTimes(selectedTime);
         const bookingID = booking.bookingID || booking.id;
-
         const newTimestamp = selectedDate.toISOString().split('T')[0];
         const newDuration = { day: getDayFromDate(selectedDate), startTime, endTime };
 
@@ -143,27 +167,27 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
     };
 
     return (
-        <div className="flex flex-col gap-[3vw]">
-            <p className="text-[5vw] text-dark-navy font-medium">Editing your booking.</p>
+        <div className={s.container}>
+            <p className={s.heading}>Editing your booking.</p>
 
+            {/* Service */}
             <div className="flex flex-col gap-[2vw]">
-                <span className="text-[4vw] text-[#2F2F2F]">Service</span>
-                <div className="px-[3vw] py-[2vw] bg-[#D6DFFF] rounded-2xl w-fit">
-                    <span className="text-dark-navy text-[4vw]">{booking.serviceID}</span>
-                </div>
+                <span className={s.label}>Service</span>
+                <span className={`w-fit ${s.pill}`}>{booking.serviceID}</span>
             </div>
 
             {/* Calendar */}
             <div className="flex flex-col gap-[2vw]">
+                <span className={s.label}>Date</span>
                 <style>{calendarStyles}</style>
                 <div style={{
                     transform: `scale(${calendarScale})`,
                     transformOrigin: 'top left',
-                    width: `${calendarNaturalWidth}px`,
-                    height: `${calendarNaturalHeight * calendarScale - 100}px`,
+                    width: mobile ? `${calendarNaturalWidth}px` : 'auto',
+                    height: mobile ? `${calendarNaturalHeight * calendarScale - 100}px` : 'auto',
                 }}>
                     <Calendar
-                        className="border-none [&&]:!bg-transparent [&&]:!border-0"
+                        className="border-none [&&]:bg-transparent! [&&]:border-0!"
                         onChange={handleDateChange}
                         value={selectedDate}
                         minDate={tomorrow}
@@ -177,7 +201,7 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
 
             {/* Time */}
             <div className="flex flex-col gap-[2vw]">
-                <span className="text-[4vw] text-[#2F2F2F]">Time</span>
+                <span className={s.label}>Time</span>
                 {selectedDate ? (
                     <div className="flex gap-[2vw] flex-wrap">
                         {timeSlots.map((slot) => (
@@ -185,30 +209,23 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
                                 key={slot}
                                 type="button"
                                 onClick={() => setSelectedTime(slot)}
-                                className={`px-[3vw] py-[1.5vw] rounded-3xl text-[3.5vw] cursor-pointer transition-colors
-                                    bg-[#ABB9FF] text-[#262445]
-                                    ${selectedTime === slot ? 'opacity-100' : 'opacity-40'}`}
+                                className={`${s.timeButton} ${selectedTime === slot ? 'opacity-100' : 'opacity-40'}`}
                             >
                                 {slot}
                             </button>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-[3.5vw] opacity-70">Select a day to see available time slots</p>
+                    <p className={s.placeholder}>Select a day to see available time slots</p>
                 )}
             </div>
 
             {/* Actions */}
             <div className="flex gap-[3vw] mt-[2vw]">
-                <button
-                    onClick={onCancel}
-                    className="flex-1 py-[3vw] border border-[#B27DED] text-[#B27DED] text-[4vw] rounded-2xl"
-                >
-                    Cancel
-                </button>
+                <button onClick={onCancel} className={s.outlineBtn}>Cancel</button>
                 <button
                     onClick={handleUpdate}
-                    className="flex-1 py-[3vw] bg-[#B27DED] text-white text-[4vw] rounded-2xl"
+                    className={`opacity-40 hover:opacity-100 ${s.primaryBtn}`}
                 >
                     Update
                 </button>

@@ -3,6 +3,7 @@ import BookingTab from "/src/components/mobile/BookingTab";
 import BookingPage from "/src/pages/mobile/BookingPageMobile";
 import AppointmentTab from "../../components/mobile/AppointmentTab";
 import MobileInboxView from "../../components/mobile/InboxTab";
+import AppointmentDetailsPage from "/src/pages/mobile/AppointmentDetailsPage";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
 import { apiCall } from "../../utils/general";
@@ -11,6 +12,7 @@ export default function YouthLandingPageMobile() {
     const [activeTab, setActiveTab] = useState('book');
     const [selectedService, setSelectedService] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [selectedBooking, setSelectedBooking] = useState(null);
     const { signOut } = useClerk();
     const { user } = useUser();
 
@@ -48,6 +50,15 @@ export default function YouthLandingPageMobile() {
         );
     }
 
+    if (selectedBooking) {
+        return (
+            <AppointmentDetailsPage
+                booking={selectedBooking}
+                onClose={() => setSelectedBooking(null)}
+            />
+        );
+    }
+
     return (
         <div className="bg-light-grey min-h-screen w-screen overflow-x-hidden">
             <div className="mx-[20px] mt-1">
@@ -55,7 +66,7 @@ export default function YouthLandingPageMobile() {
             </div>
 
             {activeTab === 'book' && <BookingTab onBook={handleBook} />}
-            {activeTab === 'appointment' && <AppointmentTab/>}
+            {activeTab === 'appointment' && <AppointmentTab onSelectBooking={setSelectedBooking} />}
             {activeTab === 'inbox' && (
                 <MobileInboxView messages={messages} setMessages={setMessages} userRole="ya" />
             )}
