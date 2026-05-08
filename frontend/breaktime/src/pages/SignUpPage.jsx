@@ -48,9 +48,11 @@ export default function SignUpPage() {
                             <h2 className={`text-light-purple ${mobile ? 'text-[4.5vw]' : 'text-xl'}`}>
                                 Let's get you started!
                             </h2>
-                            <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
+                            {!mobile && (
+                                <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
+                            )}
                             <div className="flex-1">
-                                {selectedType === 'staff' ? <StaffSignup /> : <UserSignup />}
+                                {!mobile && selectedType === 'staff' ? <StaffSignup /> : <UserSignup />}
                             </div>
                             <Link to="/"
                                 className={`text-light-purple uppercase underline hover:text-lime-500 ${mobile ? 'text-[3.5vw]' : ''}`}>

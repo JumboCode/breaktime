@@ -50,10 +50,12 @@ export default function SignInPage() {
                             <h2 className={`text-light-purple ${mobile ? 'text-[4.5vw]' : 'text-xl'}`}>
                                 Let's get you started!
                             </h2>
-                            <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
+                            {!mobile && (
+                                <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
+                            )}
                             <div className="flex-1">
-                                {selectedType === 'staff' ? 
-                                    <StaffSignin key="staff-view"/> : 
+                                {!mobile && selectedType === 'staff' ?
+                                    <StaffSignin key="staff-view"/> :
                                     <UserSignin key="user-view"/>}
                                 <div className={`flex gap-10 ${mobile ? 'pt-[6vw]' : 'pt-15'}`}>
                                     <Link to="/signup"
