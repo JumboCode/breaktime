@@ -44,7 +44,6 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
 
             {userType === 'Staff' ?
                 <div className="flex items-end text-light-purple text-xl gap-[20px]">
-                    <div className="font-semibold">View Bookings:</div>
                     <div className="flex gap-[20px] select-none">
                         <button
                             onClick={() => onViewChange('calendar')}
@@ -53,13 +52,6 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                         >
                             Calendar
                         </button>
-                        <button
-                            onClick={() => onViewChange('list')}
-                            className={`cursor-pointer hover:underline w-[93px]
-                                ${currentView === 'list' ? 'underline' : 'hover:font-semibold'}`}
-                        >
-                            List
-                        </button>
                     </div>
                     <button
                         onClick={() => onViewChange('inbox')}
@@ -67,6 +59,13 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                             ${currentView === 'inbox' ? 'underline font-semibold' : 'hover:font-semibold'}`}
                     >
                         View Inbox
+                    </button>
+                    <button
+                        onClick={() => onViewChange('users')}
+                        className={`cursor-pointer hover:underline w-[110px]
+                            ${currentView === 'users' ? 'underline font-semibold' : 'hover:font-semibold'}`}
+                    >
+                        View Users
                     </button>
                     <button
                         onClick={() => handleSignOut()}

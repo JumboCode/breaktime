@@ -2,6 +2,7 @@ import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import MainCalendar from "../components/MainCalendar";
 import InboxView from "../components/InboxView";
+import UserTableView from "../components/UserTableView";
 import CalendarCorner from "../assets/maincal/CalendarCorner.svg";
 import { useState, useEffect, useCallback } from "react";
 import ModalProvider from "../components/popups/staff_booking/ModalProvider";
@@ -159,9 +160,11 @@ export default function HomePage() {
                         />
                     </div>
 
-                    <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
+                    <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' || currentView === 'users' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
                         {currentView === 'inbox' ? (
                             <InboxView messages={notifications} setMessages={setNotifications} />
+                        ) : currentView === 'users' ? (
+                            <UserTableView />
                         ) : (
                             <>
                                 <div>

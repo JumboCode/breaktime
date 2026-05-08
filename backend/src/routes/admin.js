@@ -74,8 +74,12 @@ router.delete('/deleteAccount', async (req, res) => {
             const clerkUserId = clerkUser.id;
             const response = await clerkClient.users.deleteUser(clerkUserId);
 
+            // Also remove from MongoDB if the user was still pending there
+            const client = await mongodbPromise;
+            await client.db('requests').collection('accounts').deleteOne({ username });
+
             res.status(200).send({
-                message: 'User successfully deleted from Clerk',
+                message: 'User successfully deleted',
                 deletedUsername: username,
                 clerkResponse: response
             });
@@ -179,9 +183,11 @@ router.post('/approve', async (req, res) => {
         const clerkUser = userList[0];
         const clerkUserId = clerkUser.id;
 
-        // Update the permission in Clerk's publicMetadata
+        // Update permission + persist name from MongoDB into Clerk
         try {
             await clerkClient.users.updateUser(clerkUserId, {
+                firstName: pendingUser.firstName,
+                lastName: pendingUser.lastName,
                 publicMetadata: {
                     ...clerkUser.publicMetadata,
                     permission: String(permissionLevel)
@@ -193,6 +199,24 @@ router.post('/approve', async (req, res) => {
                 message: 'Error updating user in Clerk',
                 error: clerkError.message
             });
+        }
+
+        // Staff accounts: email must be added via the emailAddresses API, not updateUser
+        if (pendingUser.email) {
+            try {
+                await clerkClient.emailAddresses.createEmailAddress({
+                    userId: clerkUserId,
+                    emailAddress: pendingUser.email,
+                    verified: true,
+                    primary: true,
+                });
+            } catch (clerkError) {
+                console.error('Error adding email to Clerk user:', clerkError);
+                return res.status(500).send({
+                    message: 'Error adding email to Clerk user',
+                    error: clerkError.message
+                });
+            }
         }
 
         await removeAccountFromDB(username);
@@ -305,6 +329,98 @@ router.post('/deny', async (req, res) => {
             message: 'Error denying account',
             error: error.message
         });
+    }
+});
+
+/* * GET /accounts :
+ *      summary: Returns all YA and Staff/Admin users (pending + active).
+ *
+ *      Pending users come from MongoDB requests.accounts (permissionLevel: 0).
+ *      YA pending users are enriched with Clerk publicMetadata (age, gender, race, zone).
+ *      Active users are pulled from Clerk filtered by permission level
+ *      ('1' = YA active, '2' = Staff/Admin active).
+ *
+ *      responses:
+ *        200:
+ *          description: - { yaUsers: [...], staffUsers: [...] }
+ *        500:
+ *          description: - Internal server error
+ * */
+router.get('/accounts', async (_req, res) => {
+    try {
+        // --- Pending users from MongoDB ---
+        const client = await mongodbPromise;
+        const collection = client.db('requests').collection('accounts');
+        const pendingDocs = await collection.find({ permissionLevel: 0 }).toArray();
+
+        const pendingYA    = pendingDocs.filter(u =>  u.username.startsWith('ya_'));
+        const pendingStaff = pendingDocs.filter(u => !u.username.startsWith('ya_'));
+
+        // Enrich pending YA users with Clerk publicMetadata (age, gender, race, zone)
+        let enrichedPendingYA = pendingYA.map(u => ({
+            firstName: u.firstName, lastName: u.lastName,
+            username: u.username, age: null, gender: null, ethnicity: null, city: null,
+            status: 'pending',
+        }));
+
+        if (pendingYA.length > 0) {
+            const usernames = pendingYA.map(u => u.username);
+            const clerkResp = await clerkClient.users.getUserList({ username: usernames, limit: 200 });
+            const clerkList = Array.isArray(clerkResp) ? clerkResp : clerkResp?.data || [];
+            const metaByUsername = Object.fromEntries(clerkList.map(cu => [cu.username, cu.publicMetadata]));
+
+            enrichedPendingYA = pendingYA.map(u => ({
+                firstName: u.firstName, lastName: u.lastName,
+                username: u.username,
+                age:       metaByUsername[u.username]?.age       ?? null,
+                gender:    metaByUsername[u.username]?.gender    ?? null,
+                ethnicity: metaByUsername[u.username]?.race      ?? null,
+                city:      metaByUsername[u.username]?.zone      ?? null,
+                status: 'pending',
+            }));
+        }
+
+        const formattedPendingStaff = pendingStaff.map(u => ({
+            firstName: u.firstName, lastName: u.lastName,
+            email: u.email, username: u.username,
+            status: 'pending',
+        }));
+
+        // --- Active users from Clerk ---
+        const allClerkResp = await clerkClient.users.getUserList({ limit: 500 });
+        const allClerkUsers = Array.isArray(allClerkResp) ? allClerkResp : allClerkResp?.data || [];
+
+        const pendingUsernames = new Set(pendingDocs.map(u => u.username));
+
+        const activeYA = allClerkUsers
+            .filter(u => u.publicMetadata?.permission === '1' && !pendingUsernames.has(u.username))
+            .map(u => ({
+                firstName: u.firstName || '', lastName: u.lastName || '',
+                username: u.username,
+                age:       u.publicMetadata?.age       ?? null,
+                gender:    u.publicMetadata?.gender    ?? null,
+                ethnicity: u.publicMetadata?.race      ?? null,
+                city:      u.publicMetadata?.zone      ?? null,
+                status: 'active',
+            }));
+
+        const activeStaff = allClerkUsers
+            .filter(u => u.publicMetadata?.permission === '2' && !pendingUsernames.has(u.username))
+            .map(u => ({
+                firstName: u.firstName || '', lastName: u.lastName || '',
+                email: u.emailAddresses?.[0]?.emailAddress || '',
+                username: u.username,
+                status: 'active',
+            }));
+
+        res.status(200).json({
+            yaUsers:    [...enrichedPendingYA, ...activeYA],
+            staffUsers: [...formattedPendingStaff, ...activeStaff],
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Error fetching accounts', error: error.message });
     }
 });
 
