@@ -1,12 +1,15 @@
 import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
+import InboxView from "../components/InboxView";
 import CarouselButton from "/src/assets/carousel/SearchBarButton.svg";
 import CarouselItem from "../components/YACarouselItem";
 import LaundryCarouselImage from "/src/assets/carousel/LaundryCarouselImage.png";
 import ShowerCarouselImage from "/src/assets/carousel/ShowerCarouselImage.png";
 import StoreCarouselImage from "/src/assets/carousel/StoreCarouselImage.png";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useUser } from "@clerk/clerk-react";
+import { apiCall } from "../utils/general";
 import useEmblaCarousel from 'embla-carousel-react';
 
 export default function HomePage() {
@@ -16,17 +19,32 @@ export default function HomePage() {
             this.imageImport = imageImport;
         }
     }
-    
-    const [emblaRef, emblaApi] = useEmblaCarousel({ 
+
+    const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,
         align: 'start',
         dragFree: true,
         containScroll: false,
     });
-    
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [userType] = useState('YA');
+    const [currentView, setCurrentView] = useState('services');
+    const [notifications, setNotifications] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const { user, isLoaded } = useUser();
+
+    useEffect(() => {
+        if (!isLoaded || !user) return;
+        const fetchNotifications = () => {
+            apiCall('/notification/getInbox', 'POST', { userID: user.username }, null)
+                .then(data => setNotifications(data.notifications ?? []))
+                .catch(() => {});
+        };
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [isLoaded, user]);
 
     const resourceTileList = [
         new ResourceTile("Shower", ShowerCarouselImage),
@@ -53,13 +71,26 @@ export default function HomePage() {
 
     return (            
         <div className="bg-light-grey h-screen w-screen overflow-hidden ya-carousel-container">
-            <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType}/>
+            <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} currentView={currentView} onViewChange={setCurrentView} />
             <div className="flex p-[30px] pt-[10px] gap-[30px]">
                 <div className={`${isSidebarOpen ? 'block' : 'hidden'}`} >
-                    <SideBar userType={userType}/>
+                    <SideBar
+                        userType={userType}
+                        notifications={notifications}
+                        unreadCount={notifications.filter(n => !n.isRead).length}
+                        onOpenInbox={() => setCurrentView('inbox')}
+                        onDismiss={(id) => {
+                            setNotifications(prev => prev.map(n => n._id === id ? { ...n, wasNotified: true } : n));
+                            apiCall('/notification/markNotified', 'PATCH', { _id: id }, null).catch(() => {});
+                        }}
+                    />
                 </div>
 
                 <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all text-cal-font ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)] text-center mt-20'}`}>
+                {currentView === 'inbox' ? (
+                    <InboxView messages={notifications} setMessages={setNotifications} userRole="ya" />
+                ) : (
+                    <>
                     <h1 className="text-[104px] leading-[104px] mb-16">
                         Choose a <span className="text-bright-purple">Service</span> to get Started
                     </h1>
@@ -113,6 +144,8 @@ export default function HomePage() {
                             </div>
                         </div>
                     )}
+                    </>
+                )}
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import InboxBookingSlideOut from './InboxBookingSlideOut';
+import InboxBookingSlideOut from '../components/inboxSlideOut/InboxSlideOut';
 
 // ── Dummy bookings covering every activity variant ──────────────────────────
 
@@ -79,7 +79,7 @@ const bookings = [
     duration: { day: 'saturday', startTime: '15:00', endTime: '16:00' },
     activity: [
       ['update', 'confirmed', null, '2024-10-15T09:00:00'],
-      ['action', 'message', "I'm wondering if I can have two extra chairs for my shower booking because I'm sad", '2024-10-15T12:45:00'],
+      ['action', 'note', "I'm wondering if I can have two extra chairs for my shower booking because I'm sad", '2024-10-15T12:45:00'],
     ],
   },
 ];

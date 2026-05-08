@@ -1,30 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { ObjectId } = require('mongodb');
 const mongodbPromise = require('../utils/mongodb');
 const { notificationSchema } = require('../schemas/notification');
-
-/* Helper function to get the next available notificationID for a user */
-async function getNextNotificationID(userID, collection) {
-        let found = false;
-        let min = 0;
-        while (!found) {
-                const notifs = await collection.find({ userID: userID, notificationID: { $gt: min } }, 
-                        { projection: { notificationID: 1 } })
-                .sort({ notificationID: 1 })
-                .limit(100)
-                .toArray();
-
-                if (notifs.length === 0) {
-                        return min + 1;
-                }      
-                for (const notif of notifs) {
-                        if (notif.notificationID > min + 1) {
-                                return min + 1;
-                        }
-                        min = notif.notificationID;
-                }
-        }
-}
 
 /* * POST /create :
  *      summary: Creates a new notification for a user.
@@ -35,18 +13,24 @@ async function getNextNotificationID(userID, collection) {
  *              json:
  *                  schema:
  *                      properties:
- *                          userID:
+ *                          senderID:
+ *                              type: String
+ *                          receiverID:
+ *                              type: String
+ *                          bookingID:
  *                              type: String
  *                          type:
  *                              type: String
+ *                              enum: [UPDATE, ALERT]
  *                          title:
  *                              type: String
  *                          message:
  *                              type: String
  *                          timestamp:
- *                              type: String
+ *                              type: Date
  *                      required:
- *                          - userID
+ *                          - senderID
+ *                          - receiverID
  *                          - type
  *                          - title
  *                          - message
@@ -70,45 +54,265 @@ router.post('/create', async (req, res) => {
         if (error) {
                 return res.status(400).send(error.details[0].message);
         } else {
-                const { userID, type, title, message, timestamp } = req.body;
+                const { senderID,
+                        receiverID,
+                        bookingID,
+                        conversationID,
+                        senderName,
+                        type,
+                        title,
+                        message
+                } = req.body;
 
-                const notificationID = await getNextNotificationID(userID, collection);
+                if (type === 'UPDATE' && !bookingID) {
+                    return res.status(400).json(
+                        { message: 'A bookingID is required for an update notification' }
+                    );
+                }
+
+                const timestamp = new Date().toISOString();
 
                 const newNotif = {
-                        userID,
-                        notificationID,
+                        senderID,
+                        receiverID,
+                        ...(bookingID ? { bookingID } : {}),
+                        ...(conversationID ? { conversationID } : {}),
+                        ...(senderName ? { senderName } : {}),
                         type,
+                        isRead: false,
+                        wasNotified: false,
                         title,
                         message,
                         timestamp
                 };
 
-                if (!notificationID) {
-                    return res.status(400).json({ message: 'Error generating notificationID' });
-                }
-
-                if (!type) {
-                    return res.status(400).json({ message: 'type is required' });
-                }
-
-                if (!title) {
-                    return res.status(400).json({ message: 'title is required' });
-                }
-
-                if (!message) {
-                    return res.status(400).json({ message: 'message is required' });
-                }
-
-                if (!timestamp) {
-                    return res.status(400).json({ message: 'timestamp is required' });
-                }
-
                 const document = await collection.insertOne(newNotif);
 
-                return res.status(200).json({ message: 'Service created successfully', _id: document.insertedId });
+                // For new MESSAGE threads (no conversationID supplied), set conversationID = _id
+                if (type === 'MESSAGE' && !conversationID) {
+                    await collection.updateOne(
+                        { _id: document.insertedId },
+                        { $set: { conversationID: document.insertedId.toString() } }
+                    );
+                }
+
+                return res.status(200).json(
+                    { message: 'Notification created successfully', _id: document.insertedId, conversationID: conversationID || document.insertedId.toString() }
+                );
         }
 
     } catch (error){
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+/* * GET /getInbox :
+ *      summary: Returns all notifications for a given user.
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                  schema:
+ *                      properties:
+ *                          userID:
+ *                              type: String
+ *                      required:
+ *                          - userID
+ *      responses:
+ *          200:
+ *              description: Array of notifications for the user.
+ *          400:
+ *              description: Error message if userID is missing.
+ *          500:
+ *              description: Error connecting to MongoDB.
+ */
+router.post('/getInbox', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('notifications');
+        const collection = database.collection('notifications');
+
+        const { userID, role } = req.body;
+
+        if (!userID) {
+            return res.status(400).json({ message: 'userID is required' });
+        }
+
+        // Staff see their personal notifications AND the shared staff-inbox messages
+        const query = role === 'staff'
+            ? { $or: [{ receiverID: userID }, { receiverID: 'staff-inbox' }] }
+            : { receiverID: userID };
+
+        const notifications = await collection.find(query)
+            .sort({ _id: -1 })
+            .toArray();
+
+        return res.status(200).json({ notifications });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+/* * POST /getConversation :
+ *      summary: Returns all messages belonging to a conversation thread.
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                  schema:
+ *                      properties:
+ *                          conversationID:
+ *                              type: String
+ *                      required:
+ *                          - conversationID
+ *      responses:
+ *          200:
+ *              description: Array of notifications in the conversation, sorted oldest first.
+ *          400:
+ *              description: Missing conversationID.
+ *          500:
+ *              description: Error connecting to MongoDB.
+ */
+router.post('/getConversation', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('notifications');
+        const collection = database.collection('notifications');
+
+        const { conversationID } = req.body;
+
+        if (!conversationID) {
+            return res.status(400).json({ message: 'conversationID is required' });
+        }
+
+        const messages = await collection.find({ conversationID })
+            .sort({ _id: 1 })
+            .toArray();
+
+        return res.status(200).json({ messages });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Error connecting to MongoDB: ', error });
+    }
+});
+
+/* * PATCH /markRead :
+ *      summary: Updates the isRead status of a notification.
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                  schema:
+ *                      properties:
+ *                          _id:
+ *                              type: String
+ *                          isRead:
+ *                              type: Boolean
+ *                      required:
+ *                          - _id
+ *                          - isRead
+ *      responses:
+ *          200:
+ *              description: Notification updated successfully.
+ *          400:
+ *              description: Missing required fields.
+ *          404:
+ *              description: Notification not found.
+ *          500:
+ *              description: Error connecting to MongoDB.
+ */
+router.patch('/markRead', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('notifications');
+        const collection = database.collection('notifications');
+
+        const { _id, isRead } = req.body;
+
+        if (!_id || isRead === undefined) {
+            return res.status(400).json({ message: '_id and isRead are required' });
+        }
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(_id) },
+            { $set: { isRead } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        return res.status(200).json({ message: 'Notification updated successfully' });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            'message': 'Error connecting to MongoDB: ',
+            error
+        });
+    }
+});
+
+/* * PATCH /markNotified :
+ *      summary: Sets wasNotified to true, dismissing it from the notification widget.
+ *
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              json:
+ *                  schema:
+ *                      properties:
+ *                          _id:
+ *                              type: String
+ *                      required:
+ *                          - _id
+ *      responses:
+ *          200:
+ *              description: Notification dismissed successfully.
+ *          400:
+ *              description: Missing _id.
+ *          404:
+ *              description: Notification not found.
+ *          500:
+ *              description: Error connecting to MongoDB.
+ */
+router.patch('/markNotified', async (req, res) => {
+    try {
+        const client = await mongodbPromise;
+        const database = client.db('notifications');
+        const collection = database.collection('notifications');
+
+        const { _id } = req.body;
+
+        if (!_id) {
+            return res.status(400).json({ message: '_id is required' });
+        }
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(_id) },
+            { $set: { wasNotified: true } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        return res.status(200).json({ message: 'Notification dismissed successfully' });
+
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             'message': 'Error connecting to MongoDB: ',

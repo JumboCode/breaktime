@@ -1,13 +1,16 @@
 const Joi = require('joi');
 
 const notificationSchema = Joi.object({
-   userID: Joi.string().required(),
-   notificationID: Joi.number(),
-   type : Joi.string()
-         .valid('BOOKING_CREATED', 'BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'BOOKING_REMINDER', 'ALERT'),
-         
-   title: Joi.string(),
-   message: Joi.string(),
+   senderID: Joi.string().required(),
+   receiverID: Joi.string().required(),
+   bookingID: Joi.string(),
+   conversationID: Joi.string(),
+   senderName: Joi.string(),
+   type: Joi.string().valid('UPDATE', 'ALERT', 'MESSAGE').required(),
+   isRead: Joi.boolean(),
+   wasNotified: Joi.boolean(),
+   title: Joi.string().required(),
+   message: Joi.string().required(),
    timestamp: Joi.date()
 });
 

@@ -27,7 +27,9 @@ export default function HomePage() {
     const [currentView, setCurrentView] = useState('calendar');
     const [bookings, setBookings] = useState([]);
     const [calendarDate, setCalendarDate] = useState(new Date());
-    const { user } = useUser();
+    const [notifications, setNotifications] = useState([]);
+    const { user, isLoaded } = useUser();
+    const unreadCount = notifications.filter(n => !n.isRead).length;
 
     /**
      * mapBackendBooking - Maps a backend booking object to frontend format
@@ -93,6 +95,19 @@ export default function HomePage() {
         fetchMonthlyBookings(calendarDate);
     }, [calendarDate, fetchMonthlyBookings]);
 
+    // Poll notifications every 30 seconds to keep inbox + unread count in sync
+    useEffect(() => {
+        if (!isLoaded || !user) return;
+        const fetchNotifications = () => {
+            apiCall('/notification/getInbox', 'POST', { userID: user.username, role: 'staff' }, null)
+                .then(data => setNotifications(data.notifications ?? []))
+                .catch(() => {});
+        };
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [isLoaded, user]);
+
     /**
      * handleDateChange - Called by MainCalendar when user navigates to a new date.
      * Updates calendarDate which triggers the useEffect to refetch bookings.
@@ -122,7 +137,7 @@ export default function HomePage() {
         // ModalProvider wraps the app to provide modal context to all children
         <ModalProvider>
             <div className="bg-indigo-purple h-screen w-screen overflow-hidden">
-                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} currentView={currentView} onViewChange={setCurrentView} />
+                <NavBar isSidebarOpen={isSidebarOpen} onToggle={setIsSidebarOpen} userType={userType} currentView={currentView} onViewChange={setCurrentView} unreadCount={unreadCount} />
                 <div className="flex p-[30px] pt-[10px] gap-[30px]">
                     <div className="block lg:hidden">
                         <h1 className="text-white text-[42px] mb-8 leading-12">Welcome Back, {user?.firstName}!</h1>
@@ -135,12 +150,18 @@ export default function HomePage() {
                             onViewAllClick={(widgetDate) => setCalendarDate(widgetDate)}
                             onDayClick={(date) => setCalendarDate(date)}
                             onOpenInbox={() => setCurrentView('inbox')}
+                            unreadCount={unreadCount}
+                            notifications={notifications}
+                            onDismiss={(id) => {
+                                setNotifications(prev => prev.map(n => n._id === id ? { ...n, wasNotified: true } : n));
+                                apiCall('/notification/markNotified', 'PATCH', { _id: id }, null).catch(() => {});
+                            }}
                         />
                     </div>
 
                     <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
                         {currentView === 'inbox' ? (
-                            <InboxView />
+                            <InboxView messages={notifications} setMessages={setNotifications} />
                         ) : (
                             <>
                                 <div>

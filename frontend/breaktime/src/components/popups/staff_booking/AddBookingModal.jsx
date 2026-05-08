@@ -311,6 +311,12 @@ export const ModifyBookingModal = ({ booking, onClose, onUpdate }) => {
            required
          />
        </div>
+       <textarea
+         className="mt-2 bg-light-purple h-[70px] opacity-40 focus:opacity-100 w-98/100 shadow-xl resize-none rounded-2xl py-2 px-3 mb-2 text-[#262445] font-medium outline-none"
+         value={formData.notes || ''}
+         onChange={(e) => setFormData((f) => ({ ...f, notes: e.target.value }))}
+         placeholder="(Optional) add a note..."
+       />
       <button
         type="submit"
         disabled={isModifyInvalid}
