@@ -2,8 +2,11 @@ const Joi = require('joi');
 
 const servicesSchema = Joi.object({
    id: Joi.string().required(),
-   rules: Joi.string().required(),
-   description: Joi.string().required(),
+   rules: Joi.object({
+      expectations: Joi.string().required(),
+      provided: Joi.string().required(),
+      bring: Joi.string().required(),
+   }).required(),
    serviceDurationInterval: Joi.number().integer().positive().required(),
    availability : Joi.array().items(
       Joi.object({
@@ -11,7 +14,7 @@ const servicesSchema = Joi.object({
          startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(), // "HH:mm"
          endTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required()
       }).required()
-   )
+   ).required()
 });
 
 const serviceExtensionSchema = Joi.object({

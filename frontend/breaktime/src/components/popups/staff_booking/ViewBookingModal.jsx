@@ -1,23 +1,27 @@
 import PropTypes from "prop-types";
 import { Edit, Trash2, ChevronLeft } from "lucide-react";
 import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
-import { useState } from "react";
-import { toDisplayDate } from "/src/utils/general.js";
+import { useState, useEffect } from "react";
+import { toDisplayDate, apiCall } from "/src/utils/general.js";
 
 // Import your modal components
 import SendNoteModal from "./SendNoteModal";
 
-const SERVICE_OPTIONS = [
-  { value: "shower", label: "Shower Services" },
-  { value: "laundry", label: "Laundry" },
-  { value: "meeting", label: "Meeting" },
-];
+const toTitleCase = (s) => s.replace(/\b\w/g, c => c.toUpperCase());
 
 const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
-  // State for the selected service
-  const [selectedService, setSelectedService] = useState(
-    booking?.service || SERVICE_OPTIONS[0].value
-  );
+  const [serviceOptions, setServiceOptions] = useState([]);
+  const [selectedService, setSelectedService] = useState(booking?.service || "");
+
+  useEffect(() => {
+    apiCall('/service/getAllServices', 'GET', null, null)
+      .then(services => {
+        const opts = services.map(s => ({ value: s.id, label: toTitleCase(s.id) }));
+        setServiceOptions(opts);
+        setSelectedService(prev => prev || opts[0]?.value || "");
+      })
+      .catch(() => {});
+  }, []);
 
   // State for which popup/modal to display
   const [showSendNotePopup, setShowSendNotePopup] = useState(false);
@@ -66,7 +70,7 @@ const ViewBookingModal = ({ booking, onEdit, onDelete }) => {
             value={selectedService}
             onChange={(e) => setSelectedService(e.target.value)}
           >
-            {SERVICE_OPTIONS.map((opt) => (
+            {serviceOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { apiCall } from "/src/utils/general.js";
 import PropTypes from "prop-types";
 import {
  X,
@@ -15,12 +16,7 @@ import ServiceGraphics from "/src/assets/popup-icons/Service_Graphics.png";
 import ServiceSelection from "./ServiceSelection";
 import { ChevronLeft } from 'lucide-react';
 
-// Available service types for the dropdown
-const SERVICE_OPTIONS = [
-  { value: "services", label: "Shower Services" },
-  { value: "laundry", label: "Laundry" },
-  { value: "meeting", label: "Meeting" },
-];
+const toTitleCase = (s) => s.replace(/\b\w/g, c => c.toUpperCase());
 
 /**
  * AddBookingModal - Modal for creating a new booking
@@ -46,16 +42,26 @@ const SERVICE_OPTIONS = [
  * @param {Object} initialData - Pre-filled data (e.g., { date: "2026-02-03" } when clicking calendar)
  */
 export const AddBookingModal = ({ onClose, onSave, initialData }) => {
- // Form state - initialized with initialData if provided (e.g., pre-filled date)
+ const [serviceOptions, setServiceOptions] = useState([]);
  const [formData, setFormData] = useState({
-   date: initialData?.date || "",           // Pre-filled when clicking calendar slot
+   date: initialData?.date || "",
    startTime: initialData?.startTime || "",
    endTime: initialData?.endTime || "",
-   service: initialData?.service || "services",
+   service: initialData?.service || "",
    client: initialData?.client || "",
    phone: initialData?.phone || "",
    notes: initialData?.notes || "",
  });
+
+ useEffect(() => {
+   apiCall('/service/getAllServices', 'GET', null, null)
+     .then(services => {
+       const opts = services.map(s => ({ value: s.id, label: toTitleCase(s.id) }));
+       setServiceOptions(opts);
+       setFormData(f => ({ ...f, service: f.service || opts[0]?.value || "" }));
+     })
+     .catch(() => {});
+ }, []);
   
   // Validation state for time range
   const [timeError, setTimeError] = useState("");
@@ -130,7 +136,7 @@ export const AddBookingModal = ({ onClose, onSave, initialData }) => {
                 setFormData((f) => ({ ...f, service: e.target.value }))
               }
             >
-              {SERVICE_OPTIONS.map((opt) => (
+              {serviceOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>

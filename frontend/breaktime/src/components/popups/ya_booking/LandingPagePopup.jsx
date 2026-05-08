@@ -4,8 +4,8 @@ import ServiceGuidelines from './ServiceGuidelines';
 import BookingForm from './BookingForm';
 import ServiceImage from '/src/assets/popup-icons/ServiceImage.png';
 
-function LandingPagePopup({ onClose, service }) {
-    const [isBooking, setIsBooking] = useState(false);
+function LandingPagePopup({ onClose, service, initialIsBooking = false }) {
+    const [isBooking, setIsBooking] = useState(initialIsBooking);
 
     return (
         <div className="fixed inset-0 z-50 bg-[#F0F7F2] font-poppins text-[#262445] overflow-auto">
@@ -15,10 +15,10 @@ function LandingPagePopup({ onClose, service }) {
                 go back
             </button>
 
-            <div className="flex flex-row items-center gap-100 px-8">
+            <div className="flex flex-row items-start gap-100 px-8">
                 {/* Left column */}
-                <div className="flex flex-col shrink-0">
-                    <h2 className="text-6xl font-thin text-[#B27DED] mt-10">
+                <div className="flex flex-col items-center shrink-0 w-[320px] mt-10">
+                    <h2 className="text-6xl font-thin text-[#B27DED]">
                         {service?.name ?? "Service"}
                     </h2>
 
