@@ -24,17 +24,32 @@
 }
 
 @layer base {
-  input {
+  input, select {
     @apply relative pb-1 bg-transparent text-light-purple focus:outline-none w-full;
-    border: none; 
+    border: none;
 
     background-image: linear-gradient(to right, var(--color-light-purple) 100%, transparent 0);
     background-repeat: no-repeat;
-    background-size: 100% 2px; 
-    background-position: 0 calc(100% - 3px); 
+    background-size: 100% 2px;
+    background-position: 0 calc(100% - 3px);
   }
 
-  input:focus {
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  select option {
+    background-color: var(--color-indigo-purple, #1e1b4b);
+    color: var(--color-light-purple);
+  }
+
+  select option:disabled {
+    color: var(--color-light-purple-subtle, #a0aec0);
+  }
+
+  input:focus, select:focus {
     background-image: linear-gradient(to right, var(--color-lime-500) 100%, transparent 0);
   }
 

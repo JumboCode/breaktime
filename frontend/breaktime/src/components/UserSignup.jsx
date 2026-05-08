@@ -126,9 +126,14 @@ function UserSignup() {
                                     value={formData.age} onChange={handleChange} onKeyDown={handleAgeKeyDown} required />
                             </div>
                             <div className={mobile ? 'w-full' : 'w-7/10'}>
-                                <input type="text" id="gender" name="gender"
-                                    autoComplete="gender" placeholder="Gender"
-                                    value={formData.gender} onChange={handleChange} onKeyDown={handleNameKeyDown} required />
+                                <select id="gender" name="gender"
+                                    value={formData.gender} onChange={handleChange} required>
+                                    <option value="" disabled>Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Rather Not Say">Rather Not Say</option>
+                                </select>
                             </div>
                             <div className={mobile ? 'w-full' : 'w-7/10'}>
                                 <input type="text" id="ethnicity" name="ethnicity"
