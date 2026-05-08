@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { apiCall } from '/src/utils/general';
 
 const getTimeUntil = (service_date, start_time) => {
     const now = new Date();
@@ -34,46 +32,17 @@ const isPast = (service_date, start_time) => {
     return new Date(year, month - 1, day, hours, minutes) < now;
 };
 
-function ExtraTimeBtn({ bookingID }) {
-    const [status, setStatus] = useState('idle');
-
-    const handleClick = async (e) => {
-        e.stopPropagation();
-        setStatus('loading');
-        try {
-            const data = await apiCall('/booking/edit', 'PUT', { bookingID, timeRequest: true }, null);
-            setStatus(data.conflict ? 'conflict' : 'sent');
-            if (data.conflict) setTimeout(() => setStatus('idle'), 4000);
-        } catch {
-            setStatus('idle');
-        }
-    };
-
-    if (status === 'sent')
-        return <span className="text-[3vw] text-white mt-[1.5vw]">Request Sent ✓</span>;
-    if (status === 'conflict')
-        return <span className="text-[3vw] text-red-400 mt-[1.5vw]">Conflict — another booking within 30 min</span>;
-    return (
-        <button
-            onClick={handleClick}
-            disabled={status === 'loading'}
-            className="mt-[1.5vw] border border-white text-white text-[3vw] px-[3vw] py-[1vw] rounded-full self-start opacity-90 active:opacity-70"
-        >
-            {status === 'loading' ? 'Requesting…' : 'Request +30 Min'}
-        </button>
-    );
-}
-
-ExtraTimeBtn.propTypes = { bookingID: PropTypes.string };
-
 export default function AppointmentCard({ appointment, onOpen }) {
     const { service_name, service_icon, service_date, start_time, status } = appointment;
     const timeUntil = getTimeUntil(service_date, start_time);
     const past = isPast(service_date, start_time) || status === 'canceled';
 
     return (
-        <div className={`relative rounded-4xl px-[4vw] py-[3vw] flex items-center gap-[3vw] overflow-hidden
-            ${past ? 'bg-light-purple-subtle' : 'bg-bright-purple'}`}>
+        <div
+            className={`relative rounded-4xl px-[4vw] py-[3vw] flex items-center gap-[3vw] overflow-hidden cursor-pointer
+            ${past ? 'bg-light-purple-subtle' : 'bg-bright-purple'}`}
+            onClick={onOpen}
+        >
 
             {/* Faded overlay for past appointments */}
             {past && (
@@ -90,18 +59,14 @@ export default function AppointmentCard({ appointment, onOpen }) {
 
             {/* Service info */}
             <div className="flex flex-col flex-1 relative z-10">
-                <p className="text-white font-normal text-[4.5vw]">{service_name} Service</p>
+                <p className="text-white font-normal text-[4.5vw]">{service_name.charAt(0).toUpperCase() + service_name.slice(1)} Service</p>
                 <p className="text-white text-[3.5vw] opacity-80">{timeUntil}</p>
-                {appointment.isActive && !appointment.hasTimeRequest && (
-                    <ExtraTimeBtn bookingID={appointment.bookingID} />
-                )}
             </div>
 
             {/* More button */}
-            <button
-                className="border border-lime-500 text-lime-500 text-[3.5vw] px-[3vw] py-[2vw] rounded-full relative z-10"
-                onClick={onOpen}> More
-            </button>
+            <div className="border border-lime-500 text-lime-500 text-[3.5vw] px-[3vw] py-[2vw] rounded-full relative z-10">
+                More
+            </div>
         </div>
     );
 }
@@ -114,8 +79,6 @@ AppointmentCard.propTypes = {
         start_time: PropTypes.string.isRequired,
         status: PropTypes.string,
         bookingID: PropTypes.string,
-        isActive: PropTypes.bool,
-        hasTimeRequest: PropTypes.bool,
     }).isRequired,
     onOpen: PropTypes.func,
 };

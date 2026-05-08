@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import BookingDetailsContent from '/src/components/mobile/BookingDetailsContent';
 import BookingActivityContent from '/src/components/mobile/BookingActivityContent';
 import EditBookingContent from '/src/components/mobile/EditBookingContent';
+import { apiCall } from '/src/utils/general.js';
 
 const defaultButtonStyle = "rounded-full flex-1 py-[5px] text-[5vw] text-gray-400 ";
 const activeTabStyle = "bg-[#b37ded] rounded-full font-medium text-white px-[3px]";
@@ -19,10 +20,27 @@ export default function AppointmentBottomSheet({ booking, onClose }) {
     const [activeTab, setActiveTab] = useState('details');
     const [isEditing, setIsEditing] = useState(false);
 
-    const handleEditSuccess = (updatedFields) => {
-        setCurrentBooking(prev => ({ ...prev, ...updatedFields }));
+    const handleEditSuccess = async (updatedFields) => {
+        try {
+            const data = await apiCall(`/booking/getByBookingID?bookingID=${currentBooking.bookingID}`, 'GET', null, null);
+            if (data.booking) setCurrentBooking(data.booking);
+            else setCurrentBooking(prev => ({ ...prev, ...updatedFields }));
+        } catch {
+            setCurrentBooking(prev => ({ ...prev, ...updatedFields }));
+        }
         setIsEditing(false);
     };
+
+    useEffect(() => {
+        if (activeTab !== 'activity') return;
+        const poll = setInterval(async () => {
+            try {
+                const data = await apiCall(`/booking/getByBookingID?bookingID=${currentBooking.bookingID}`, 'GET', null, null);
+                if (data.booking) setCurrentBooking(data.booking);
+            } catch { /* silent fail */ }
+        }, 10000);
+        return () => clearInterval(poll);
+    }, [activeTab, currentBooking.bookingID]);
 
     const isActive = getIsActive(currentBooking);
 
@@ -30,7 +48,7 @@ export default function AppointmentBottomSheet({ booking, onClose }) {
         <div className="px-[15px] py-[20px] rounded-t-4xl bg-white">
             {/* Service name */}
             <p className="text-dark-navy font-semibold text-[8vw]">
-                {currentBooking.serviceID}
+                {currentBooking.serviceID.charAt(0).toUpperCase() + currentBooking.serviceID.slice(1)}
             </p>
 
             {/* User info row */}
@@ -53,13 +71,13 @@ export default function AppointmentBottomSheet({ booking, onClose }) {
                         className={defaultButtonStyle + (activeTab === 'activity' ? activeTabStyle : '')}
                         onClick={() => setActiveTab('activity')}
                     >
-                        Booking Activity
+                        Activity
                     </button>
                     <button
                         className={defaultButtonStyle + (activeTab === 'details' ? activeTabStyle : '')}
                         onClick={() => setActiveTab('details')}
                     >
-                        Booking Details
+                        Details
                     </button>
                 </div>
             )}

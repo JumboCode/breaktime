@@ -183,6 +183,8 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
     );
 
     const unreadCount = messages.filter(m => !m.isRead).length;
+    const unreadActionCount = messages.filter(m => !m.isRead && m.type === 'ALERT').length;
+    const unreadUpdateCount = messages.filter(m => !m.isRead && m.type === 'UPDATE').length;
     const unreadMessageCount = messages.filter(m => !m.isRead && m.type === 'MESSAGE').length;
 
     return (
@@ -201,9 +203,9 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
             {/* Tabs + Read filter */}
             <div className="flex items-center mx-7 my-2 px-2 py-1 gap-2 border border-gray-300 rounded-full">
                 <div className="flex items-center gap-2 flex-1">
-                    <TabBtn tabKey="all" label="ALL" count={unreadCount} />
-                    {userRole === 'staff' && <TabBtn tabKey="action" label="Action Required" />}
-                    <TabBtn tabKey="update" label="Updates" />
+                    <TabBtn tabKey="all" label="ALL" count={unreadCount || undefined} />
+                    {userRole === 'staff' && <TabBtn tabKey="action" label="Action Required" count={unreadActionCount || undefined} />}
+                    {userRole !== 'staff' && <TabBtn tabKey="update" label="Updates" count={unreadUpdateCount || undefined} />}
                     <TabBtn tabKey="messages" label="Messages" count={unreadMessageCount || undefined} />
                 </div>
                 <div className="flex items-center gap-2">

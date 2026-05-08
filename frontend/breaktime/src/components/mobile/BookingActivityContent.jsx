@@ -38,12 +38,12 @@ function ActivityEntry({ entry, booking, isLast }) {
                     style={{ width: '9vw', height: '9vw', backgroundColor: cfg.color, border: '2.5px solid #F0F7F2' }}
                 >
                     {cfg.isAction ? (
-                        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                        <svg style={{ width: '4.5vw', height: '4.5vw' }} viewBox="0 0 18 18" fill="none">
                             <rect x="7.5" y="3.5" width="3" height="7.5" rx="1.5" fill="#B9FF00" />
                             <circle cx="9" cy="14" r="1.5" fill="#B9FF00" />
                         </svg>
                     ) : (
-                        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                        <svg style={{ width: '4.5vw', height: '4.5vw' }} viewBox="0 0 18 18" fill="none">
                             <path d="M3.5 9.5L7 13L14.5 5.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     )}
@@ -87,8 +87,8 @@ function ActivityEntry({ entry, booking, isLast }) {
                 </div>
             </div>
 
-            {/* Request +30 min button — only on the last entry for active confirmed bookings */}
-            {isLast && type !== 'time' && booking.status === 'confirmed' && (
+            {/* Request +30 min button — only on the last entry for active confirmed bookings with no prior time request */}
+            {isLast && type !== 'time' && booking.status === 'confirmed' && !booking.activity?.some(a => a[0] === 'time') && (
                 <div className="mt-[2vw] mb-[2vw]">
                     {timeStatus === 'sent' && (
                         <p className="text-center text-[3.5vw] text-light-purple-subtle">Request Sent ✓</p>

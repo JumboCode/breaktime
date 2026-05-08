@@ -42,45 +42,6 @@ async function sendBookingNotification(client, { receiverID, bookingID, title, m
     }
 }
 
-const SERVICE_LABELS = {
-    services: 'Shower Services',
-    laundry:  'Laundry',
-    market:   'Market',
-};
-
-function serviceLabel(serviceID) {
-    return SERVICE_LABELS[serviceID] || serviceID;
-}
-
-function notifTimestamp() {
-    return new Date().toLocaleString('en-US', {
-        weekday: 'long',
-        month:   'short',
-        day:     '2-digit',
-        hour:    'numeric',
-        minute:  '2-digit',
-        hour12:  true,
-    });
-}
-
-async function sendBookingNotification(client, { receiverID, bookingID, title, message, type = 'UPDATE' }) {
-    try {
-        await client.db('notifications').collection('notifications').insertOne({
-            senderID:    'system',
-            receiverID,
-            bookingID,
-            type,
-            isRead:      false,
-            wasNotified: false,
-            title,
-            message,
-            timestamp:   new Date().toISOString(),
-        });
-    } catch (err) {
-        console.error('Failed to create booking notification:', err);
-    }
-}
-
 // POST /create - Create a new booking
 router.post('/create', async (req, res) => {
     try {
@@ -272,10 +233,10 @@ router.put('/edit', async (req, res) => {
             const activityType = status === 'canceled' ? 'canceled' : 'modified';
             const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1);
 
-            updateFields.activity.push([activityType, `${capitalizedStatus} on ${timestamp}`]);
+            updateFields.activity.push([activityType, `${capitalizedStatus} on ${activityTimestamp}`]);
             updateFields.status = status;
         } else if (hasFieldChanges) {
-            updateFields.activity.push(['modified', `Modified on ${timestamp}.`]);
+            updateFields.activity.push(['modified', `Modified on ${activityTimestamp}.`]);
         }
 
         if (duration !== undefined) {
@@ -306,13 +267,11 @@ router.put('/edit', async (req, res) => {
             updateFields.serviceID = serviceID;
         }
 
-        // Add notes if provided
         if (notes !== undefined) {
             updateFields.notes = notes;
-            if (notes) updateFields.activity.push(['note', `Left on ${timestamp}.`]);
+            if (notes) updateFields.activity.push(['note', `Left on ${activityTimestamp}.`]);
         }
 
-        // Record that staff sent a message in response to a note
         if (messageResponse) {
             updateFields.activity.push(['messaged', notifTimestamp()]);
         }
@@ -367,64 +326,6 @@ router.put('/edit', async (req, res) => {
             updateFields.timestamp = bookingDate;
         }
 
-        if (notes !== undefined) {
-            updateFields.notes = notes;
-            if (notes) updateFields.activity.push(['note', `Left on ${activityTimestamp}.`]);
-        }
-
-        if (messageResponse) {
-            updateFields.activity.push(['messaged', notifTimestamp()]);
-        }
-
-        // YA requests extra time — check for conflicts before recording
-        let hasConflict = false;
-        if (timeRequest) {
-            const currentBooking = await bookingsCollection.findOne({ bookingID });
-            if (!currentBooking) {
-                return res.status(404).json({ success: false, message: 'Booking not found' });
-            }
-            const [h, m] = currentBooking.duration.endTime.split(':').map(Number);
-            const total = h * 60 + m + 30;
-            const proposedEnd = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-            const conflictBooking = await bookingsCollection.findOne({
-                bookingID: { $ne: bookingID },
-                serviceID: currentBooking.serviceID,
-                status: 'confirmed',
-                'duration.day': currentBooking.duration.day,
-                'duration.startTime': { $gte: currentBooking.duration.endTime, $lt: proposedEnd },
-            });
-            if (conflictBooking) {
-                hasConflict = true;
-                return res.status(200).json({ success: true, conflict: true });
-            }
-            updateFields.activity.push(['time', '+30 minutes', notifTimestamp()]);
-        }
-
-        // Staff approves or rejects a time extension request
-        if (timeResponse === 'approved') {
-            const currentBooking = await bookingsCollection.findOne({ bookingID });
-            if (!currentBooking) {
-                return res.status(404).json({ success: false, message: 'Booking not found' });
-            }
-            const [h, m] = currentBooking.duration.endTime.split(':').map(Number);
-            const total = h * 60 + m + 30;
-            updateFields['duration.endTime'] = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-            updateFields.activity.push(['approved', notifTimestamp()]);
-        } else if (timeResponse === 'rejected') {
-            updateFields.activity.push(['rejected', notifTimestamp()]);
-        }
-
-        if (bookingDate !== undefined) {
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(bookingDate)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Validation error',
-                    error: 'timestamp must be in YYYY-MM-DD format'
-                });
-            }
-            updateFields.timestamp = bookingDate;
-        }
-
         const { activity, ...setFields } = updateFields;
 
         const updatedBooking = await bookingsCollection.findOneAndUpdate(
@@ -441,61 +342,6 @@ router.put('/edit', async (req, res) => {
                 success: false,
                 message: 'Booking not found',
                 error: `No booking found with bookingID: ${bookingID}`
-            });
-        }
-
-        const svcLabel        = serviceLabel(updatedBooking.serviceID);
-        const hasNewNote      = notes !== undefined && !!notes;
-        const hasOtherChanges = status !== undefined || duration !== undefined
-                             || bookingDate !== undefined || clientName !== undefined
-                             || serviceID !== undefined;
-
-        if (hasOtherChanges) {
-            await sendBookingNotification(client, {
-                receiverID: updatedBooking.userID,
-                bookingID:  updatedBooking.bookingID,
-                title:      status === 'canceled' ? 'Booking Canceled' : 'Booking Updated',
-                message:    status === 'canceled'
-                    ? `Your ${svcLabel} booking has been canceled.`
-                    : `Your ${svcLabel} booking has been updated.`,
-            });
-        }
-
-        if (hasNewNote) {
-            await sendBookingNotification(client, {
-                receiverID: 'staff-inbox',
-                bookingID:  updatedBooking.bookingID,
-                title:      'Note Added to Booking',
-                message:    `${updatedBooking.clientName || updatedBooking.userID} left a note on their ${svcLabel} booking.`,
-                type:       'ALERT',
-            });
-        }
-
-        if (timeRequest && !hasConflict) {
-            await sendBookingNotification(client, {
-                receiverID: 'staff-inbox',
-                bookingID:  updatedBooking.bookingID,
-                title:      'Extra Time Requested',
-                message:    `${updatedBooking.clientName || updatedBooking.userID} requested +30 min on their ${svcLabel} booking.`,
-                type:       'ALERT',
-            });
-        }
-
-        if (timeResponse === 'approved') {
-            await sendBookingNotification(client, {
-                receiverID: updatedBooking.userID,
-                bookingID:  updatedBooking.bookingID,
-                title:      'Extra Time Approved',
-                message:    `Your +30 minute request for ${svcLabel} has been approved.`,
-            });
-        }
-
-        if (timeResponse === 'rejected') {
-            await sendBookingNotification(client, {
-                receiverID: updatedBooking.userID,
-                bookingID:  updatedBooking.bookingID,
-                title:      'Extra Time Request Denied',
-                message:    `Your +30 minute request for ${svcLabel} was not approved.`,
             });
         }
 

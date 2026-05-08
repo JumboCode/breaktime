@@ -162,7 +162,7 @@ export default function HomePage() {
 
                     <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' || currentView === 'users' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
                         {currentView === 'inbox' ? (
-                            <InboxView messages={notifications} setMessages={setNotifications} />
+                            <InboxView messages={notifications} setMessages={setNotifications} userRole="staff" />
                         ) : currentView === 'users' ? (
                             <UserTableView />
                         ) : (

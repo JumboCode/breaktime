@@ -83,8 +83,6 @@ export default function AppointmentHistory({ onSelectBooking }) {
                     <p className="text-gray-400 text-[3.5vw] mt-[2vw]">No bookings found.</p>
                 ) : (
                     getFilteredBookings().map((booking, index) => {
-                        const bookingDateTime = new Date(`${booking.timestamp}T${booking.duration?.startTime}`);
-                        const isActive = booking.status === 'confirmed' && bookingDateTime >= new Date();
                         return (
                         <AppointmentCard
                             key={index}
@@ -95,8 +93,6 @@ export default function AppointmentHistory({ onSelectBooking }) {
                                 start_time: booking.duration?.startTime,
                                 status: booking.status,
                                 bookingID: booking.bookingID,
-                                isActive,
-                                hasTimeRequest: Array.isArray(booking.activity) && booking.activity.some(a => a[0] === 'time'),
                             }}
                             onOpen={() => onSelectBooking?.(booking)}
                         />

@@ -156,16 +156,22 @@ export default function MobileInboxView({ messages = [], setMessages, userRole =
     const activeTabStyle = " text-dark-navy font-semibold";
     const inactiveTabStyle = " text-gray-400";
 
-    const TabBtn = ({ tabKey, label }) => (
+    const unreadCount = messages.filter(m => !m.isRead).length;
+    const unreadActionCount = messages.filter(m => !m.isRead && m.type === 'ALERT').length;
+    const unreadUpdateCount = messages.filter(m => !m.isRead && m.type === 'UPDATE').length;
+    const unreadMessageCount = messages.filter(m => !m.isRead && m.type === 'MESSAGE').length;
+
+    const TabBtn = ({ tabKey, label, count }) => (
         <button
             onClick={() => setActiveTab(tabKey)}
             className={defaultTabStyle + (activeTab === tabKey ? activeTabStyle : inactiveTabStyle)}
         >
             {label}
+            {count ? <span className="ml-[1.5vw] text-[3vw] text-bright-purple font-semibold">{count}</span> : ''}
         </button>
     );
 
-    TabBtn.propTypes = { tabKey: PropTypes.string, label: PropTypes.string };
+    TabBtn.propTypes = { tabKey: PropTypes.string, label: PropTypes.string, count: PropTypes.number };
 
     return (
         <div className="flex flex-col font-all px-[30px] pb-[6vw]">
@@ -186,10 +192,10 @@ export default function MobileInboxView({ messages = [], setMessages, userRole =
 
             {/* Tabs */}
             <div className="flex items-center gap-[5vw] mt-10 mb-[3vw]">
-                <TabBtn tabKey="all" label="All" />
-                {userRole === 'staff' && <TabBtn tabKey="action" label="Action Required" />}
-                <TabBtn tabKey="update" label="Updates" />
-                <TabBtn tabKey="messages" label="Messages" />
+                <TabBtn tabKey="all" label="All" count={unreadCount || undefined} />
+                {userRole === 'staff' && <TabBtn tabKey="action" label="Action Required" count={unreadActionCount || undefined} />}
+                <TabBtn tabKey="update" label="Updates" count={unreadUpdateCount || undefined} />
+                <TabBtn tabKey="messages" label="Messages" count={unreadMessageCount || undefined} />
             </div>
 
             {/* Message list */}

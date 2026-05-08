@@ -170,12 +170,6 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
         <div className={s.container}>
             <p className={s.heading}>Editing your booking.</p>
 
-            {/* Service */}
-            <div className="flex flex-col gap-[2vw]">
-                <span className={s.label}>Service</span>
-                <span className={`w-fit ${s.pill}`}>{booking.serviceID}</span>
-            </div>
-
             {/* Calendar */}
             <div className="flex flex-col gap-[2vw]">
                 <span className={s.label}>Date</span>
