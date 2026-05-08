@@ -53,21 +53,13 @@ export default function SignInPage() {
                             {!mobile && (
                                 <UserStaffToggle selectedType={selectedType} onToggle={setSelectedType} />
                             )}
-                            <div className="flex-1">
-                                {!mobile && selectedType === 'staff' ?
-                                    <StaffSignin key="staff-view"/> :
-                                    <UserSignin key="user-view"/>}
-                                <div className={`flex gap-10 ${mobile ? 'pt-[6vw]' : 'pt-15'}`}>
-                                    <Link to="/signup"
-                                        className={`text-light-purple uppercase underline hover:text-lime-500 ${mobile ? 'text-[3.5vw]' : ''}`}>
-                                        SIGN UP
-                                    </Link>
-                                    <a className={`text-light-purple uppercase underline hover:text-lime-500 ${mobile ? 'text-[3.5vw]' : ''}`}
-                                        href="">
-                                        FORGOT PASSWORD
-                                    </a>
-                                </div>
-                            </div>
+                            {!mobile && selectedType === 'staff' ?
+                                <StaffSignin key="staff-view"/> :
+                                <UserSignin key="user-view"/>}
+                            <Link to="/signup"
+                                className={`text-light-purple uppercase underline hover:text-lime-500 ${mobile ? 'text-[3.5vw]' : ''}`}>
+                                SIGN UP
+                            </Link>
                         </div>
                     </div>
                 </div>
