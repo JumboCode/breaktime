@@ -10,7 +10,7 @@ import { toDateStr } from '/src/utils/general.js';
  *
  * Displays a mini calendar with indicator dots on dates that have bookings:
  *   - Purple dot: date has at least one active booking
- *   - Red dot: date has at least one booking with a pending time extension request
+ *   - Red dot: date has at least one booking with an approved time extension
  *
  * @param {Array}    bookings        - Array of booking objects
  * @param {Function} onViewAllClick  - Called when "View All Bookings" is clicked;
@@ -55,12 +55,8 @@ const SideCalendar = ({ bookings = [], onViewAllClick, onDayClick }) => {
 
       booked.add(dateStr);
 
-      // Mark as pending if there's an unresolved time-extension request
-      if (
-        booking.pendingExtension === true ||
-        booking.requestStatus === 'pending' ||
-        booking.status === 'action pending'
-      ) {
+      // Mark as accommodated if a time extension was approved
+      if (Array.isArray(booking.activity) && booking.activity.some(a => a[0] === 'approved')) {
         pending.add(dateStr);
       }
     });

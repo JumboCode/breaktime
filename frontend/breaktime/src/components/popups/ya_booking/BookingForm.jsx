@@ -210,11 +210,18 @@ export default function BookingForm({ service, onSuccess }) {
                             text-decoration: none;
                             cursor: default;
                         }
+                        .react-calendar__tile:disabled {
+                            background: transparent !important;
+                            color: #262445 !important;
+                            opacity: 20%;
+                            cursor: not-allowed;
+                        }
                     `}</style>
                     <Calendar
                         className="border-none [&&]:!bg-transparent [&&]:!border-0"
                         onChange={handleDateChange}
                         value={selectedDate}
+                        minDate={new Date()}  
                         nextLabel={<ChevronRight strokeWidth={6} color="#B27DED" />}
                         prevLabel={<ChevronLeft strokeWidth={6} color="#B27DED" />}
                         next2Label={null}

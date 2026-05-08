@@ -1,4 +1,5 @@
 import AppointmentCard from "./AppointmentCard";
+import PropTypes from "prop-types";
 import ShowerIcon from '/src/assets/popup-icons/ShowerGreen.png';
 import LaundryIcon from '/src/assets/popup-icons/LaundryGreen.png';
 import MarketIcon from '/src/assets/popup-icons/MarketGreen.png';
@@ -15,7 +16,7 @@ const getServiceIcon = (serviceName) => {
     return null;
 };
 
-export default function AppointmentHistory() {
+export default function AppointmentHistory({ onSelectBooking }) {
     const [filter, setFilter] = useState('all');
     const [bookings, setBookings] = useState([]);
     const { user, isLoaded } = useUser();
@@ -82,8 +83,6 @@ export default function AppointmentHistory() {
                     <p className="text-gray-400 text-[3.5vw] mt-[2vw]">No bookings found.</p>
                 ) : (
                     getFilteredBookings().map((booking, index) => {
-                        const bookingDateTime = new Date(`${booking.timestamp}T${booking.duration?.startTime}`);
-                        const isActive = booking.status === 'confirmed' && bookingDateTime >= new Date();
                         return (
                         <AppointmentCard
                             key={index}
@@ -94,9 +93,8 @@ export default function AppointmentHistory() {
                                 start_time: booking.duration?.startTime,
                                 status: booking.status,
                                 bookingID: booking.bookingID,
-                                isActive,
-                                hasTimeRequest: Array.isArray(booking.activity) && booking.activity.some(a => a[0] === 'time'),
                             }}
+                            onOpen={() => onSelectBooking?.(booking)}
                         />
                         );
                     })
@@ -105,3 +103,7 @@ export default function AppointmentHistory() {
         </div>
     );
 }
+
+AppointmentHistory.propTypes = {
+    onSelectBooking: PropTypes.func,
+};
