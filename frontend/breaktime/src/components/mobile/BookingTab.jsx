@@ -49,7 +49,7 @@ export default function BookingTab({ onBook }) {
 
     return (
         <div>
-            <div className="w-fit h-fit ml-[33px] mt-[23px] flex flex-col text-[14vw] font-extralight">
+            <div className="w-fit font-all h-fit ml-[33px] mt-[23px] flex flex-col text-[14vw] font-extralight">
                 <span className="-my-4">Book</span>
                 <span className="-my-4">Your</span>
                 <span className="text-bright-purple -my-4 font-light">Services</span>
