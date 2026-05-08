@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { apiCall, toDateStr, toDayName, toDisplayTime } from '/src/utils/general.js';
 import { useUser } from '@clerk/clerk-react';
-import { FailurePopup, ConfirmationPopup, SuccessPopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
+import { FailurePopup, ConfirmationPopup, SuccessPopup, DuplicateBookingPopup } from '/src/components/popups/staff_booking/LandingStatusPopups';
 
 const isMobile = () => {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
@@ -16,7 +16,6 @@ export default function BookingForm({ service, onSuccess }) {
     const [selectedTime, setSelectedTime] = useState('');
     const [extraTime, setExtraTime] = useState('');
     const [note, setNote] = useState('');
-    const [clientName, setClientName] = useState('');
     const [userInfoOpen, setUserInfoOpen] = useState(false);
     const [showPopup, setShowPopup] = useState(null);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -106,7 +105,7 @@ export default function BookingForm({ service, onSuccess }) {
     };
 
     const handleSubmit = () => {
-        if (!selectedDate || !selectedTime || !clientName) {
+        if (!selectedDate || !selectedTime) {
             setShowPopup('failure');
         } else {
             setShowPopup('confirmation');
@@ -122,14 +121,14 @@ export default function BookingForm({ service, onSuccess }) {
                 userID: user.username,
                 serviceID: service?.name?.toLowerCase() || "service",
                 duration: { day: toDayName(dateStr), startTime, endTime },
-                clientName: clientName.trim(),
+                clientName: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username,
                 timestamp: dateStr,
                 notes: note,
             }, null);
             setShowPopup('success');
         } catch (error) {
             console.error("Error creating booking:", error);
-            setShowPopup('failure');
+            setShowPopup(error?.status === 409 ? 'duplicate' : 'failure');
         }
     };
 
@@ -143,22 +142,11 @@ export default function BookingForm({ service, onSuccess }) {
                     <span className={s.label}>User Info</span>
                     <ChevronRight strokeWidth={4} color="#B27DED" size={s.chevronSize} />
                     <div className={`${s.badge} bg-[#B9FF00] text-[#2F2F2F] mr-2`}>YA User</div>
-                    <div className={`${s.badge} bg-[#ABB9FF] text-[#2F2F2F]`}>{user.username.toUpperCase()}</div>
+                    <div className={`${s.badge} bg-[#ABB9FF] text-[#2F2F2F]`}>
+                        {([user.firstName, user.lastName].filter(Boolean).join(' ') || user.username).toUpperCase()}
+                    </div>
                 </div>
             </button>
-
-            {userInfoOpen && (
-                <div className="flex items-center gap-[3vw]">
-                    <span className={s.label}>Name</span>
-                    <input
-                        type="text"
-                        value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
-                        placeholder="Enter your name"
-                        className={s.input}
-                    />
-                </div>
-            )}
 
             {/* Calendar */}
             <div className="flex flex-col gap-[2vw]">
@@ -296,6 +284,7 @@ export default function BookingForm({ service, onSuccess }) {
 
             {/* Popups */}
             {showPopup === 'failure' && <FailurePopup onClose={() => setShowPopup(null)} />}
+            {showPopup === 'duplicate' && <DuplicateBookingPopup onClose={() => setShowPopup(null)} />}
             {showPopup === 'confirmation' && (
                 <ConfirmationPopup onClose={() => setShowPopup(null)} onConfirm={handleConfirm} />
             )}

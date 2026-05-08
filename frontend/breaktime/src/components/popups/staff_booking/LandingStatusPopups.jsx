@@ -57,6 +57,29 @@ export const ConfirmationPopup = ({ onClose, onConfirm }) => (
     </div>
 );
 
+export const DuplicateBookingPopup = ({ onClose }) => (
+    <div className="fixed inset-0 bg-opacity-100 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="w-[237px] h-[237px] bg-[#F0F7F2] rounded-3xl px-5 py-4 shadow-lg flex flex-col items-center font-all">
+            <img src={logo} alt="Breaktime Logo" className="w-[41px] h-[41px] mb-1" />
+            <h2 className="text-[20px] font-semibold text-[#262443] mb-2 text-center">
+                Already Booked
+            </h2>
+            <p className="text-sm text-[#262445] mb-6 text-center">
+                You already have a booking <br />
+                for this service today. <br />
+                Only one per day is allowed.
+            </p>
+            <button
+                type="button"
+                onClick={onClose}
+                className="w-[126px] h-[34px] bg-[#ABB9FF] text-[#F0F7F2] font-semibold text-[14px] rounded-2xl hover:scale-105 hover:shadow-xl transition-transform duration-200 ease-out px-4 py-1 shadow-md hover:bg-[#94A5FA]"
+            >
+                Go Back
+            </button>
+        </div>
+    </div>
+);
+
 export const SuccessPopup = ({ onClose }) => (
     <div className="fixed inset-0 bg-opacity-100 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="w-[237px] h-[237px] bg-[#F0F7F2] rounded-3xl px-5 py-4 shadow-lg flex flex-col items-center font-all">
