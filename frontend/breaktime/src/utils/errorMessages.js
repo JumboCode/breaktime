@@ -38,11 +38,6 @@ export const handleAgeKeyDown = (e) => {
     }
 };
 
-export const handleZoneKeyDown = (e) => {
-    if (!/^[a-zA-Z0-9\s,'-]$/.test(e.key) && !controlKeys.includes(e.key)) {
-        e.preventDefault();
-    }
-};
 
 /**
  * validateInput
@@ -71,8 +66,6 @@ export const validateInput = (body, isUserSignup) => {
             return 'Gender entry is too long.';
         if (body.race.length > 50)
             return 'Ethnicity entry is too long.';
-        if (!safeTextRegex.test(body.zone) || body.zone.length > 100)
-            return 'Please enter a valid city or neighborhood.';
     } else {
         // staff-only validation 
         if (!emailRegex.test(body.email))

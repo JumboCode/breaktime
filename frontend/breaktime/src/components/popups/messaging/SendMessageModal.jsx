@@ -11,6 +11,7 @@ export default function SendMessageModal({ role, onClose, onSent, receiverID }) 
     const [showDropdown, setShowDropdown] = useState(false);
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
+    const [sendToAll, setSendToAll] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState("");
     const [searchFocused, setSearchFocused] = useState(false);
@@ -56,7 +57,9 @@ export default function SendMessageModal({ role, onClose, onSent, receiverID }) 
         const receivers = receiverID
             ? [receiverID]
             : role === "staff"
-                ? selectedUsers.map(u => u.username)
+                ? sendToAll
+                    ? namedUsers.map(u => u.username)
+                    : selectedUsers.map(u => u.username)
                 : ["staff-inbox"];
 
         if (role === "staff" && !receiverID && receivers.length === 0) return;
@@ -85,7 +88,8 @@ export default function SendMessageModal({ role, onClose, onSent, receiverID }) 
     };
 
     const isInvalid = !subject.trim() || !body.trim() ||
-        (role === "staff" && !receiverID && selectedUsers.length === 0) ||
+        (role === "staff" && !receiverID && !sendToAll && selectedUsers.length === 0) ||
+        (role === "staff" && !receiverID && sendToAll && namedUsers.length === 0) ||
         sending;
 
     return (
@@ -115,10 +119,32 @@ export default function SendMessageModal({ role, onClose, onSent, receiverID }) 
                     {/* Recipient */}
                     {role === "staff" ? (
                         <div className="flex flex-col gap-1">
-                            <label className="text-[3vw] lg:text-xs font-semibold text-[#6B7280] uppercase tracking-wide">To</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-[3vw] lg:text-xs font-semibold text-[#6B7280] uppercase tracking-wide">To</label>
+                                {!receiverID && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setSendToAll(prev => !prev); setSelectedUsers([]); setSearchQuery(""); }}
+                                        className="text-[2.8vw] lg:text-[11px] font-semibold text-bright-purple hover:text-dark-purple transition-colors cursor-pointer"
+                                    >
+                                        {sendToAll ? "Select individuals" : "Send to everyone"}
+                                    </button>
+                                )}
+                            </div>
                             {receiverID ? (
                                 <div className="bg-light-purple rounded-2xl px-[3vw] lg:px-3 py-[2vw] lg:py-2 text-[3.5vw] lg:text-sm text-[#273991] font-medium opacity-70">
                                     {receiverID}
+                                </div>
+                            ) : sendToAll ? (
+                                <div className="flex items-center gap-2 bg-dark-purple text-white text-[3vw] lg:text-xs px-3 py-1.5 rounded-full w-fit">
+                                    <span>All Young Adults ({namedUsers.length})</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSendToAll(false)}
+                                        className="leading-none hover:text-red-300 cursor-pointer"
+                                    >
+                                        ×
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="relative" ref={searchRef}>

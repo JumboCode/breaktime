@@ -336,7 +336,7 @@ router.post('/deny', async (req, res) => {
  *      summary: Returns all YA and Staff/Admin users (pending + active).
  *
  *      Pending users come from MongoDB requests.accounts (permissionLevel: 0).
- *      YA pending users are enriched with Clerk publicMetadata (age, gender, race, zone).
+ *      YA pending users are enriched with Clerk publicMetadata (age, gender, race).
  *      Active users are pulled from Clerk filtered by permission level
  *      ('1' = YA active, '2' = Staff/Admin active).
  *
@@ -356,10 +356,10 @@ router.get('/accounts', async (_req, res) => {
         const pendingYA    = pendingDocs.filter(u =>  u.username.startsWith('ya_'));
         const pendingStaff = pendingDocs.filter(u => !u.username.startsWith('ya_'));
 
-        // Enrich pending YA users with Clerk publicMetadata (age, gender, race, zone)
+        // Enrich pending YA users with Clerk publicMetadata (age, gender, race)
         let enrichedPendingYA = pendingYA.map(u => ({
             firstName: u.firstName, lastName: u.lastName,
-            username: u.username, age: null, gender: null, ethnicity: null, city: null,
+            username: u.username, age: null, gender: null, ethnicity: null,
             status: 'pending',
         }));
 
@@ -375,7 +375,6 @@ router.get('/accounts', async (_req, res) => {
                 age:       metaByUsername[u.username]?.age       ?? null,
                 gender:    metaByUsername[u.username]?.gender    ?? null,
                 ethnicity: metaByUsername[u.username]?.race      ?? null,
-                city:      metaByUsername[u.username]?.zone      ?? null,
                 status: 'pending',
             }));
         }
@@ -400,7 +399,6 @@ router.get('/accounts', async (_req, res) => {
                 age:       u.publicMetadata?.age       ?? null,
                 gender:    u.publicMetadata?.gender    ?? null,
                 ethnicity: u.publicMetadata?.race      ?? null,
-                city:      u.publicMetadata?.zone      ?? null,
                 status: 'active',
             }));
 

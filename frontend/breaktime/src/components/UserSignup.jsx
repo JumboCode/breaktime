@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiCall } from "/src/utils/general";
-import { validateInput, handleNameKeyDown, handleAgeKeyDown,
-    handleZoneKeyDown } from '../utils/errorMessages';
+import { validateInput, handleNameKeyDown, handleAgeKeyDown } from '../utils/errorMessages';
 
 const isMobile = () => {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1025;
@@ -52,7 +51,6 @@ function UserSignup() {
         gender: "",
         ethnicity: "",
         password: "",
-        zone: "",
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
@@ -75,7 +73,6 @@ function UserSignup() {
             age: Number(formData.age),
             gender: formData.gender,
             race: formData.ethnicity,
-            zone: formData.zone,
         };
         const validationError = validateInput(body, true);
         if (validationError) {
@@ -86,7 +83,7 @@ function UserSignup() {
             try {
                 const res = await apiCall('/user/create', 'POST', body, null);
                 setCredentials({ username: res.username, password: formData.password });
-                setFormData({ firstName: "", lastName: "", age: "", gender: "", ethnicity: "", password: "", zone: "" });
+                setFormData({ firstName: "", lastName: "", age: "", gender: "", ethnicity: "", password: "" });
             } catch (err) {
                 console.error('Signup error', err);
                 setError(err?.statusText || err?.message || 'Failed to create account');
@@ -131,7 +128,7 @@ function UserSignup() {
                                     <option value="" disabled>Gender</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
+                                    <option value="Non-Binary">Non-Binary</option>
                                     <option value="Rather Not Say">Rather Not Say</option>
                                 </select>
                             </div>
@@ -158,11 +155,6 @@ function UserSignup() {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
-                        </div>
-                        <div className={mobile ? 'w-full' : 'w-7/10'}>
-                            <input type="text" id="zone" name="zone"
-                                autoComplete="zone" placeholder="City/Neighborhood"
-                                value={formData.zone} onChange={handleChange} onKeyDown={handleZoneKeyDown} required />
                         </div>
                     </div>
 

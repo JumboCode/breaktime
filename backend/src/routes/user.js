@@ -29,8 +29,6 @@ const clerkClient = require('../utils/clerk');
  *               type: String
  *              race:
  *               type: String
- *              zone:
- *               type: String
  *              required:
  *               - firstName
  *               - lastName
@@ -40,7 +38,6 @@ const clerkClient = require('../utils/clerk');
  *               - age
  *               - gender
  *               - race
- *               - zone
  *      responses:
  *        200:
  *          description: - success message with the new user created
@@ -63,7 +60,7 @@ router.post('/create', async (req, res) => {
                 return res.status(400).send(error.details[0].message);
         } else {
                 // Set req body to individual fields
-                const { firstName, lastName, password, age, gender, race, zone } = req.body;
+                const { firstName, lastName, password, age, gender, race } = req.body;
 
                 // Generate username: [first letter][first 5 of last name][2-digit suffix]
                 let username = await username_generation(collection, firstName, lastName);
@@ -90,7 +87,6 @@ router.post('/create', async (req, res) => {
                                 race: race,
                                 age: age,
                                 gender: gender,
-                                zone: zone
                         }
                 };
 

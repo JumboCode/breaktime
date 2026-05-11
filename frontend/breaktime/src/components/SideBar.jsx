@@ -33,7 +33,7 @@ const SideBar = ({ userType, bookings = [], onViewAllClick, onDayClick, onOpenIn
                             <br />
                             (508) 319 - 1679
                             <br />
-                            info@breaktime.org
+                            resourcehub@breaktime.org
                         </div>
                     </div>
                 </div>

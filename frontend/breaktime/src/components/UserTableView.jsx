@@ -166,7 +166,6 @@ export default function UserTableView() {
         { name: 'Age', selector: row => row.age, sortable: true, width: '80px' },
         { name: 'Gender', selector: row => row.gender },
         { name: 'Ethnicity', selector: row => row.ethnicity },
-        { name: 'City / Neighborhood', selector: row => row.city, grow: 1.2 },
         {
             name: '',
             cell: row => row.status === 'pending'

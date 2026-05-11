@@ -76,7 +76,7 @@ export default function YouthLandingPageMobile() {
                             text-gray-400 text-[3vw]">
                 <span className="flex items-start">
                     Need Help? <br/>
-                    info@breaktime.org
+                    resourcehub@breaktime.org
                 </span>
 
                 <div className="flex items-center gap-2">
