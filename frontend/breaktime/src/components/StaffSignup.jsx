@@ -18,6 +18,7 @@ function StaffSignup() {
     });
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const mobile = isMobile();
 
@@ -28,6 +29,7 @@ function StaffSignup() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        if (isLoading) return;
         setError('');
         setSuccess('');
         const validationError = validateInput(formData, false);
@@ -35,6 +37,7 @@ function StaffSignup() {
             setError(validationError);
             return;
         }
+        setIsLoading(true);
         (async () => {
             try {
                 const res = await apiCall('/staff/create', 'POST',
@@ -44,7 +47,9 @@ function StaffSignup() {
                 navigate('/');
             } catch (err) {
                 console.error('Staff signup error', err);
-                setError(err?.statusText || err?.message || 'Failed to create account');
+                setError(err?.message || err?.statusText || 'Failed to create account');
+            } finally {
+                setIsLoading(false);
             }
         })();
     };
@@ -87,10 +92,10 @@ function StaffSignup() {
                 </div>
 
                 <div className="text-dark-navy">
-                    <button type="submit"
-                        className={`uppercase bg-lime-500 rounded-[18px] font-semibold
+                    <button type="submit" disabled={isLoading}
+                        className={`uppercase bg-lime-500 rounded-[18px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed
                             ${mobile ? 'text-[4vw] w-full h-[12vw]' : 'text-xl w-[260px] h-[48px]'}`}>
-                        Create Account
+                        {isLoading ? 'Creating...' : 'Create Account'}
                     </button>
                 </div>
                 {error && <div className={`text-red mt-2 ${mobile ? 'text-[3.5vw]' : ''}`}>{error}</div>}

@@ -66,6 +66,19 @@ router.post('/create', async (req, res) => {
                         permissionLevel: 0 
                 };
 
+                // Check for duplicate email or username in Clerk before creation
+                const emailCheck = await clerkClient.users.getUserList({ emailAddress: [email] });
+                const emailList = Array.isArray(emailCheck) ? emailCheck : emailCheck?.data || [];
+                if (emailList.length > 0) {
+                        return res.status(400).json({ message: 'That email address is already in use.' });
+                }
+
+                const usernameCheck = await clerkClient.users.getUserList({ username: [username] });
+                const usernameList = Array.isArray(usernameCheck) ? usernameCheck : usernameCheck?.data || [];
+                if (usernameList.length > 0) {
+                        return res.status(400).json({ message: 'That username is already taken.' });
+                }
+
                 // For CLERK = populate mostly the same fields
                 const clerkUser = {
                         username: username,

@@ -97,9 +97,7 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                     >
                         View Inbox
                     </button>
-                </div>
-            :
-                <div className="ml-auto">
+                    
                     <button
                         onClick={() => handleSignOut()}
                         className="text-dark-navy text-xl cursor-pointer hover:underline hover:font-semibold"
@@ -107,6 +105,8 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                         Sign Out
                     </button>
                 </div>
+            :
+                <></>
             }
         </div>
     );

@@ -112,8 +112,8 @@ export default function UserTableView() {
     const [error, setError] = useState(null);
     const [confirm, setConfirm] = useState(null); // { action: 'approve'|'deny', username }
 
-    const fetchAccounts = useCallback(async () => {
-        setLoading(true);
+    const fetchAccounts = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
         setError(null);
         try {
             const data = await apiCall('/admin/accounts', 'GET', null, null);
@@ -123,11 +123,15 @@ export default function UserTableView() {
             console.error('Failed to fetch accounts:', err);
             setError('Could not load users. Please try again.');
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, []);
 
-    useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
+    useEffect(() => {
+        fetchAccounts();
+        const interval = setInterval(() => fetchAccounts(true), 15000);
+        return () => clearInterval(interval);
+    }, [fetchAccounts]);
 
     const requestConfirm = (action, username, displayName) => setConfirm({ action, username, displayName: displayName ?? username });
 
@@ -163,6 +167,7 @@ export default function UserTableView() {
     const yaColumns = [
         { name: 'First Name', selector: row => row.firstName, sortable: true, cell: row => <span className="font-medium">{row.firstName}</span> },
         { name: 'Last Name', selector: row => row.lastName, sortable: true },
+        { name: 'Username', selector: row => row.username, sortable: true },
         { name: 'Age', selector: row => row.age, sortable: true, width: '80px' },
         { name: 'Gender', selector: row => row.gender },
         { name: 'Ethnicity', selector: row => row.ethnicity },
@@ -179,8 +184,8 @@ export default function UserTableView() {
     const staffColumns = [
         { name: 'First Name', selector: row => row.firstName, sortable: true, cell: row => <span className="font-medium">{row.firstName}</span> },
         { name: 'Last Name', selector: row => row.lastName, sortable: true },
+        { name: 'Username', selector: row => row.username, sortable: true },
         { name: 'Email', selector: row => row.email, grow: 1.5 },
-        { name: 'Username', selector: row => row.username },
         {
             name: '',
             cell: row => row.status === 'pending'

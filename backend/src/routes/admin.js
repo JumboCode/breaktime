@@ -144,25 +144,10 @@ router.post('/approve', async (req, res) => {
             });
         }
 
-        // Determine permission level based on username prefix
-        const permissionLevel = username.startsWith('ya_') ? 1 : 2;
-
-        // Update permission level in MongoDB
-        const result = await collection.updateOne(
-            { username },
-            { $set: { permissionLevel } }
-        );
-        if (result.modifiedCount === 0) {
-            return res.status(500).send({
-                message: 'Failed to update permission level'
-            });
-        }
-
-        // Update permission level in Clerk
+        // Fetch Clerk user first to determine account type from publicMetadata
         let clerkUsers;
         try {
             clerkUsers = await clerkClient.users.getUserList({ username: [username] });
-
         } catch (clerkError) {
             console.error('Error fetching user from Clerk:', clerkError);
             return res.status(500).send({
@@ -182,6 +167,20 @@ router.post('/approve', async (req, res) => {
 
         const clerkUser = userList[0];
         const clerkUserId = clerkUser.id;
+
+        // YA accounts have age in publicMetadata; staff accounts do not
+        const permissionLevel = clerkUser.publicMetadata?.age != null ? 1 : 2;
+
+        // Update permission level in MongoDB
+        const result = await collection.updateOne(
+            { username },
+            { $set: { permissionLevel } }
+        );
+        if (result.modifiedCount === 0) {
+            return res.status(500).send({
+                message: 'Failed to update permission level'
+            });
+        }
 
         // Update permission + persist name from MongoDB into Clerk
         try {
@@ -353,32 +352,27 @@ router.get('/accounts', async (_req, res) => {
         const collection = client.db('requests').collection('accounts');
         const pendingDocs = await collection.find({ permissionLevel: 0 }).toArray();
 
-        const pendingYA    = pendingDocs.filter(u =>  u.username.startsWith('ya_'));
-        const pendingStaff = pendingDocs.filter(u => !u.username.startsWith('ya_'));
-
-        // Enrich pending YA users with Clerk publicMetadata (age, gender, race, zone)
-        let enrichedPendingYA = pendingYA.map(u => ({
-            firstName: u.firstName, lastName: u.lastName,
-            username: u.username, age: null, gender: null, ethnicity: null, city: null,
-            status: 'pending',
-        }));
-
-        if (pendingYA.length > 0) {
-            const usernames = pendingYA.map(u => u.username);
+        // Fetch Clerk metadata for all pending users to classify by age field
+        let metaByUsername = {};
+        if (pendingDocs.length > 0) {
+            const usernames = pendingDocs.map(u => u.username);
             const clerkResp = await clerkClient.users.getUserList({ username: usernames, limit: 200 });
             const clerkList = Array.isArray(clerkResp) ? clerkResp : clerkResp?.data || [];
-            const metaByUsername = Object.fromEntries(clerkList.map(cu => [cu.username, cu.publicMetadata]));
-
-            enrichedPendingYA = pendingYA.map(u => ({
-                firstName: u.firstName, lastName: u.lastName,
-                username: u.username,
-                age:       metaByUsername[u.username]?.age       ?? null,
-                gender:    metaByUsername[u.username]?.gender    ?? null,
-                ethnicity: metaByUsername[u.username]?.race      ?? null,
-                city:      metaByUsername[u.username]?.zone      ?? null,
-                status: 'pending',
-            }));
+            metaByUsername = Object.fromEntries(clerkList.map(cu => [cu.username, cu.publicMetadata]));
         }
+
+        // YA accounts have age in publicMetadata; staff accounts do not
+        const pendingYA    = pendingDocs.filter(u => metaByUsername[u.username]?.age != null);
+        const pendingStaff = pendingDocs.filter(u => metaByUsername[u.username]?.age == null);
+
+        const enrichedPendingYA = pendingYA.map(u => ({
+            firstName: u.firstName, lastName: u.lastName,
+            username: u.username,
+            age:       metaByUsername[u.username]?.age       ?? null,
+            gender:    metaByUsername[u.username]?.gender    ?? null,
+            ethnicity: metaByUsername[u.username]?.race      ?? null,
+            status: 'pending',
+        }));
 
         const formattedPendingStaff = pendingStaff.map(u => ({
             firstName: u.firstName, lastName: u.lastName,
@@ -400,7 +394,6 @@ router.get('/accounts', async (_req, res) => {
                 age:       u.publicMetadata?.age       ?? null,
                 gender:    u.publicMetadata?.gender    ?? null,
                 ethnicity: u.publicMetadata?.race      ?? null,
-                city:      u.publicMetadata?.zone      ?? null,
                 status: 'active',
             }));
 

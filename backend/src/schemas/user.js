@@ -6,8 +6,7 @@ const userSchema = Joi.object({
     password: Joi.string().required(),
     age: Joi.number().integer().positive().required(),
     gender: Joi.string().required(),
-    race: Joi.string().required(),
-    zone: Joi.string().required()
+    race: Joi.string().required()
 });
 
 const usernameSchema = Joi.object({

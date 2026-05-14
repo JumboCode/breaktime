@@ -122,7 +122,6 @@ export default function HomePage() {
 
                     <div>
                         <div className="inline-flex gap-2">
-                            {/* search bar itself*/}
                             <input
                                 className="text-dark-navy opacity-80 border-2 border-bright-purple rounded-2xl pl-5 pr-5 pt-0 pb-0 bg-none w-70"
                                 type="text"
@@ -130,17 +129,14 @@ export default function HomePage() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="search for services..."
                             />
-                            
-                            {/* Left Button */}
-                            <img 
-                                src={`${CarouselButton}`} 
-                                className="rotate-180 scale-75 hover:cursor-pointer" 
+                            <img
+                                src={CarouselButton}
+                                className="rotate-180 scale-75 hover:cursor-pointer"
                                 onClick={scrollPrev}
                             />
-                            {/* Right Button*/}
-                            <img 
-                                src={`${CarouselButton}`} 
-                                className="scale-75 hover:cursor-pointer" 
+                            <img
+                                src={CarouselButton}
+                                className="scale-75 hover:cursor-pointer"
                                 onClick={scrollNext}
                             />
                         </div>
@@ -149,21 +145,16 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* Infinite image carousel (dynamic) */}
                     {resourceTileList.length === 0 ? (
-                        <div>
-                            No services available!
-                        </div>
+                        <div>No services available!</div>
                     ) : filteredResourceTiles.length === 0 ? (
-                        <div>
-                            No services match this search!
-                        </div>
+                        <div>No services match this search!</div>
                     ) : (
                         <div className="overflow-hidden" ref={emblaRef}>
                             <div className="flex gap-10">
                                 {filteredResourceTiles.map((resource, index) => (
-                                    <div key={index} className="flex-shrink-0">
-                                       <CarouselItem service={resource} />
+                                    <div key={index} className="flex-[0_0_auto]">
+                                        <CarouselItem service={resource} />
                                     </div>
                                 ))}
                             </div>

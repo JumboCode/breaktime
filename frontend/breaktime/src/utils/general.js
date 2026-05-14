@@ -37,7 +37,12 @@ export const apiCall = async (url, method, body, token) => {
 
   if (!response.ok) {
     console.error(response);
-    throw { status: response.status, statusText: response.statusText };
+    let message;
+    try {
+      const body = await response.json();
+      message = body?.message;
+    } catch {}
+    throw { status: response.status, statusText: response.statusText, message };
   }
 
   const contentType = response.headers.get('content-type');
