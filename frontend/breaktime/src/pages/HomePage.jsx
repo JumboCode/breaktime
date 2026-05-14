@@ -29,6 +29,7 @@ export default function HomePage() {
     const [bookings, setBookings] = useState([]);
     const [calendarDate, setCalendarDate] = useState(new Date());
     const [notifications, setNotifications] = useState([]);
+    const [pendingNotificationID, setPendingNotificationID] = useState(null);
     const { user, isLoaded } = useUser();
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -64,14 +65,13 @@ export default function HomePage() {
      *
      * @param {Date} date - The date whose month/year to fetch bookings for
      */
-    const fetchMonthlyBookings = useCallback(async (date = new Date()) => {
-        const month = date.getMonth() + 1; // JS months are 0-indexed, API expects 1-indexed
-        const year = date.getFullYear();
-
+    const fetchMonthlyBookings = useCallback(async () => {
         try {
             // TODO (Backend Integration): Once the GET /booking/monthlyBookings endpoint is
             // implemented, replace the line below with:
             //
+            //   const month = date.getMonth() + 1; // JS months are 0-indexed, API expects 1-indexed
+            //   const year = date.getFullYear();
             //   const response = await apiCall(
             //     `/booking/monthlyBookings?month=${month}&year=${year}`,
             //     'GET', null, null
@@ -151,6 +151,7 @@ export default function HomePage() {
                             onViewAllClick={(widgetDate) => setCalendarDate(widgetDate)}
                             onDayClick={(date) => setCalendarDate(date)}
                             onOpenInbox={() => setCurrentView('inbox')}
+                            onOpenNotification={(n) => { setCurrentView('inbox'); setPendingNotificationID(n._id); }}
                             unreadCount={unreadCount}
                             notifications={notifications}
                             onDismiss={(id) => {
@@ -162,7 +163,13 @@ export default function HomePage() {
 
                     <div className={`h-[calc(100vh-120px)] relative border-none rounded-[20px] font-all ${isSidebarOpen ? 'w-[calc(100vw-440px)]' : 'w-[calc(100vw-60px)]'} ${currentView === 'inbox' || currentView === 'users' ? '' : 'bg-staff-main-comp-bg text-cal-font'}`}>
                         {currentView === 'inbox' ? (
-                            <InboxView messages={notifications} setMessages={setNotifications} userRole="staff" />
+                            <InboxView
+                                messages={notifications}
+                                setMessages={setNotifications}
+                                userRole="staff"
+                                pendingNotificationID={pendingNotificationID}
+                                onClearPendingNotification={() => setPendingNotificationID(null)}
+                            />
                         ) : currentView === 'users' ? (
                             <UserTableView />
                         ) : (

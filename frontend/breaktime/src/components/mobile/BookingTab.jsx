@@ -4,6 +4,7 @@ import MobileCarouselItem from "/src/components/mobile/YACarouselItem";
 import LaundryCarouselImage from "/src/assets/carousel/LaundryCarouselImage.png";
 import ShowerCarouselImage from "/src/assets/carousel/ShowerCarouselImage.png";
 import StoreCarouselImage from "/src/assets/carousel/StoreCarouselImage.png";
+import LaptopCarouselImage from "/src/assets/carousel/LaptopCarouselImage.png";
 import DefaultServiceImage from "/src/assets/popup-icons/ServiceImage.png";
 import useEmblaCarousel from 'embla-carousel-react';
 import PropTypes from "prop-types";
@@ -13,6 +14,7 @@ const SERVICE_IMAGES = {
     'shower': ShowerCarouselImage,
     'laundry': LaundryCarouselImage,
     'store': StoreCarouselImage,
+    'laptop': LaptopCarouselImage,
 };
 
 const toTitleCase = (s) => s.replace(/\b\w/g, c => c.toUpperCase());

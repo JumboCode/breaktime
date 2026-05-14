@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { apiCall } from "../utils/general";
 import InboxBookingSlideOut from "./inboxSlideOut/InboxSlideOut";
@@ -117,7 +117,7 @@ function mapActivities(activities = []) {
     });
 }
 
-export default function InboxView({ messages = [], setMessages, userRole = "staff" }) {
+export default function InboxView({ messages = [], setMessages, userRole = "staff", pendingNotificationID = null, onClearPendingNotification }) {
     const [activeTab, setActiveTab] = useState('all');
     const [readFilter, setReadFilter] = useState('all');
     const [slideOutBooking, setSlideOutBooking] = useState(null);
@@ -132,6 +132,24 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
         apiCall('/notification/markRead', 'PATCH', { _id: id, isRead: newIsRead }, null)
             .catch(err => console.error('Failed to update read status:', err));
     };
+
+    useEffect(() => {
+        if (!pendingNotificationID || messages.length === 0) return;
+        const msg = messages.find(m => m._id === pendingNotificationID);
+        if (!msg) return;
+        if (!msg.isRead) {
+            setMessages(prev => prev.map(m => m._id === msg._id ? { ...m, isRead: true } : m));
+            apiCall('/notification/markRead', 'PATCH', { _id: msg._id, isRead: true }, null).catch(() => {});
+        }
+        if (msg.type === 'MESSAGE') {
+            setSlideOutBooking({ ...msg, isMessage: true });
+        } else if (msg.bookingID) {
+            apiCall(`/booking/getByBookingID?bookingID=${msg.bookingID}`, 'GET', null, null)
+                .then(data => setSlideOutBooking({ ...data.booking, activity: mapActivities(data.booking.activity) }))
+                .catch(() => setSlideOutBooking({ activity: [] }));
+        }
+        onClearPendingNotification?.();
+    }, [pendingNotificationID, messages, setMessages, onClearPendingNotification]);
 
     const filteredMessages = messages.filter(msg => {
         const tabMatch =
@@ -169,6 +187,7 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
             {label}{count !== undefined ? <span className="ml-2 bg-white text-dark-purple rounded-full px-1">{count}</span> : ''}
         </button>
     );
+    TabBtn.propTypes = { tabKey: PropTypes.string.isRequired, label: PropTypes.string.isRequired, count: PropTypes.number };
 
     const FilterBtn = ({ filterKey, label }) => (
         <button
@@ -181,6 +200,7 @@ export default function InboxView({ messages = [], setMessages, userRole = "staf
             {label}
         </button>
     );
+    FilterBtn.propTypes = { filterKey: PropTypes.string.isRequired, label: PropTypes.string.isRequired };
 
     const unreadCount = messages.filter(m => !m.isRead).length;
     const unreadActionCount = messages.filter(m => !m.isRead && m.type === 'ALERT').length;
@@ -258,4 +278,6 @@ InboxView.propTypes = {
     messages: PropTypes.array,
     setMessages: PropTypes.func,
     userRole: PropTypes.string,
+    pendingNotificationID: PropTypes.string,
+    onClearPendingNotification: PropTypes.func,
 };

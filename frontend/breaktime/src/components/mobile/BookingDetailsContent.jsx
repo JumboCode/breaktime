@@ -26,13 +26,13 @@ const formatTime = (timeStr) => {
     return `${hour}:${String(m).padStart(2, '0')} ${period}`;
 };
 
-export default function BookingDetailsContent({ booking, isActive, onEdit, onCancel }) {
+export default function BookingDetailsContent({ booking, isActive, onEdit, onCancel, forceDesktop = false }) {
     const [showPopup, setShowPopup] = useState(null);
     const [showNoteInput, setShowNoteInput] = useState(false);
     const [noteText, setNoteText] = useState(booking.notes || '');
     const [noteSent, setNoteSent] = useState(false);
 
-    const mobile = isMobile();
+    const mobile = !forceDesktop && isMobile();
 
     const s = mobile ? {
         container: "flex flex-col gap-[4vw] font-poppins",
@@ -100,7 +100,7 @@ export default function BookingDetailsContent({ booking, isActive, onEdit, onCan
                     <span className={s.pill}>{startTime}</span>
                     {endTime && (
                         <>
-                            <span className="text-gray-400 text-[3.5vw]">to</span>
+                            <span className={`text-gray-400 ${mobile ? 'text-[3.5vw]' : 'font-medium'}`}>to</span>
                             <span className={s.pill}>{endTime}</span>
                         </>
                     )}
@@ -179,4 +179,5 @@ BookingDetailsContent.propTypes = {
     isActive: PropTypes.bool.isRequired,
     onEdit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    forceDesktop: PropTypes.bool,
 };

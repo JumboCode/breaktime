@@ -122,6 +122,16 @@ export default function SendMessageModal({ role, onClose, onSent, receiverID }) 
                                 </div>
                             ) : (
                                 <div className="relative" ref={searchRef}>
+                                    {/* Send to All button */}
+                                    <div className="flex justify-end mb-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedUsers(namedUsers)}
+                                            className="text-[3vw] lg:text-xs text-dark-purple underline cursor-pointer hover:text-bright-purple transition-colors"
+                                        >
+                                            Send to All
+                                        </button>
+                                    </div>
                                     {/* Selected user chips */}
                                     {selectedUsers.length > 0 && (
                                         <div className="flex flex-wrap gap-1 mb-1.5">

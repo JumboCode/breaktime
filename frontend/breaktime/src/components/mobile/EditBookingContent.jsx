@@ -86,7 +86,7 @@ const calculateTimes = (timeSlot) => {
     return { startTime, endTime };
 };
 
-export default function EditBookingContent({ booking, onCancel, onSuccess }) {
+export default function EditBookingContent({ booking, onCancel, onSuccess, forceDesktop = false }) {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState('');
     const [showPopup, setShowPopup] = useState(null);
@@ -99,7 +99,7 @@ export default function EditBookingContent({ booking, onCancel, onSuccess }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const mobile = isMobile();
+    const mobile = !forceDesktop && isMobile();
 
     const s = mobile ? {
         container: "flex flex-col gap-[3vw] font-poppins",
@@ -239,4 +239,5 @@ EditBookingContent.propTypes = {
     booking: PropTypes.object.isRequired,
     onCancel: PropTypes.func.isRequired,
     onSuccess: PropTypes.func.isRequired,
+    forceDesktop: PropTypes.bool,
 };

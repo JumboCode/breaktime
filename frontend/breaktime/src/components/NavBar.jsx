@@ -1,6 +1,6 @@
 import Breaktime_Secondary_Logo_SkyBlue from "/src/assets/logos-icons/Logo_Secondary/Breaktime_Secondary_SkyBlue.png";
 import Breaktime_Secondary_Logo_MidnightBlue from "/src/assets/logos-icons/Logo_Secondary/Breaktime_Secondary_MidnightBlue.png";
-import { useState } from "react";
+import PropTypes from "prop-types";
 import { useClerk } from '@clerk/clerk-react';
 
 const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, unreadCount = 0 }) => {
@@ -78,14 +78,21 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
                 <div className="flex items-end text-dark-navy text-xl gap-[20px]">
                     <button
                         onClick={() => onViewChange('services')}
-                        className={`cursor-pointer hover:underline w-[93px]
+                        className={`cursor-pointer hover:underline
                             ${currentView === 'services' ? 'underline font-semibold' : 'hover:font-semibold'}`}
                     >
                         Services
                     </button>
                     <button
+                        onClick={() => onViewChange('appointments')}
+                        className={`cursor-pointer hover:underline
+                            ${currentView === 'appointments' ? 'underline font-semibold' : 'hover:font-semibold'}`}
+                    >
+                        Appointments
+                    </button>
+                    <button
                         onClick={() => onViewChange('inbox')}
-                        className={`cursor-pointer hover:underline w-[110px]
+                        className={`cursor-pointer hover:underline
                             ${currentView === 'inbox' ? 'underline font-semibold' : 'hover:font-semibold'}`}
                     >
                         View Inbox
@@ -103,6 +110,15 @@ const NavBar = ({ isSidebarOpen, onToggle, userType, currentView, onViewChange, 
             }
         </div>
     );
+};
+
+NavBar.propTypes = {
+    isSidebarOpen: PropTypes.bool,
+    onToggle: PropTypes.func,
+    userType: PropTypes.string,
+    currentView: PropTypes.string,
+    onViewChange: PropTypes.func,
+    unreadCount: PropTypes.number,
 };
 
 export default NavBar;

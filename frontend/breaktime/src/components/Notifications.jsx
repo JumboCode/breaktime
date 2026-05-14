@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 function getTimeAgo(timestamp) {
     const then = new Date(timestamp);
     if (isNaN(then.getTime())) return timestamp;
@@ -16,7 +18,7 @@ function getTimeAgo(timestamp) {
     }
 }
 
-const Notifications = ({ userType, onOpenInbox, unreadCount = 0, notifications = [], onDismiss }) => {
+const Notifications = ({ userType, onOpenInbox, unreadCount = 0, notifications = [], onDismiss, onOpenNotification }) => {
     const visible = notifications.filter(n => !n.wasNotified && !n.isRead);
 
     // Colors that change based on Staff view vs YA view
@@ -52,7 +54,10 @@ const Notifications = ({ userType, onOpenInbox, unreadCount = 0, notifications =
                                     <p className="text-sm mt-1">{getTimeAgo(notification.timestamp)}</p>
                                 </div>
 
-                                <button className="px-3 py-[2px] absolute bottom-[2px] right-2 border-1 border-lime-500 text-white rounded-full text-sm cursor-pointer hover:bg-lime-500 hover:text-dark-navy transition-colors">
+                                <button
+                                    onClick={() => onOpenNotification?.(notification)}
+                                    className="px-3 py-[2px] absolute bottom-[2px] right-2 border-1 border-lime-500 text-white rounded-full text-sm cursor-pointer hover:bg-lime-500 hover:text-dark-navy transition-colors"
+                                >
                                     More
                                 </button>
 
@@ -69,6 +74,15 @@ const Notifications = ({ userType, onOpenInbox, unreadCount = 0, notifications =
             </div>
         </div>
     );
+};
+
+Notifications.propTypes = {
+    userType: PropTypes.string,
+    onOpenInbox: PropTypes.func,
+    unreadCount: PropTypes.number,
+    notifications: PropTypes.array,
+    onDismiss: PropTypes.func,
+    onOpenNotification: PropTypes.func,
 };
 
 export default Notifications;

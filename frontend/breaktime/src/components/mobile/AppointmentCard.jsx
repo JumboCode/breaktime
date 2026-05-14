@@ -21,7 +21,7 @@ const getTimeUntil = (service_date, start_time) => {
         return `${diffDays} day${diffDays === 1 ? '' : 's'} away`;
     } else {
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        return `${diffHours} hr${diffHours === 1 ? '' : 's'} away`;
+        return diffHours === 0 ? 'Now' : `${diffHours} hr${diffHours === 1 ? '' : 's'} away`;
     }
 };
 
