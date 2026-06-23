@@ -95,13 +95,6 @@ function CustomToolbar({ label, onNavigate, onView, view, onAddNew }) {
           <button onClick={() => onNavigate("NEXT")}></button>
         </span>
 
-        <span className="scheduling-color-bar">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </span>
-
         <span className="rbc-btn-group view-group calendar-nav-buttons">
           <button
             className={view === "month" ? "active-calendar-view" : ""}
