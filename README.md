@@ -2,7 +2,7 @@
 
 A Progressive Web App (PWA) for scheduling and messaging between youth (YA) users and staff at [Breaktime](https://www.breaktime.org). Built by JumboCode 2025–2026.
 
-**Technical Lead:** Yoda Ermias | **Project Manager:** Luis Suarez | **Designer:** Allen Wang
+**Project Manager:** Luis Suarez | **Technical Lead:** Yoda Ermias | **Designer:** Allen Wang
 
 ---
 
